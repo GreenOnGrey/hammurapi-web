@@ -58,8 +58,13 @@
     "errors": {
       "state": "登录链接已过期，请重试。",
       "denied": "未获授权，请重试。",
-      "failed": "登录失败。请重试或联系管理员。"
-    }
+      "failed": "登录失败。请重试或联系管理员。",
+      "not_org_member": "您的账户不是所需组织的成员。",
+      "no_verified_email": "该账户没有已验证的邮箱。",
+      "email_not_verified": "提供方未确认您的邮箱。"
+    },
+    "corporate": "请使用公司账户登录。",
+    "orgOnly": "仅 {org} 组织的成员可以登录。"
   },
   "top": {
     "search": "搜索功能和 ID",
@@ -381,7 +386,16 @@
       "globalHint": "用户、字典、设置",
       "save": "保存角色",
       "saved": "角色已保存",
-      "expertsHint": "专家在“领域与系统”中按领域指派。"
+      "expertsHint": "专家在“领域与系统”中按领域指派。",
+      "signIn": "登录",
+      "gitAccount": "Git 账户",
+      "viaNabu": "由 Nabu 智能体创建",
+      "unlinked": "待核对的新用户",
+      "unlinkedHint": "他们首次登录，且与已知用户相似。绑定账户以保留角色和历史，或确认这是新用户。",
+      "noCandidates": "没有相似的用户",
+      "link": "关联",
+      "confirmNew": "这是新用户",
+      "linkDone": "已保存"
     },
     "domains": {
       "title": "领域和系统",
@@ -645,6 +659,31 @@
         "system": "系统",
         "selfApproved": "作者自行批准"
       }
+    },
+    "nabu": {
+      "title": "Nabu",
+      "intro": "Hammurapi 的智能体运行在 Nabu 中：聊天是用户的个人智能体，周期中的场景由 Nabu 的服务智能体执行。",
+      "connection": "连接",
+      "notConfigured": "未配置 Nabu：请在部署时设置 NABU_URL、NABU_CLIENT_ID 和 NABU_CLIENT_SECRET。",
+      "url": "地址",
+      "client": "客户端",
+      "status": "状态",
+      "connected": "已连接",
+      "unreachable": "无法访问",
+      "scenarios": "场景",
+      "scenariosHint": "每个场景由哪个 Nabu 服务智能体执行。列表显示 Nabu 允许 Hammurapi 使用的智能体。",
+      "scenario": "场景",
+      "agent": "服务智能体",
+      "builtin": "— 内置智能体 —",
+      "saved": "绑定已保存",
+      "transfer": "迁移到 Nabu",
+      "transferHint": "将带密钥的 LLM 连接、场景模型、MCP 服务器和技能来源迁移到 Nabu，并将场景绑定到新建的智能体。密钥直接在服务之间传输。",
+      "transferDone": "设置已迁移。再次迁移会更新 Nabu 中的相同对象。",
+      "transferButton": "迁移到 Nabu",
+      "transferAgain": "再次迁移",
+      "transferConfirm": "将智能体设置迁移到 Nabu？如果 Nabu 拒绝，Hammurapi 中不会有任何变化。",
+      "report": "已在 Nabu 中创建",
+      "skipped": "{count, plural, other {跳过 # 项}}"
     }
   },
   "errors": {
@@ -755,7 +794,15 @@
     "spec_document_not_found": "规范中没有此文档。",
     "spec_file_not_found": "规范中没有此文件。",
     "spec_file_too_large": "文件太大，无法打开；请下载。",
-    "invalid_interval": "请选择提供的周期之一。"
+    "invalid_interval": "请选择提供的周期之一。",
+    "git_account_required": "请绑定 git 账户以保存此修改。",
+    "git_account_taken": "该 git 账户已绑定到其他用户。",
+    "agent_disabled": "未连接智能体：此操作不可用。",
+    "nabu_unavailable": "智能体暂时不可用",
+    "nabu_agent_not_allowed": "Nabu 不允许 Hammurapi 使用该智能体。",
+    "email_required": "您的账户没有邮箱：智能体通过邮箱识别用户。",
+    "nabu_not_bound": "该场景未绑定 Nabu 服务智能体。请在“管理 → Nabu”中绑定。",
+    "git_account_is_login": "该 git 账户是您的登录账户，无法解绑。"
   },
   "stages": {
     "title": "阶段",
@@ -949,7 +996,9 @@
     "merge": "合并",
     "move": "迁移",
     "history": "历史",
-    "analysis": "分析"
+    "analysis": "分析",
+    "editDiscovery": "填写分析",
+    "manualDiscovery": "智能体未连接：请手动填写价值和衡量方式以接受该问题。"
   },
   "accept": {
     "title": "接受 {key}",
@@ -1315,5 +1364,47 @@
     "syncCatalog": "同步目录",
     "catalogSynced": "目录已同步",
     "extraCheck": "领域或系统一出现，额外的检查就会索引等待它的规范。"
+  },
+  "gitLink": {
+    "title": "绑定您的 {provider} 账户",
+    "why": "规格的修改会以您的名义提交到 {provider}。请绑定 {provider} 账户以保存此修改。",
+    "kept": "您的修改会被保留，返回后立即保存。",
+    "link": "绑定 {provider}",
+    "linked": "{provider} 账户已绑定",
+    "repeated": "账户已绑定，修改已保存",
+    "failed": "无法绑定 git 账户，请重试。",
+    "taken": "该 git 账户已绑定到其他用户。"
+  },
+  "accounts": {
+    "title": "账户",
+    "signIn": "登录 · {provider}",
+    "git": "Git 账户 · {provider}",
+    "link": "绑定",
+    "unlink": "解绑",
+    "gitHint": "编辑规格时需要：提交将以您的名义进行。"
+  },
+  "nabu": {
+    "tones": {
+      "business": "商务",
+      "friendly": "友好",
+      "brief": "简洁",
+      "mentor": "导师"
+    },
+    "toneHint": "名称和语气保存在 Nabu 中，在所有渠道生效：这里、Nabu 和 Telegram。",
+    "conversation": "对话",
+    "mainConversation": "主对话",
+    "newTopic": "新主题",
+    "topicTitle": "主题名称",
+    "noContext": "打开问题、功能或发布时，其上下文会附加到消息中。",
+    "empty": "这是与 {name} 的同一对话，与 Nabu 和 Telegram 中相同。尽管提问。",
+    "channels": {
+      "web": "Nabu",
+      "telegram": "Telegram",
+      "client": "Hammurapi"
+    }
+  },
+  "noAgent": {
+    "title": "智能体未连接",
+    "text": "将 Hammurapi 连接到 Nabu 后即可使用聊天、问题分析和生成功能。请联系管理员。"
   }
 }

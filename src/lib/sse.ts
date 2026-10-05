@@ -8,7 +8,10 @@ export type EventType =
   | "issue.updated" | "discovery.progress" | "feature.updated" | "task.progress" | "validation.updated"
   | "release.updated" | "release.blocked" | "focus.changed" | "spec.index_updated"
   | "approvals.changed" | "import.progress"
-  | "chat.error" | "chat.model" | "agent.connection_status";
+  | "chat.error" | "chat.model" | "agent.connection_status"
+  // FTR.HMR.CMN-0006: the stream of the personal agent in Nabu, relayed by api.
+  | "nabu.message.created" | "nabu.message.delta" | "nabu.message.done" | "nabu.tool.step"
+  | "nabu.conversation.updated" | "nabu.agent.updated" | "nabu.connected" | "nabu.disconnected";
 
 const TYPES: EventType[] = [
   "agent.token", "agent.tool_call", "agent.done", "agent.error",
@@ -16,6 +19,8 @@ const TYPES: EventType[] = [
   "issue.updated", "discovery.progress", "feature.updated", "task.progress", "validation.updated",
   "release.updated", "release.blocked", "focus.changed", "spec.index_updated",
   "chat.error", "chat.model", "agent.connection_status",
+  "nabu.message.created", "nabu.message.delta", "nabu.message.done", "nabu.tool.step",
+  "nabu.conversation.updated", "nabu.agent.updated", "nabu.connected", "nabu.disconnected",
 ];
 
 type Handler = (data: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any

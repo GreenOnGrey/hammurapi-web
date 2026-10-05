@@ -2570,3 +2570,13 @@ select.inp.inherit {
   .topbar > .search { margin-left: auto; }
   .topbar > .search + .top-actions { margin-left: 0; }
 }
+
+/* FTR.HMR.CMN-0006: the mode without the agent */
+.noagent {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-m);
+  padding: 18px;
+  text-align: center;
+  color: var(--text-2);
+  background: var(--surface-2);
+}

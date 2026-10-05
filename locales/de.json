@@ -58,8 +58,13 @@
     "errors": {
       "state": "Der Anmeldelink ist abgelaufen. Bitte erneut versuchen.",
       "denied": "Der Zugriff wurde nicht gewährt. Bitte erneut versuchen.",
-      "failed": "Anmeldung fehlgeschlagen. Versuchen Sie es erneut oder wenden Sie sich an Ihren Administrator."
-    }
+      "failed": "Anmeldung fehlgeschlagen. Versuchen Sie es erneut oder wenden Sie sich an Ihren Administrator.",
+      "not_org_member": "Ihr Konto ist kein Mitglied der erforderlichen Organisation.",
+      "no_verified_email": "Das Konto hat keine bestätigte E-Mail-Adresse.",
+      "email_not_verified": "Der Anbieter hat Ihre E-Mail-Adresse nicht bestätigt."
+    },
+    "corporate": "Verwenden Sie Ihr Unternehmenskonto.",
+    "orgOnly": "Nur Mitglieder der Organisation {org} können sich anmelden."
   },
   "top": {
     "search": "Features und IDs suchen",
@@ -381,7 +386,16 @@
       "globalHint": "Benutzer, Verzeichnis, Einstellungen",
       "save": "Rollen speichern",
       "saved": "Rollen gespeichert",
-      "expertsHint": "Experten werden unter „Domänen und Systeme“ zugewiesen."
+      "expertsHint": "Experten werden unter „Domänen und Systeme“ zugewiesen.",
+      "signIn": "Anmeldung",
+      "gitAccount": "Git-Konto",
+      "viaNabu": "vom Nabu-Agenten angelegt",
+      "unlinked": "Neue Benutzer zur Prüfung",
+      "unlinkedHint": "Sie haben sich zum ersten Mal angemeldet und ähneln bekannten Benutzern. Verknüpfen Sie das Konto, um Rollen und Verlauf zu behalten, oder bestätigen Sie, dass der Benutzer neu ist.",
+      "noCandidates": "Keine ähnlichen Benutzer",
+      "link": "Verknüpfen",
+      "confirmNew": "Das ist ein neuer Benutzer",
+      "linkDone": "Gespeichert"
     },
     "domains": {
       "title": "Domänen und Systeme",
@@ -645,6 +659,31 @@
         "system": "System",
         "selfApproved": "selbst freigegeben"
       }
+    },
+    "nabu": {
+      "title": "Nabu",
+      "intro": "Der Agent von Hammurapi lebt in Nabu: Der Chat ist der persönliche Agent des Benutzers, die Szenarien des Zyklus führen Service-Agenten von Nabu aus.",
+      "connection": "Verbindung",
+      "notConfigured": "Nabu ist nicht konfiguriert: Setzen Sie NABU_URL, NABU_CLIENT_ID und NABU_CLIENT_SECRET bei der Bereitstellung.",
+      "url": "Adresse",
+      "client": "Client",
+      "status": "Status",
+      "connected": "Verbunden",
+      "unreachable": "Nicht erreichbar",
+      "scenarios": "Szenarien",
+      "scenariosHint": "Welcher Service-Agent von Nabu jedes Szenario ausführt. Die Liste zeigt die Agenten, die Nabu für Hammurapi freigibt.",
+      "scenario": "Szenario",
+      "agent": "Service-Agent",
+      "builtin": "— integrierter Agent —",
+      "saved": "Zuordnung gespeichert",
+      "transfer": "Übertragung nach Nabu",
+      "transferHint": "Überträgt LLM-Verbindungen mit Schlüsseln, Modelle der Szenarien, MCP-Server und die Skill-Quelle nach Nabu und ordnet die Szenarien den erstellten Agenten zu. Geheimnisse gehen direkt zwischen den Diensten.",
+      "transferDone": "Die Einstellungen sind übertragen. Eine erneute Übertragung aktualisiert dieselben Objekte in Nabu.",
+      "transferButton": "Nach Nabu übertragen",
+      "transferAgain": "Erneut übertragen",
+      "transferConfirm": "Agenteneinstellungen nach Nabu übertragen? Lehnt Nabu ab, ändert sich in Hammurapi nichts.",
+      "report": "In Nabu angelegt",
+      "skipped": "{count, plural, one {# Element übersprungen} other {# Elemente übersprungen}}"
     }
   },
   "errors": {
@@ -755,7 +794,15 @@
     "spec_document_not_found": "Das Dokument ist nicht in der Spezifikation.",
     "spec_file_not_found": "Die Datei ist nicht in der Spezifikation.",
     "spec_file_too_large": "Die Datei ist zu groß zum Öffnen; laden Sie sie herunter.",
-    "invalid_interval": "Wählen Sie eines der angebotenen Intervalle."
+    "invalid_interval": "Wählen Sie eines der angebotenen Intervalle.",
+    "git_account_required": "Verknüpfen Sie Ihr Git-Konto, um diese Änderung zu speichern.",
+    "git_account_taken": "Dieses Git-Konto ist bereits mit einem anderen Benutzer verknüpft.",
+    "agent_disabled": "Der Agent ist nicht verbunden: Diese Aktion ist nicht verfügbar.",
+    "nabu_unavailable": "Der Agent ist vorübergehend nicht verfügbar",
+    "nabu_agent_not_allowed": "Nabu erlaubt Hammurapi nicht, diesen Agenten zu verwenden.",
+    "email_required": "Ihr Konto hat keine E-Mail-Adresse: Der Agent wird per E-Mail erreicht.",
+    "nabu_not_bound": "Das Szenario ist keinem Service-Agenten von Nabu zugeordnet. Ordnen Sie es unter Administration → Nabu zu.",
+    "git_account_is_login": "Dieses Git-Konto ist Ihr Anmeldekonto und kann nicht getrennt werden."
   },
   "stages": {
     "title": "Phasen",
@@ -949,7 +996,9 @@
     "merge": "Zusammenführen",
     "move": "Verschieben",
     "history": "Verlauf",
-    "analysis": "Analyse"
+    "analysis": "Analyse",
+    "editDiscovery": "Analyse ausfüllen",
+    "manualDiscovery": "Der Agent ist nicht verbunden: Füllen Sie Nutzen und Messung von Hand aus, um das Issue anzunehmen."
   },
   "accept": {
     "title": "{key} annehmen",
@@ -1315,5 +1364,47 @@
     "syncCatalog": "Katalog synchronisieren",
     "catalogSynced": "Der Katalog ist synchronisiert",
     "extraCheck": "Sobald eine Domäne oder ein System erscheint, indiziert eine Zusatzprüfung die wartenden Spezifikationen."
+  },
+  "gitLink": {
+    "title": "{provider}-Konto verknüpfen",
+    "why": "Änderungen an Spezifikationen werden in Ihrem Namen in {provider} committet. Verknüpfen Sie Ihr {provider}-Konto, um diese Änderung zu speichern.",
+    "kept": "Ihre Änderung bleibt erhalten und wird direkt nach der Rückkehr gespeichert.",
+    "link": "{provider} verknüpfen",
+    "linked": "Das {provider}-Konto ist verknüpft",
+    "repeated": "Das Konto ist verknüpft und Ihre Änderung gespeichert",
+    "failed": "Das Git-Konto konnte nicht verknüpft werden. Versuchen Sie es erneut.",
+    "taken": "Dieses Git-Konto ist bereits mit einem anderen Benutzer verknüpft."
+  },
+  "accounts": {
+    "title": "Konten",
+    "signIn": "Anmeldung · {provider}",
+    "git": "Git-Konto · {provider}",
+    "link": "Verknüpfen",
+    "unlink": "Trennen",
+    "gitHint": "Zum Bearbeiten von Spezifikationen nötig: Commits erfolgen in Ihrem Namen."
+  },
+  "nabu": {
+    "tones": {
+      "business": "Sachlich",
+      "friendly": "Freundlich",
+      "brief": "Knapp",
+      "mentor": "Mentor"
+    },
+    "toneHint": "Name und Ton werden in Nabu gespeichert und gelten in allen Kanälen: hier, in Nabu und in Telegram.",
+    "conversation": "Unterhaltung",
+    "mainConversation": "Hauptunterhaltung",
+    "newTopic": "Neues Thema",
+    "topicTitle": "Titel des Themas",
+    "noContext": "Wenn ein Issue, Feature oder Release geöffnet ist, wird dessen Kontext an Nachrichten angehängt.",
+    "empty": "Dies ist dieselbe Unterhaltung mit {name} wie in Nabu und Telegram. Fragen Sie einfach.",
+    "channels": {
+      "web": "Nabu",
+      "telegram": "Telegram",
+      "client": "Hammurapi"
+    }
+  },
+  "noAgent": {
+    "title": "Der Agent ist nicht verbunden",
+    "text": "Chat, Issue-Analyse und Generierung sind verfügbar, sobald Hammurapi mit Nabu verbunden ist. Wenden Sie sich an Ihren Administrator."
   }
 }

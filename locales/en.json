@@ -58,8 +58,13 @@
     "errors": {
       "state": "The sign-in link expired. Try again.",
       "denied": "Access was not granted. Try again.",
-      "failed": "Could not sign in. Try again or contact your administrator."
-    }
+      "failed": "Could not sign in. Try again or contact your administrator.",
+      "not_org_member": "Your account is not a member of the required organization.",
+      "no_verified_email": "The account has no verified email.",
+      "email_not_verified": "The provider did not confirm your email."
+    },
+    "corporate": "Use your corporate account.",
+    "orgOnly": "Only members of the {org} organization can sign in."
   },
   "top": {
     "search": "Search features and IDs",
@@ -381,7 +386,16 @@
       "globalHint": "users, dictionary, settings",
       "save": "Save roles",
       "saved": "Roles saved",
-      "expertsHint": "Experts are assigned per domain in Domains and systems."
+      "expertsHint": "Experts are assigned per domain in Domains and systems.",
+      "signIn": "Sign-in",
+      "gitAccount": "Git account",
+      "viaNabu": "created by the Nabu agent",
+      "unlinked": "New users to check",
+      "unlinkedHint": "They signed in for the first time and look like someone already known. Link the account to keep roles and history, or confirm that the user is new.",
+      "noCandidates": "No similar users",
+      "link": "Link",
+      "confirmNew": "This is a new user",
+      "linkDone": "Saved"
     },
     "domains": {
       "title": "Domains and systems",
@@ -645,6 +659,31 @@
         "system": "system",
         "selfApproved": "self-approved"
       }
+    },
+    "nabu": {
+      "title": "Nabu",
+      "intro": "Hammurapi's agent lives in Nabu: the chat is the user's personal agent, and the scenarios of the cycle are performed by service agents of Nabu.",
+      "connection": "Connection",
+      "notConfigured": "Nabu is not configured: set NABU_URL, NABU_CLIENT_ID and NABU_CLIENT_SECRET at deployment.",
+      "url": "Address",
+      "client": "Client",
+      "status": "Status",
+      "connected": "Connected",
+      "unreachable": "Not reachable",
+      "scenarios": "Scenarios",
+      "scenariosHint": "Which service agent of Nabu performs each scenario. The list shows the agents Nabu allows Hammurapi to use.",
+      "scenario": "Scenario",
+      "agent": "Service agent",
+      "builtin": "— built-in agent —",
+      "saved": "Binding saved",
+      "transfer": "Transfer to Nabu",
+      "transferHint": "Moves the LLM connections with keys, the models of scenarios, MCP servers and the skills source to Nabu and binds the scenarios to the created agents. Secrets go directly between the services.",
+      "transferDone": "The settings are transferred. A repeated transfer updates the same objects in Nabu.",
+      "transferButton": "Transfer to Nabu",
+      "transferAgain": "Transfer again",
+      "transferConfirm": "Transfer the agent settings to Nabu? Nothing changes in Hammurapi if Nabu refuses.",
+      "report": "Created in Nabu",
+      "skipped": "{count, plural, one {# item skipped} other {# items skipped}}"
     }
   },
   "errors": {
@@ -755,7 +794,15 @@
     "spec_document_not_found": "The document is not in the specification.",
     "spec_file_not_found": "The file is not in the specification.",
     "spec_file_too_large": "The file is too large to open; download it.",
-    "invalid_interval": "Choose one of the offered periods."
+    "invalid_interval": "Choose one of the offered periods.",
+    "git_account_required": "Link your git account to save this change.",
+    "git_account_taken": "This git account is already linked to another user.",
+    "agent_disabled": "The agent is not connected: this action is unavailable.",
+    "nabu_unavailable": "The agent is temporarily unavailable",
+    "nabu_agent_not_allowed": "Nabu does not allow Hammurapi to use this agent.",
+    "email_required": "Your account has no email: the agent is reached by email.",
+    "nabu_not_bound": "The scenario is not bound to a service agent of Nabu. Bind it in Administration → Nabu.",
+    "git_account_is_login": "This git account is your sign-in account and cannot be unlinked."
   },
   "stages": {
     "title": "Stages",
@@ -949,7 +996,9 @@
     "merge": "Merge",
     "move": "Move",
     "history": "History",
-    "analysis": "Analysis"
+    "analysis": "Analysis",
+    "editDiscovery": "Fill in the analysis",
+    "manualDiscovery": "The agent is not connected: fill in the value and how it will be measured by hand to accept the issue."
   },
   "accept": {
     "title": "Accept {key}",
@@ -1315,5 +1364,47 @@
     "syncCatalog": "Synchronize the catalog",
     "catalogSynced": "The catalog is synchronized",
     "extraCheck": "Right after a domain or a system appears, an extra check indexes the specifications that waited for it."
+  },
+  "gitLink": {
+    "title": "Link your {provider} account",
+    "why": "Changes to specifications are committed to {provider} on your behalf. Link your {provider} account to save this change.",
+    "kept": "Your change is kept and will be saved right after you return.",
+    "link": "Link {provider}",
+    "linked": "The {provider} account is linked",
+    "repeated": "The account is linked and your change is saved",
+    "failed": "Could not link the git account. Try again.",
+    "taken": "This git account is already linked to another user."
+  },
+  "accounts": {
+    "title": "Accounts",
+    "signIn": "Sign-in · {provider}",
+    "git": "Git account · {provider}",
+    "link": "Link",
+    "unlink": "Unlink",
+    "gitHint": "Needed to edit specifications: commits are made on your behalf."
+  },
+  "nabu": {
+    "tones": {
+      "business": "Business",
+      "friendly": "Friendly",
+      "brief": "Brief",
+      "mentor": "Mentor"
+    },
+    "toneHint": "Name and tone are saved in Nabu and apply in every channel: here, in Nabu and in Telegram.",
+    "conversation": "Conversation",
+    "mainConversation": "Main conversation",
+    "newTopic": "New topic",
+    "topicTitle": "Topic title",
+    "noContext": "The screen context is added to your messages when you open an issue, a feature or a release.",
+    "empty": "This is the same conversation with {name} as in Nabu and Telegram. Ask anything.",
+    "channels": {
+      "web": "Nabu",
+      "telegram": "Telegram",
+      "client": "Hammurapi"
+    }
+  },
+  "noAgent": {
+    "title": "The agent is not connected",
+    "text": "Chat, issue analysis and generation become available once Hammurapi is connected to Nabu. Contact your administrator."
   }
 }

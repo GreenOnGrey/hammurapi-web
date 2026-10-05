@@ -20,13 +20,19 @@ import {
   AgentUsageAdmin,
 } from "./Agent";
 import { adminPath } from "./paths";
+import { NabuAdmin, useNabuSettings } from "./Nabu";
 
 /** Section access (product spec §17): users and settings — global admin;
  * domains — any admin; rules — area admins (global admin reads); the agent
  * (FTR.HMR.CMN-0004) — global admin. */
 export function AdminPage() {
   const { t } = useTranslation();
-  const { me, isAnyAdmin } = useSession();
+  const { me, config, isAnyAdmin } = useSession();
+  // FTR.HMR.CMN-0006 R10, R11: with Nabu the Agent section is replaced by the
+  // Nabu section once the settings are transferred; usage stays for reports.
+  const nabu = config.agent?.provider === "nabu";
+  const nabuSettings = useNabuSettings(nabu && me.globalAdmin);
+  const legacyAgent = !nabu ? config.agent?.enabled !== false : !nabuSettings.data?.migrated;
   // The Agent group is open on its own pages; a click folds or unfolds it.
   const onAgent = useLocation().pathname.startsWith("/admin/agent/");
   const [toggled, setToggled] = useState<boolean | null>(null);
@@ -86,6 +92,12 @@ export function AdminPage() {
             {t("admin.settings.title")}
           </NavLink>
         )}
+        {global && nabu && (
+          <NavLink to={adminPath("nabu")}>
+            <Icon name="link" />
+            {t("admin.nabu.title")}
+          </NavLink>
+        )}
         {global && (
           <>
             <button type="button" className="sidegroup" aria-expanded={agentOpen} onClick={() => setAgentOpen((v) => !v)}>
@@ -95,18 +107,22 @@ export function AdminPage() {
             </button>
             {agentOpen && (
               <>
-              <NavLink className="sub" to={adminPath("agent/connections")}>
-                {t("admin.agent.connections.title")}
-              </NavLink>
-              <NavLink className="sub" to={adminPath("agent/models")}>
-                {t("admin.agent.models.title")}
-              </NavLink>
-              <NavLink className="sub" to={adminPath("agent/skills")}>
-                {t("admin.agent.skills.title")}
-              </NavLink>
-              <NavLink className="sub" to={adminPath("agent/mcp")}>
-                {t("admin.agent.mcp.title")}
-              </NavLink>
+              {legacyAgent && (
+                <>
+                <NavLink className="sub" to={adminPath("agent/connections")}>
+                  {t("admin.agent.connections.title")}
+                </NavLink>
+                <NavLink className="sub" to={adminPath("agent/models")}>
+                  {t("admin.agent.models.title")}
+                </NavLink>
+                <NavLink className="sub" to={adminPath("agent/skills")}>
+                  {t("admin.agent.skills.title")}
+                </NavLink>
+                <NavLink className="sub" to={adminPath("agent/mcp")}>
+                  {t("admin.agent.mcp.title")}
+                </NavLink>
+                </>
+              )}
               <NavLink className="sub" to={adminPath("agent/usage")}>
                 {t("admin.agent.usage.title")}
               </NavLink>
@@ -131,6 +147,7 @@ export function AdminPage() {
           {global && <Route path="deploy" element={<DeployAdmin />} />}
           {global && <Route path="metrics" element={<MetricSourcesAdmin />} />}
           {global && <Route path="settings" element={<SettingsAdmin />} />}
+          {global && nabu && <Route path="nabu" element={<NabuAdmin />} />}
           {global && (
             <Route
               path="agent/connections"

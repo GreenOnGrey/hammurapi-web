@@ -3,9 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api/client";
-import { invalidateCycle, useDiscovery, useDomains, useIssue, useRevisions } from "../api/queries";
+import { invalidateCycle, keys, useDiscovery, useDomains, useIssue, useRevisions } from "../api/queries";
 import type { DiscoveryView, FeatureSummary, IssueCard, List } from "../api/types";
-import { useChatContext } from "../app/session";
+import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { dateTime, relativeTime } from "../lib/format";
 import { Icon } from "../components/Icon";
@@ -49,13 +49,16 @@ export function IssuePage() {
   return <IssueView is={is} />;
 }
 
-type Dialog = "accept" | "reject" | "merge" | "move" | "history" | null;
+type Dialog = "accept" | "reject" | "merge" | "move" | "history" | "edit" | null;
 
 function IssueView({ is }: { is: IssueCard }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
   const disc = useDiscovery(is.key);
+  const { config } = useSession();
+  // FTR.HMR.CMN-0006 R9: without the agent the expert fills Discovery by hand.
+  const noAgent = config.agent?.enabled === false;
   const [dialog, setDialog] = useState<Dialog>(null);
   const act = useMutation({
     mutationFn: (path: string) => api.post(`/api/v1/issues/${is.key}${path}`),
@@ -101,14 +104,18 @@ function IssueView({ is }: { is: IssueCard }) {
 
       <div className="row" style={{ margin: "18px 0 8px" }}>
         <h2 className="sec" style={{ margin: 0 }}>{t("issue.analysis")}</h2>
-        <AgentMark />
+        {!noAgent && <AgentMark />}
         {d?.revision && <button className="btn ghost sm" onClick={() => setDialog("history")}>{t("issue.revision", { n: d.revision })}</button>}
         <span className="grow" />
-        {is.permissions.discover && (blocked || !running) && (
+        {is.permissions.verify && (noAgent || !running || blocked) && (
+          <button className="btn sm" onClick={() => setDialog("edit")}><Icon name="wrench" size={14} />{t("issue.editDiscovery")}</button>
+        )}
+        {!noAgent && is.permissions.discover && (blocked || !running) && (
           <button className="btn sm" disabled={act.isPending} onClick={() => act.mutate("/discover")}><Icon name="refresh" size={14} />{t("issue.rediscover")}</button>
         )}
       </div>
-      {running && !d?.content && <DiscoveryRunning d={d} />}
+      {noAgent && !d?.complete && <div className="banner info"><Icon name="cpu" /><span className="grow">{t("issue.manualDiscovery")}</span></div>}
+      {!noAgent && running && !d?.content && <DiscoveryRunning d={d} />}
       {blocked && <BlockedBanner title={t("issue.discoveryBlocked")} reason={d?.workflow?.lastError} />}
       {d?.content && <DiscoveryDoc d={d} />}
 
@@ -140,6 +147,7 @@ function IssueView({ is }: { is: IssueCard }) {
       {dialog === "merge" && <MergeModal is={is} onClose={() => setDialog(null)} />}
       {dialog === "move" && <MoveModal is={is} onClose={() => setDialog(null)} />}
       {dialog === "history" && <RevisionsModal is={is} onClose={() => setDialog(null)} />}
+      {dialog === "edit" && <DiscoveryEditModal is={is} d={d} onClose={() => setDialog(null)} />}
     </main>
   );
 }
@@ -188,6 +196,53 @@ function DiscoveryDoc({ d }: { d: DiscoveryView }) {
         <Markdown text={d.content ?? ""} />
       </section>
     </>
+  );
+}
+
+/** Value, measure and the analysis written by the expert (PUT …/discovery, FTR.HMR.CMN-0006 tech §5). */
+function DiscoveryEditModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryView; onClose: () => void }) {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const [value, setValue] = useState(d?.value ?? "");
+  const [m, setM] = useState({ source: d?.measure?.source ?? "", query: d?.measure?.query ?? "", target: d?.measure?.target ?? "", window: d?.measure?.window ?? "" });
+  const [content, setContent] = useState(d?.content ?? "");
+  const save = useMutation({
+    mutationFn: () => api.put(`/api/v1/issues/${is.key}/discovery`, {
+      content: content.trim() || `## ${t("issue.value")}\n\n${value}`,
+      value,
+      measure: m.source || m.query || m.target || m.window ? m : null,
+    }),
+    onSuccess: () => {
+      invalidateCycle(qc);
+      qc.invalidateQueries({ queryKey: keys.discovery(is.key) });
+      onClose();
+    },
+  });
+  const field = (k: keyof typeof m) => (
+    <div className="field" key={k}>
+      <label htmlFor={`disc-${k}`}>{t(`issue.${k}`)}</label>
+      <input id={`disc-${k}`} className={`inp${k === "query" ? " mono" : ""}`} value={m[k]} onChange={(e) => setM({ ...m, [k]: e.target.value })} />
+    </div>
+  );
+  return (
+    <Modal wide title={t("issue.editDiscovery")} onClose={onClose} footer={<>
+      <button className="btn ghost" onClick={onClose}>{t("common.cancel")}</button>
+      <button className="btn primary" disabled={save.isPending} onClick={() => save.mutate()}>{t("common.save")}</button>
+    </>}>
+      <div className="field">
+        <label htmlFor="disc-value">{t("issue.value")} <span className="req">{t("issue.required")}</span></label>
+        <textarea id="disc-value" className="inp" rows={3} value={value} onChange={(e) => setValue(e.target.value)} />
+      </div>
+      <h5 style={{ margin: "8px 0" }}>{t("issue.measure")} <span className="req">{t("issue.required")}</span></h5>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0 12px" }}>
+        {(["source", "query", "target", "window"] as const).map(field)}
+      </div>
+      <div className="field">
+        <label htmlFor="disc-content">{t("issue.document")}</label>
+        <textarea id="disc-content" className="inp mono" rows={8} value={content} onChange={(e) => setContent(e.target.value)} />
+      </div>
+      {save.error && <div className="err-text">{errorText(t, save.error)}</div>}
+    </Modal>
   );
 }
 

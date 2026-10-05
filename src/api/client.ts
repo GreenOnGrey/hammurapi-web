@@ -20,6 +20,21 @@ function csrfToken(): string {
 
 type Body = Record<string, unknown> | unknown[] | FormData | undefined;
 
+/** A change refused with git_account_required (FTR.HMR.CMN-0006 tech §1.1): the
+ * interface offers to link the git account and repeats the change after it. */
+export interface DeferredChange {
+  method: string;
+  path: string;
+  body?: Body;
+}
+
+const gitAccountListeners = new Set<(c: DeferredChange) => void>();
+
+export function onGitAccountRequired(h: (c: DeferredChange) => void): () => void {
+  gitAccountListeners.add(h);
+  return () => gitAccountListeners.delete(h);
+}
+
 export async function request<T>(method: string, path: string, body?: Body, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (method !== "GET" && method !== "HEAD") headers["X-CSRF-Token"] = csrfToken();
@@ -41,7 +56,9 @@ export async function request<T>(method: string, path: string, body?: Body, init
   const data = text ? safeJSON(text) : undefined;
   if (!res.ok) {
     const err = (data as { error?: { code?: string; message?: string; details?: Record<string, unknown> } })?.error;
-    throw new ApiError(res.status, err?.code ?? `http_${res.status}`, err?.message ?? res.statusText, err?.details ?? {});
+    const e = new ApiError(res.status, err?.code ?? `http_${res.status}`, err?.message ?? res.statusText, err?.details ?? {});
+    if (e.code === "git_account_required") gitAccountListeners.forEach((h) => h({ method, path, body }));
+    throw e;
   }
   return data as T;
 }

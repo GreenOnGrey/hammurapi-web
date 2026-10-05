@@ -25,6 +25,10 @@ export interface List<T> {
 
 export interface PublicConfig {
   provider: "github" | "gitlab";
+  /** Sign-in provider (FTR.HMR.CMN-0006 R1): the git provider, GitHub with an organization, or OIDC. */
+  login?: { kind: "git" | "github" | "oidc"; label: string; org?: string; linksGit?: boolean };
+  /** The agent (R4, R9): Nabu, the built-in operator until the transfer, or none. */
+  agent?: { enabled: boolean; provider?: "nabu" | "builtin" };
   uploadMaxBytes: number;
   uploadAllowedTypes: string[];
   importMaxBytes: number;
@@ -51,6 +55,15 @@ export interface Me {
   theme: "light" | "dark";
   agentName: string;
   agentTone: Tone;
+  email?: string | null;
+  gitAccount?: GitAccount | null;
+}
+
+export interface GitAccount {
+  provider: string;
+  login: string;
+  emails: string[];
+  linkedAt: string;
 }
 
 export interface Profile {
@@ -264,6 +277,12 @@ export interface AdminUser {
   areaAdmin: Area[];
   experts: ExpertDomains[];
   createdAt: string;
+  /** FTR.HMR.CMN-0006: email, sign-in identities (issuers) and the git account. */
+  email?: string | null;
+  logins?: string[];
+  gitLogin?: string | null;
+  createdVia?: "login" | "nabu_delegation";
+  linkReview?: boolean;
 }
 
 export interface RuleFile {
@@ -923,4 +942,61 @@ export interface SpecIndexIssue {
 export interface MissingCatalog {
   catalogSource: "manual" | "backstage";
   items: { domain: string; domainExists: boolean; system: string; features: string[]; catalogInfoExample?: string }[];
+}
+
+// ─── Nabu (FTR.HMR.CMN-0006) ─────────────────────────────────────────
+
+export type NabuTone = "business" | "friendly" | "brief" | "mentor";
+
+export interface NabuAgent {
+  name: string;
+  tone: NabuTone;
+  model: { name: string; connection: string } | null;
+}
+
+export interface NabuConversation {
+  id: string;
+  kind: "main" | "topic";
+  title: string | null;
+  lastMessageAt: string | null;
+  archivedAt: string | null;
+  createdAt: string;
+}
+
+export interface NabuToolStep {
+  id: string;
+  server: string;
+  tool: string;
+  summary: string;
+  status: "running" | "done" | "error";
+}
+
+export interface NabuMessage {
+  id: string;
+  conversationId: string;
+  role: "user" | "assistant";
+  text: string;
+  channel: string;
+  status: "pending" | "streaming" | "done" | "failed";
+  attachments: { id: string; fileName: string; mimeType: string }[];
+  toolSteps: NabuToolStep[];
+  context?: { type: string; key: string; area?: string } | null;
+  errorClass: string | null;
+  errorText: string | null;
+  createdAt: string;
+}
+
+export interface NabuSettingsView {
+  connected: boolean;
+  url: string;
+  client: string;
+  agents: { name: string; description: string; workspace: string }[];
+  scenarios: Record<string, string>;
+  migrated: boolean;
+  error?: string;
+}
+
+export interface UnlinkedUser {
+  user: { id: string; name: string; email: string | null; createdAt: string };
+  candidates: { userId: string; name: string; gitLogin: string | null; emails: string[] }[];
 }

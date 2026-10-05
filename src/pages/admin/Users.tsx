@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api, qs } from "../../api/client";
 import { keys } from "../../api/queries";
-import { AREAS, type AdminUser, type Area, type List } from "../../api/types";
+import { AREAS, type AdminUser, type Area, type List, type UnlinkedUser } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { Icon } from "../../components/Icon";
 import { Loading, Switch, useToast } from "../../components/ui";
@@ -23,16 +23,22 @@ export function UsersAdmin() {
         <Icon name="search" />
         <input placeholder={t("admin.users.search")} value={q} onChange={(e) => setQ(e.target.value)} />
       </label>
+      <UnlinkedUsers />
       {/* The editor column appears with a selected user; until then the table takes the full width. */}
       <div style={{ display: "grid", gridTemplateColumns: selected ? "minmax(0, 1fr) minmax(0, 440px)" : "minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
         <div style={{ overflowX: "auto" }}>
           {users.isLoading && <Loading />}
           <table className="t">
-            <thead><tr><th>{t("admin.users.user")}</th><th>{t("admin.users.roles")}</th></tr></thead>
+            <thead><tr><th>{t("admin.users.user")}</th><th>{t("admin.users.signIn")}</th><th>{t("admin.users.gitAccount")}</th><th>{t("admin.users.roles")}</th></tr></thead>
             <tbody>
               {users.data?.items.map((u) => (
                 <tr key={u.id} className={`clickable${selected?.id === u.id ? " sel" : ""}`} onClick={() => setSelected(u)}>
-                  <td><b>{u.displayName}</b><div className="small muted">@{u.username}</div></td>
+                  <td><b>{u.displayName}</b><div className="small muted">{u.email ?? `@${u.username}`}</div></td>
+                  <td className="small">
+                    {(u.logins ?? []).map((l) => <div key={l} className="mono">{issuerName(l)}</div>)}
+                    {u.createdVia === "nabu_delegation" && <div className="muted">{t("admin.users.viaNabu")}</div>}
+                  </td>
+                  <td className="small mono">{u.gitLogin ?? <span className="muted">—</span>}</td>
                   <td><RoleChips u={u} /></td>
                 </tr>
               ))}
@@ -42,6 +48,68 @@ export function UsersAdmin() {
         {selected && <RoleEditor key={selected.id} user={selected} onDone={(u) => setSelected(u)} />}
       </div>
     </>
+  );
+}
+
+/** A short name of an identity issuer: github, gitlab or the host of an OIDC issuer. */
+function issuerName(issuer: string): string {
+  try {
+    return issuer.startsWith("http") ? new URL(issuer).host : issuer;
+  } catch {
+    return issuer;
+  }
+}
+
+/** New users that may be someone already known (FTR.HMR.CMN-0006 tech §2, IN-05). */
+function UnlinkedUsers() {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const list = useQuery({
+    queryKey: ["admin", "users", "unlinked"],
+    queryFn: () => api.get<{ items: UnlinkedUser[] }>("/admin/api/v1/users/unlinked"),
+  });
+  const done = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    toast({ kind: "ok", title: t("admin.users.linkDone") });
+  };
+  const link = useMutation({
+    mutationFn: ({ id, target }: { id: string; target: string }) => api.post(`/admin/api/v1/users/${id}/link`, { targetUserId: target }),
+    onSuccess: done,
+    onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
+  });
+  const confirmNew = useMutation({
+    mutationFn: (id: string) => api.post(`/admin/api/v1/users/${id}/confirm-new`),
+    onSuccess: done,
+    onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
+  });
+  const items = list.data?.items ?? [];
+  if (items.length === 0) return null;
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <h2 className="sec">{t("admin.users.unlinked")}</h2>
+      <p className="small muted">{t("admin.users.unlinkedHint")}</p>
+      {items.map((u) => (
+        <div key={u.user.id} className="line" style={{ alignItems: "flex-start", gap: 12, padding: "8px 0", borderTop: "1px solid var(--border)" }}>
+          <div style={{ minWidth: 180 }}>
+            <b>{u.user.name}</b>
+            <div className="small muted">{u.user.email}</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            {u.candidates.length === 0 && <span className="small muted">{t("admin.users.noCandidates")}</span>}
+            {u.candidates.map((c) => (
+              <div key={c.userId} className="line" style={{ gap: 8, marginBottom: 4 }}>
+                <span className="small">{c.name}{c.gitLogin && <span className="mono muted"> @{c.gitLogin}</span>}{c.emails.length > 0 && <span className="muted"> · {c.emails.join(", ")}</span>}</span>
+                <button className="btn sm" disabled={link.isPending} onClick={() => link.mutate({ id: u.user.id, target: c.userId })}>
+                  <Icon name="link" size={14} />{t("admin.users.link")}
+                </button>
+              </div>
+            ))}
+          </div>
+          <button className="btn ghost sm" disabled={confirmNew.isPending} onClick={() => confirmNew.mutate(u.user.id)}>{t("admin.users.confirmNew")}</button>
+        </div>
+      ))}
+    </div>
   );
 }
 

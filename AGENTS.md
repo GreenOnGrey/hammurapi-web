@@ -36,7 +36,8 @@ CI runs lint, tests, `deploy/sync-ref.sh --check` and actionlint.
 src/api/          client (fetch, CSRF, ApiError), types.ts (mirrors core JSON), queries.ts (query keys)
 src/app/          App (routes, SSE invalidation), Shell (top bar, stages), session
 src/pages/        pages; admin/ — Administration (paths.ts holds absolute section paths)
-src/chat/         chat panel
+src/chat/         chat panel: ChatPanel (built-in agent), NabuChat (personal agent in Nabu, nabu.* events),
+                  NoAgentPanel (Hammurapi without the agent; config.agent decides)
 src/editor/       Milkdown editor (MarkdownEditor; readOnly for the navigator)
 src/lib/          sse, i18n, format, errors, llm
 locales/*.json    en (default and fallback), ru, de, es, zh-CN

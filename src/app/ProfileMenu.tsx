@@ -10,6 +10,7 @@ import { Icon } from "../components/Icon";
 import { Avatar, Modal, useOutside } from "../components/ui";
 import { useSession } from "./session";
 import { useProfilePatch } from "./useProfilePatch";
+import { gitLinkURL } from "./GitLink";
 
 export function ProfileMenu({ onClose }: { onClose: () => void }) {
   const { t, i18n } = useTranslation();
@@ -98,6 +99,7 @@ export function ProfileMenu({ onClose }: { onClose: () => void }) {
           {domains.data?.length === 0 && <span className="small muted">{t("profile.noDomains")}</span>}
         </div>
       </div>
+      <Accounts />
       {isAnyAdmin && (
         <div className="sec">
           <Link className="action" to="/admin" onClick={onClose}><Icon name="wrench" />{t("profile.admin")}</Link>
@@ -110,6 +112,44 @@ export function ProfileMenu({ onClose }: { onClose: () => void }) {
         <button className="action danger" onClick={logout}><Icon name="out" />{t("profile.logout")}</button>
       </div>
       {feedback && <FeedbackModal onClose={() => setFeedback(false)} />}
+    </div>
+  );
+}
+
+/** Sign-in and the git account (FTR.HMR.CMN-0006 design: «Учётные записи»). */
+function Accounts() {
+  const { t } = useTranslation();
+  const { me, config } = useSession();
+  const qc = useQueryClient();
+  const provider = config.provider === "gitlab" ? "GitLab" : "GitHub";
+  const login = config.login ?? { kind: "git", label: provider, linksGit: true };
+  const unlink = useMutation({
+    mutationFn: () => api.del("/api/v1/me/git-account"),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
+  });
+  return (
+    <div className="sec">
+      <div className="lab">{t("accounts.title")}</div>
+      <div className="line">
+        <span>{t("accounts.signIn", { provider: login.label })}</span>
+        <span className="small muted">{me.email ?? me.username}</span>
+      </div>
+      <div className="line" style={{ marginTop: 8 }}>
+        <span>{t("accounts.git", { provider })}</span>
+        {me.gitAccount ? (
+          <span className="small" style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <span className="mono">{me.gitAccount.login}</span>
+            {/* The sign-in account itself cannot be unlinked. */}
+            {!login.linksGit && (
+              <button className="btn ghost sm" disabled={unlink.isPending} onClick={() => unlink.mutate()}>{t("accounts.unlink")}</button>
+            )}
+          </span>
+        ) : (
+          <a className="btn sm" href={gitLinkURL(window.location.pathname)}><Icon name="link" size={14} />{t("accounts.link")}</a>
+        )}
+      </div>
+      {!me.gitAccount && <div className="hint">{t("accounts.gitHint")}</div>}
+      {unlink.error && <div className="err-text">{errorText(t, unlink.error)}</div>}
     </div>
   );
 }

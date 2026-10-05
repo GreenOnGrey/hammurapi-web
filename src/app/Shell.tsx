@@ -10,6 +10,8 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "../components/Icon";
 import { Avatar } from "../components/ui";
 import { ChatPanel } from "../chat/ChatPanel";
+import { NabuChatPanel, NoAgentPanel, useNabuAgent } from "../chat/NabuChat";
+import { GitLinkDialog } from "./GitLink";
 import { NewIssueModal } from "../pages/NewIssue";
 import { ProfileMenu } from "./ProfileMenu";
 import { useChatContext, useSession } from "./session";
@@ -37,7 +39,10 @@ export function stageOf(path: string): string {
 
 export function Shell() {
   const { t } = useTranslation();
-  const { me, profile } = useSession();
+  const { me, profile, config } = useSession();
+  // FTR.HMR.CMN-0006: the chat of the agent in Nabu, the built-in agent until
+  // the transfer, or no agent at all (R9).
+  const agentKind = !config.agent ? "builtin" : !config.agent.enabled ? "none" : (config.agent.provider ?? "builtin");
   const chat = useChatContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -106,7 +111,7 @@ export function Shell() {
       </div>
       <div className="body">
         <Outlet />
-        <ChatPanel />
+        {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
       </div>
       <nav className="bnav show-m" aria-label={t("stages.title")}>
         {stageLinks}
@@ -117,10 +122,16 @@ export function Shell() {
           onClick={() => chat.setOpen(true)}
         >
           <Icon name="msg" />
-          {profile.agentName}
+          {agentKind === "nabu" ? <NabuName /> : agentKind === "none" ? t("noAgent.title") : profile.agentName}
         </button>
       )}
+      <GitLinkDialog />
       {creating && <NewIssueModal onClose={() => setCreating(false)} />}
     </div>
   );
+}
+
+function NabuName() {
+  const agent = useNabuAgent();
+  return <>{agent.data?.name ?? "Nabu"}</>;
 }
