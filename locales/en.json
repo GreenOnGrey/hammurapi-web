@@ -802,7 +802,9 @@
     "nabu_agent_not_allowed": "Nabu does not allow Hammurapi to use this agent.",
     "email_required": "Your account has no email: the agent is reached by email.",
     "nabu_not_bound": "The scenario is not bound to a service agent of Nabu. Bind it in Administration → Nabu.",
-    "git_account_is_login": "This git account is your sign-in account and cannot be unlinked."
+    "git_account_is_login": "This git account is your sign-in account and cannot be unlinked.",
+    "user_archived": "The agent is not available for your account.",
+    "channel_unavailable": "The agent is not available for your account."
   },
   "stages": {
     "title": "Stages",

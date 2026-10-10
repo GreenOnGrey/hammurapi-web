@@ -802,7 +802,9 @@
     "nabu_agent_not_allowed": "Nabu no permite a Hammurapi usar este agente.",
     "email_required": "Su cuenta no tiene correo: el agente se identifica por correo.",
     "nabu_not_bound": "El escenario no está asignado a un agente de servicio de Nabu. Asígnelo en Administración → Nabu.",
-    "git_account_is_login": "Esta cuenta git es su cuenta de inicio de sesión y no se puede desvincular."
+    "git_account_is_login": "Esta cuenta git es su cuenta de inicio de sesión y no se puede desvincular.",
+    "user_archived": "El agente no está disponible para su cuenta.",
+    "channel_unavailable": "El agente no está disponible para su cuenta."
   },
   "stages": {
     "title": "Etapas",

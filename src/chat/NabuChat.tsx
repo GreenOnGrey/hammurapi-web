@@ -61,6 +61,8 @@ export function NabuChatPanel() {
   const current = convId === "main" ? main : items.find((c) => c.id === convId);
   const a = agent.data;
   const unavailable = agent.error instanceof ApiError && agent.error.status >= 500;
+  // FTR.NAB.CMN-0002 R15, R18: the channel is closed for the user in Nabu or the account is archived there
+  const closed = agent.error instanceof ApiError && (agent.error.code === "user_archived" || agent.error.code === "channel_unavailable");
 
   return (
     <aside className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
@@ -96,7 +98,8 @@ export function NabuChatPanel() {
             <><span className="fid">{chat.subject.key}</span> {chat.area ? t(`areas.${chat.area}`) : chat.subject.title}</>
           ) : t("nabu.noContext")}
         </div>
-        {(offline || unavailable) && <div className="llmerr amber small" role="status">{t("errors.nabu_unavailable")}</div>}
+        {(offline || unavailable) && !closed && <div className="llmerr amber small" role="status">{t("errors.nabu_unavailable")}</div>}
+        {closed && <div className="llmerr amber small" role="status">{t("errors.channel_unavailable")}</div>}
       </div>
       <Conversation key={convId} convId={current?.id ?? convId} agentName={a?.name ?? "Nabu"} />
       {creating && <NewTopic onClose={() => setCreating(false)} onCreated={(c) => { setConvId(c.id); setCreating(false); }} />}

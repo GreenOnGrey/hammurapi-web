@@ -802,7 +802,9 @@
     "nabu_agent_not_allowed": "Nabu 不允许 Hammurapi 使用该智能体。",
     "email_required": "您的账户没有邮箱：智能体通过邮箱识别用户。",
     "nabu_not_bound": "该场景未绑定 Nabu 服务智能体。请在“管理 → Nabu”中绑定。",
-    "git_account_is_login": "该 git 账户是您的登录账户，无法解绑。"
+    "git_account_is_login": "该 git 账户是您的登录账户，无法解绑。",
+    "user_archived": "代理对您的账户不可用。",
+    "channel_unavailable": "代理对您的账户不可用。"
   },
   "stages": {
     "title": "阶段",

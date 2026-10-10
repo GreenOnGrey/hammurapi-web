@@ -802,7 +802,9 @@
     "nabu_agent_not_allowed": "Nabu erlaubt Hammurapi nicht, diesen Agenten zu verwenden.",
     "email_required": "Ihr Konto hat keine E-Mail-Adresse: Der Agent wird per E-Mail erreicht.",
     "nabu_not_bound": "Das Szenario ist keinem Service-Agenten von Nabu zugeordnet. Ordnen Sie es unter Administration → Nabu zu.",
-    "git_account_is_login": "Dieses Git-Konto ist Ihr Anmeldekonto und kann nicht getrennt werden."
+    "git_account_is_login": "Dieses Git-Konto ist Ihr Anmeldekonto und kann nicht getrennt werden.",
+    "user_archived": "Der Agent ist für Ihr Konto nicht verfügbar.",
+    "channel_unavailable": "Der Agent ist für Ihr Konto nicht verfügbar."
   },
   "stages": {
     "title": "Phasen",
