@@ -327,14 +327,14 @@ function DocumentView({
       (entries) => {
         const vis = entries
           .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          .toSorted((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (vis[0]) setActive((vis[0].target as HTMLElement).id);
       },
       { rootMargin: "0px 0px -70% 0px" },
     );
     hs.forEach((h) => io.observe(h));
     return () => io.disconnect();
-  }, [d, rendered, location.hash]);
+  }, [d, rendered, location.hash]); // oxlint-disable-line react/exhaustive-effect-dependencies -- the headings are found again after the document is rendered or the anchor changes
 
   const copyLink = (slug: string) => {
     const url = `${window.location.origin}/spec/${featureKey}/${area}#${encodeURIComponent(slug)}`;
@@ -701,10 +701,14 @@ function SearchResults({ q }: { q: string }) {
         `/api/v1/spec/search${qs({ q, domain, area, limit: 20 })}`,
       ),
   });
-  useEffect(() => {
+  // A new search starts from the first page: reset during render, without an effect.
+  const searchKey = `${q}\n${domain}\n${area}`;
+  const [pagesOf, setPagesOf] = useState(searchKey);
+  if (pagesOf !== searchKey) {
+    setPagesOf(searchKey);
     setExtra([]);
     setCursor(null);
-  }, [q, domain, area]);
+  }
   const next = cursor ?? res.data?.nextCursor ?? null;
   const more = async () => {
     if (!next) return;

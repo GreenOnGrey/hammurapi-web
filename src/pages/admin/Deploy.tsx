@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
@@ -42,13 +42,17 @@ function EnvForm({ env }: { env: "production" | "stage" }) {
   const [secret, setSecret] = useState<string | null>(null);
   const [testService, setTestService] = useState("");
   const [testResult, setTestResult] = useState<string | null>(null);
-  useEffect(() => {
-    const s = cur.data?.settings;
+  // The form takes the settings whenever they are loaded (another
+  // environment, a save): during render, without an effect.
+  const [formOf, setFormOf] = useState<DeploySettings | undefined>(undefined);
+  if (cur.data && cur.data !== formOf) {
+    setFormOf(cur.data);
+    const s = cur.data.settings;
     if (s) {
       setForm(s);
       setParams(Object.entries(s.params ?? {}).map(([k, v]) => `${k}=${v}`).join("\n"));
     }
-  }, [cur.data]);
+  }
   const parsed = () => Object.fromEntries(params.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
     const i = l.indexOf("=");
     return i < 0 ? [l, ""] : [l.slice(0, i).trim(), l.slice(i + 1).trim()];

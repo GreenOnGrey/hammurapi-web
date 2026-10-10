@@ -26,7 +26,8 @@ export function DevelopmentPage() {
   const domains = useDomains();
   const features = useFeatures({ domain, phase, status, q });
 
-  useEffect(() => chat.setSubject(null), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { setSubject } = chat;
+  useEffect(() => setSubject(null), [setSubject]);
 
   const setFilter = (k: string, v: string) => {
     const next = new URLSearchParams(params);
@@ -42,7 +43,7 @@ export function DevelopmentPage() {
       if (!m.has(k)) m.set(k, []);
       m.get(k)!.push(f);
     }
-    return [...m.entries()].sort(([a], [b]) => a.localeCompare(b));
+    return [...m.entries()].toSorted(([a], [b]) => a.localeCompare(b));
   }, [features.data]);
 
   return (

@@ -1,5 +1,5 @@
 import { apiUrl } from "../api/base";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 // One SSE stream carries every event type (tech spec, API §9).
 export type EventType =
@@ -36,11 +36,11 @@ export function connectEvents() {
   if (source) return;
   source = new EventSource(apiUrl("/api/v1/events"), { withCredentials: true });
   let wasOpen = false;
-  source.onopen = () => {
+  source.addEventListener("open", () => {
     // After a reconnect, state may have changed while we were away.
     if (wasOpen) reconnectHandlers.forEach((h) => h());
     wasOpen = true;
-  };
+  });
   for (const type of TYPES) {
     source.addEventListener(type, (e) => {
       let data: unknown;
@@ -73,6 +73,8 @@ export function onReconnect(h: () => void): () => void {
 /** Subscribes to an event type for the component's lifetime; the latest handler is always used. */
 export function useEvent(type: EventType, h: Handler) {
   const ref = useRef(h);
-  ref.current = h;
+  useLayoutEffect(() => {
+    ref.current = h;
+  });
   useEffect(() => onEvent(type, (d) => ref.current(d)), [type]);
 }

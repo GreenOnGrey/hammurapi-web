@@ -24,7 +24,8 @@ export function IssuesPage() {
   };
   const domains = useDomains();
   const issues = useIssues(f);
-  useEffect(() => chat.setSubject(null), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { setSubject } = chat;
+  useEffect(() => setSubject(null), [setSubject]);
   const set = (k: string, v: string) => {
     const n = new URLSearchParams(params);
     if (v) n.set(k, v);

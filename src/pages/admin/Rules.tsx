@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
@@ -122,6 +122,11 @@ function AreaRules({ area }: { area: Area }) {
   );
 }
 
+/** The link to the pull request with a proposed change, for the toast. */
+function prLink(url: string) {
+  return <a href={url} target="_blank" rel="noreferrer">{url}</a>;
+}
+
 function RuleEditor({ area, rule, canChange, blocked, onProposed }: {
   area: Area; rule: RuleFile; canChange: boolean; blocked: boolean; onProposed: () => void;
 }) {
@@ -131,13 +136,12 @@ function RuleEditor({ area, rule, canChange, blocked, onProposed }: {
   const [content, setContent] = useState<string | null>(null);
   const [baseline, setBaseline] = useState<string | null>(null);
   const [comment, setComment] = useState("");
-  useEffect(() => { setContent(null); setBaseline(null); }, [rule.sha]);
   const propose = useMutation({
     mutationFn: () => api.post<{ id: string; prUrl: string }>(`/admin/api/v1/rules/${area}/changes`, {
       file: rule.file, content: joinFrontMatter(split.front, normalizeEnding(restorePlaceholders(content ?? ""))), baseSha: rule.sha, comment,
     }),
     onSuccess: (r) => {
-      toast({ kind: "ok", title: t("admin.rules.proposed"), text: <a href={r.prUrl} target="_blank" rel="noreferrer">{r.prUrl}</a> });
+      toast({ kind: "ok", title: t("admin.rules.proposed"), text: prLink(r.prUrl) });
       setComment("");
       onProposed();
     },

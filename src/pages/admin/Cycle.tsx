@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
@@ -27,10 +27,14 @@ function CatalogCard() {
   const toast = useToast();
   const cat = useQuery({ queryKey: keys.catalog, queryFn: () => api.get<CatalogSettings>("/admin/api/v1/catalog") });
   const errors = useQuery({ queryKey: ["admin", "catalogErrors"], queryFn: () => api.get<CatalogError[]>("/admin/api/v1/catalog/errors") });
+  // The form takes the settings whenever they are loaded again (after a
+  // save or a sync): during render, without an effect.
   const [form, setForm] = useState<CatalogSettings | null>(null);
-  useEffect(() => {
-    if (cat.data) setForm(cat.data);
-  }, [cat.data]);
+  const [formOf, setFormOf] = useState<CatalogSettings | undefined>(undefined);
+  if (cat.data && cat.data !== formOf) {
+    setFormOf(cat.data);
+    setForm(cat.data);
+  }
   const refresh = () => {
     qc.invalidateQueries({ queryKey: keys.catalog });
     qc.invalidateQueries({ queryKey: ["admin", "catalogErrors"] });

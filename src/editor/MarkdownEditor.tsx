@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef } from "react";
 import { Editor, defaultValueCtx, editorViewCtx, editorViewOptionsCtx, remarkStringifyOptionsCtx, rootCtx } from "@milkdown/kit/core";
 import {
   commonmark, toggleEmphasisCommand, toggleStrongCommand, wrapInBlockquoteCommand, wrapInBulletListCommand,
@@ -43,12 +43,15 @@ export const MarkdownEditor = forwardRef<EditorHandle, Props>(function MarkdownE
 });
 
 function Inner({ value, readOnly, onChange, onReady, ariaLabel, handleRef }: Props & { handleRef: React.ForwardedRef<EditorHandle> }) {
+  // The editor is created once and reads the latest props through refs.
   const ro = useRef(readOnly);
-  ro.current = readOnly;
   const change = useRef(onChange);
-  change.current = onChange;
   const ready = useRef(onReady);
-  ready.current = onReady;
+  useLayoutEffect(() => {
+    ro.current = readOnly;
+    change.current = onChange;
+    ready.current = onReady;
+  });
 
   useEditor((root) =>
     Editor.make()

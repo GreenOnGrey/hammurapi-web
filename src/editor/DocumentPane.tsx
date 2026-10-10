@@ -49,10 +49,14 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
     front.current = split.front;
     baseSha.current = d.sha;
     baseline.current = null;
+    // A new version of the document replaces the editor's content: the
+    // state follows the server here, and only when a new version arrives —
+    // not when the body or the save state change.
+    // oxlint-disable-next-line react/set-state-in-effect
     setBody(split.body);
     setEditorKey((k) => k + 1);
     setLockedBy(d.lock && d.lock.userId !== me.id ? d.lock : null);
-  }, [doc.data]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [doc.data]); // oxlint-disable-line react/exhaustive-effect-dependencies, react-hooks/exhaustive-deps
 
   const lockedByOther = lockedBy !== null;
   const readOnly = !doc.data || doc.data.readOnly || lockedByOther;
@@ -94,6 +98,9 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
     qc.invalidateQueries({ queryKey: keys.document(feature.uniqueId, area) });
   }, [qc, feature.uniqueId, area]);
 
+  // save schedules itself again and offers a retry: through a ref, since a
+  // callback cannot name itself while it is being created.
+  const saveRef = useRef<() => void>(() => undefined);
   const save = useCallback(async () => {
     window.clearTimeout(timer.current);
     const md = current.current;
@@ -116,7 +123,7 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
       // Newer keystrokes may have arrived while saving.
       if (current.current !== md) {
         setState("dirty");
-        timer.current = window.setTimeout(() => save(), SAVE_DELAY);
+        timer.current = window.setTimeout(() => saveRef.current(), SAVE_DELAY);
       } else {
         setState("saved");
       }
@@ -132,12 +139,15 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
         title: stale ? t("editor.staleTitle") : t("editor.saveFailedTitle", { provider: config.provider === "github" ? "GitHub" : "GitLab" }),
         text: stale ? t("editor.staleText") : `${errorText(t, e)} ${t("editor.localOnly")}`,
         actions: [
-          ...(stale ? [] : [{ label: t("editor.retry"), primary: true, onClick: () => save() }]),
+          ...(stale ? [] : [{ label: t("editor.retry"), primary: true, onClick: () => saveRef.current() }]),
           { label: t("editor.discard"), primary: stale, onClick: reload },
         ],
       });
     }
   }, [acquireLock, area, feature.uniqueId, qc, reload, t, toast, config.provider]);
+  useEffect(() => {
+    saveRef.current = save;
+  }, [save]);
 
   const onChange = useCallback((md: string) => {
     current.current = md;

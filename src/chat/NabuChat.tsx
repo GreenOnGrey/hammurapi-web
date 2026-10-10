@@ -137,19 +137,23 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
   const messages = useMemo(() => {
     const byId = new Map<string, NabuMessage>();
     for (const p of history.data?.pages ?? []) for (const m of p.items) byId.set(m.id, m);
-    for (const m of Object.values(overrides)) if (mine(m.conversationId)) byId.set(m.id, { ...byId.get(m.id), ...m });
+    for (const m of Object.values(overrides)) {
+      if (m.conversationId === convId || m.conversationId === realId) byId.set(m.id, { ...byId.get(m.id), ...m });
+    }
     return [...byId.values()].toSorted((a, b) => a.createdAt.localeCompare(b.createdAt) || (a.role === "user" ? -1 : 1));
-  }, [history.data, overrides, convId, realId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [history.data, overrides, convId, realId]);
 
   const streaming = messages.some((m) => m.role === "assistant" && (m.status === "streaming" || m.status === "pending"));
+  // The composer is locked from sending until the answer stops streaming:
+  // the end of the stream comes from the server, so it is an effect.
   useEffect(() => {
-    if (!streaming) setBusy(false);
+    if (!streaming) setBusy(false); // oxlint-disable-line react/set-state-in-effect
   }, [streaming]);
   const lastLength = messages[messages.length - 1]?.text.length;
   useLayoutEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length, lastLength]);
+  }, [messages.length, lastLength]); // oxlint-disable-line react/exhaustive-effect-dependencies -- the list follows new messages and the growth of the answer
 
   const put = (m: Partial<NabuMessage> & { id: string }) =>
     setOverrides((o) => ({ ...o, [m.id]: { ...(o[m.id] ?? ({} as NabuMessage)), ...m } as NabuMessage }));
@@ -208,9 +212,12 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
     }
   };
 
+  // Sending is a reaction to a command from another screen, so it lives in
+  // an effect and runs once per queued message.
   useEffect(() => {
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
     const out = chat.takeOutbox();
-    if (out) send(out);
+    if (out) send(out); // oxlint-disable-line react/set-state-in-effect
   }, [chat.outbox]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const retry = async (m: NabuMessage) => {

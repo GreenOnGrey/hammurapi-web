@@ -20,9 +20,12 @@ export function ReleasePage() {
   const rel = useRelease(key);
   const chat = useChatContext();
   const r = rel.data;
+  const { setSubject } = chat;
+  const rkey = r?.key;
+  const rtitle = r?.featureTitle;
   useEffect(() => {
-    if (r) chat.setSubject({ type: "release", key: r.key, title: r.featureTitle });
-  }, [r?.key, r?.featureTitle]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (rkey && rtitle !== undefined) setSubject({ type: "release", key: rkey, title: rtitle });
+  }, [rkey, rtitle, setSubject]);
   if (rel.isLoading) return <main className="main"><Loading /></main>;
   if (!r) {
     return (

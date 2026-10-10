@@ -67,7 +67,7 @@ export function ImportUploadModal({ onClose }: { onClose: () => void }) {
 }
 
 function issueText(t: ReturnType<typeof useTranslation>["t"], i: Issue): string {
-  return t(`import.issues.${i.code}`, { ...(i.params ?? {}), defaultValue: i.code });
+  return t(`import.issues.${i.code}`, { ...i.params, defaultValue: i.code });
 }
 
 export function ImportPage() {

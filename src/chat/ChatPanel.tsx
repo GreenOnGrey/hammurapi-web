@@ -56,11 +56,14 @@ export function ChatPanel() {
   const fileRef = useRef<HTMLInputElement>(null);
   const recorder = useRecorder();
 
-  // The mode follows the issue, feature or release on the screen; the user can switch back.
-  useEffect(
-    () => setMode(chat.subject ? "spec" : "general"),
-    [chat.subject?.key],
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  // The mode follows the issue, feature or release on the screen; the user
+  // can switch back. A new subject resets it during render, without an effect.
+  const subjectKey = chat.subject?.key;
+  const [modeOf, setModeOf] = useState<string | undefined>(undefined);
+  if (modeOf !== subjectKey) {
+    setModeOf(subjectKey);
+    setMode(subjectKey ? "spec" : "general");
+  }
 
   const history = useInfiniteQuery({
     queryKey: keys.chat,
@@ -73,15 +76,14 @@ export function ChatPanel() {
   });
   const serverMsgs = (history.data?.pages ?? [])
     .flatMap((p) => p.items)
-    .slice()
-    .reverse();
+    .toReversed();
   const known = new Set(serverMsgs.map((m) => m.id));
   const messages = [...serverMsgs, ...local.filter((m) => !known.has(m.id))];
 
   useLayoutEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length, live?.text, live?.tools.length, view]);
+  }, [messages.length, live?.text, live?.tools.length, view]); // oxlint-disable-line react/exhaustive-effect-dependencies -- the list follows new messages and the growth of the answer
 
   useEvent("agent.token", (d: { messageId: string; text: string }) =>
     setLive((l) =>
@@ -204,11 +206,13 @@ export function ChatPanel() {
     }
   };
 
-  // Drop the live bubble once the stored agent message has arrived.
+  // Drop the live bubble once the stored agent message has arrived: only
+  // when a refetch of the history ends, not as soon as the answer is done —
+  // otherwise the answer would disappear until the history brings it.
   useEffect(() => {
     if (live?.done && !live.error && history.isFetched && !history.isFetching)
-      setLive(null);
-  }, [history.isFetching]); // eslint-disable-line react-hooks/exhaustive-deps
+      setLive(null); // oxlint-disable-line react/set-state-in-effect
+  }, [history.isFetching]); // eslint-disable-line react-hooks/exhaustive-deps, react/exhaustive-effect-dependencies
 
   const send = async (msg: string, isVoice = false) => {
     const body = msg.trim();
@@ -264,9 +268,12 @@ export function ChatPanel() {
   };
 
   // Messages queued from elsewhere ("Draft by rules").
+  // Sending is a reaction to a command from another screen, so it lives in
+  // an effect and runs once per queued message.
   useEffect(() => {
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
     const out = chat.takeOutbox();
-    if (out) send(out);
+    if (out) send(out); // oxlint-disable-line react/set-state-in-effect
   }, [chat.outbox]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const attach = async (files: FileList | null) => {

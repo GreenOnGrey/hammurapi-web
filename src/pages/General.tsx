@@ -38,7 +38,8 @@ function GeneralTabs() {
 
 function useGeneralChat() {
   const chat = useChatContext();
-  useEffect(() => chat.setSubject(null), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { setSubject } = chat;
+  useEffect(() => setSubject(null), [setSubject]);
 }
 
 /** "In focus": what waits for my decision now, by stage, longest waiting first (R37). */

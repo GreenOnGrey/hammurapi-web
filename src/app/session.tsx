@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -98,6 +99,22 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [area, setArea] = useState<Area | null>(null);
   const [open, setOpen] = useState(false);
   const [outbox, setOutbox] = useState<string | null>(null);
+  // setSubject and send do not change between renders: pages name them in
+  // the dependencies of their effects.
+  const setSubject = useCallback<ChatContextValue["setSubject"]>((s, a = null) => {
+    setS((prev) =>
+      prev?.key === s?.key &&
+      prev?.title === s?.title &&
+      prev?.type === s?.type
+        ? prev
+        : s,
+    );
+    setArea(a);
+  }, []);
+  const send = useCallback((text: string) => {
+    setOutbox(text);
+    setOpen(true);
+  }, []);
   const value = useMemo<ChatContextValue>(
     () => ({
       subject,
@@ -105,27 +122,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       open,
       setOpen,
       outbox,
-      setSubject: (s, a = null) => {
-        setS((prev) =>
-          prev?.key === s?.key &&
-          prev?.title === s?.title &&
-          prev?.type === s?.type
-            ? prev
-            : s,
-        );
-        setArea(a);
-      },
-      send: (text) => {
-        setOutbox(text);
-        setOpen(true);
-      },
+      setSubject,
+      send,
       takeOutbox: () => {
         const o = outbox;
         if (o !== null) setOutbox(null);
         return o;
       },
     }),
-    [subject, area, open, outbox],
+    [subject, area, open, outbox, setSubject, send],
   );
   return <ChatCtx.Provider value={value}>{children}</ChatCtx.Provider>;
 }

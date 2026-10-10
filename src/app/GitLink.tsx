@@ -75,7 +75,7 @@ export function GitLinkDialog() {
         qc.invalidateQueries();
       })
       .catch((e) => toast({ kind: "error", title: errorText(t, e) }));
-  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps, react/exhaustive-effect-dependencies -- runs once per return from the git provider
 
   if (!change) return null;
   const link = () => {

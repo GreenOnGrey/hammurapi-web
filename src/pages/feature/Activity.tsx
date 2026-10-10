@@ -14,7 +14,7 @@ export function ActivityTab({ f }: { f: FeatureCard }) {
     queryFn: async () => {
       const lists = await Promise.all(areas.map((a) =>
         api.get<List<HistoryItem>>(`/api/v1/features/${f.uniqueId}/gates/${a}/history?limit=100`).then((l) => l.items.map((h) => ({ ...h, area: a })))));
-      return lists.flat().sort((x, y) => y.createdAt.localeCompare(x.createdAt));
+      return lists.flat().toSorted((x, y) => y.createdAt.localeCompare(x.createdAt));
     },
   });
   if (hist.isLoading) return <Loading />;

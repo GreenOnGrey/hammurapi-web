@@ -20,7 +20,7 @@ describe("locales", () => {
   for (const lng of LANGUAGES) {
     const msgs = flatten(resources[lng].translation as Tree);
     it(`${lng} has exactly the English keys`, () => {
-      expect(Object.keys(msgs).sort()).toEqual(Object.keys(en).sort());
+      expect(Object.keys(msgs).toSorted()).toEqual(Object.keys(en).toSorted());
     });
     it(`${lng} messages are valid ICU`, () => {
       for (const [key, msg] of Object.entries(msgs)) {
@@ -73,8 +73,8 @@ describe("stage names (FTR.HMR.CMN-0003)", () => {
         expect(msgs[k], `${lng}:${k}`).not.toMatch(/Поставка|Research|Release/);
       }
     }
-    const en = createI18n("en");
-    expect(["general", "research", "development", "delivery"].map((k) => en.t(`stages.${k}`)))
+    const english = createI18n("en");
+    expect(["general", "research", "development", "delivery"].map((k) => english.t(`stages.${k}`)))
       .toEqual(["General", "Discovery", "Development", "Delivery"]);
     const ru = createI18n("ru");
     expect(["general", "research", "development", "delivery"].map((k) => ru.t(`stages.${k}`)))
@@ -84,10 +84,10 @@ describe("stage names (FTR.HMR.CMN-0003)", () => {
 
   // R3: the agent step is Analysis / «Анализ», so it does not repeat the EN stage name.
   it("the agent step is Analysis", () => {
-    const en = createI18n("en");
-    expect(en.t("issue.analysis")).toBe("Analysis");
-    expect(en.t("issueStatus.discovery")).toBe("Analysis in progress");
-    expect(en.t("issueStatus.verification")).toBe("Awaiting verification");
+    const english = createI18n("en");
+    expect(english.t("issue.analysis")).toBe("Analysis");
+    expect(english.t("issueStatus.discovery")).toBe("Analysis in progress");
+    expect(english.t("issueStatus.verification")).toBe("Awaiting verification");
     const ru = createI18n("ru");
     expect(ru.t("issue.document")).toBe("Анализ");
     expect(ru.t("issueStatus.discovery")).toBe("Анализ идёт");

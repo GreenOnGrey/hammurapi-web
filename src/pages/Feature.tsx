@@ -30,9 +30,12 @@ export function FeaturePage() {
   const area = (areaParam && AREAS.includes(areaParam as Area) ? areaParam : f?.gates[0]?.area) as Area | undefined;
 
   // Opening a feature switches the chat to it (tech spec §7).
+  const { setSubject } = chat;
+  const fid = f?.uniqueId;
+  const ftitle = f?.title;
   useEffect(() => {
-    if (f) chat.setSubject({ type: "feature", key: f.uniqueId, title: f.title }, tab === "spec" ? area ?? null : null);
-  }, [f?.uniqueId, f?.title, area, tab]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (fid && ftitle !== undefined) setSubject({ type: "feature", key: fid, title: ftitle }, tab === "spec" ? area ?? null : null);
+  }, [fid, ftitle, area, tab, setSubject]);
 
   if (feature.isLoading) return <main className="main"><Loading /></main>;
   if (feature.error instanceof ApiError && feature.error.status === 410) return <DeletedFeature error={feature.error} />;

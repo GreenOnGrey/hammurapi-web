@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
@@ -16,10 +16,9 @@ export function SettingsAdmin() {
   const qc = useQueryClient();
   const toast = useToast();
   const settings = useQuery({ queryKey: keys.settings, queryFn: () => api.get<Settings>("/admin/api/v1/settings") });
-  const [days, setDays] = useState("");
-  useEffect(() => {
-    if (settings.data) setDays(String(settings.data.attachmentRetentionDays));
-  }, [settings.data]);
+  // The field shows the saved value until the administrator edits it.
+  const [draft, setDays] = useState<string | null>(null);
+  const days = draft ?? (settings.data ? String(settings.data.attachmentRetentionDays) : "");
   const save = useMutation({
     mutationFn: () => api.patch<Settings>("/admin/api/v1/settings", { attachmentRetentionDays: Number(days) }),
     onSuccess: (s) => {

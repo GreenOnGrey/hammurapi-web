@@ -30,11 +30,15 @@ export function IssuePage() {
       if (k) navigate(`/issues/${k}`, { replace: true });
     }
   }, [issue.error, navigate]);
+  const { setSubject } = chat;
+  const isKey = is?.key;
+  const isTitle = is?.title;
   useEffect(() => {
-    if (is) chat.setSubject({ type: "issue", key: is.key, title: is.title });
+    if (!isKey || isTitle === undefined) return;
+    setSubject({ type: "issue", key: isKey, title: isTitle });
     // The browser follows the 308 of a former key: show the canonical key in the URL.
-    if (is && is.key !== key) navigate(`/issues/${is.key}`, { replace: true });
-  }, [is?.key, is?.title]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (isKey !== key) navigate(`/issues/${isKey}`, { replace: true });
+  }, [isKey, isTitle, key, navigate, setSubject]);
 
   if (issue.isLoading) return <main className="main"><Loading /></main>;
   if (!is) {
@@ -395,7 +399,7 @@ function RevisionsModal({ is, onClose }: { is: IssueCard; onClose: () => void })
   return (
     <Modal wide title={t("issue.revisions")} onClose={onClose}>
       {revs.isLoading && <Loading />}
-      {revs.data?.items.slice().reverse().map((r) => (
+      {revs.data?.items.toReversed().map((r) => (
         <details key={r.revision} className="docsec">
           <summary className="row small">
             <b>#{r.revision}</b> {r.isAgent ? <AgentMark /> : null} <span className="t2">{r.actor ?? ""}</span>

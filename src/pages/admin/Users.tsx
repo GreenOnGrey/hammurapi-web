@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api, qs } from "../../api/client";
@@ -133,7 +133,13 @@ function RoleEditor({ user, onDone }: { user: AdminUser; onDone: (u: AdminUser) 
   const toast = useToast();
   const [global, setGlobal] = useState(user.globalAdmin);
   const [areas, setAreas] = useState<Set<Area>>(() => new Set(user.areaAdmin));
-  useEffect(() => setAreas(new Set(user.areaAdmin)), [user]);
+  // A saved user comes back as a new object: the checkboxes follow it,
+  // reset during render, without an effect.
+  const [areasOf, setAreasOf] = useState(user);
+  if (areasOf !== user) {
+    setAreasOf(user);
+    setAreas(new Set(user.areaAdmin));
+  }
   const toggle = (a: Area) => setAreas((s) => {
     const n = new Set(s);
     if (n.has(a)) n.delete(a);

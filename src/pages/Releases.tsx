@@ -17,7 +17,8 @@ export function ReleasesPage() {
   const status = params.get("status") ?? "active";
   const domains = useDomains();
   const releases = useReleases({ domain, status });
-  useEffect(() => chat.setSubject(null), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { setSubject } = chat;
+  useEffect(() => setSubject(null), [setSubject]);
   const set = (k: string, v: string) => {
     const n = new URLSearchParams(params);
     n.set(k, v);
