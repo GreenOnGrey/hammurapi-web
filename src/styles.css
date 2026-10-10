@@ -2587,3 +2587,19 @@ select.inp.inherit {
 .turnstate .spin{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--violet);animation:nb-spin 1s linear infinite}
 @keyframes nb-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.turnstate .spin{animation:none}}
+
+/* The tool calls of an answer in the chat of Nabu: one line each, never wider than the panel. */
+.msgs{overflow-x:hidden}
+.m{min-width:0}
+.nbsteps{display:flex;flex-direction:column;gap:4px;margin-bottom:6px;min-width:0}
+.nbsteps .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface-2);padding:4px 8px;min-width:0}
+.nbsteps .step .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.nbsteps .step .ok{color:var(--green);flex:none}.nbsteps .step .er{color:var(--red);flex:none}.nbsteps .step .run{color:var(--muted);flex:none}
+.nbsteps .fold{align-self:flex-start;font-size:12px;color:var(--muted);border:0;background:none;padding:2px 0;cursor:pointer}
+
+/* The agent of Nabu: the round icon of its tone and the choice of the tone, as on the site of Nabu. */
+.nbagent{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--violet),#12A876);flex:none}
+.nbagent.s{width:26px;height:26px}
+.nbtones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nbtone{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:var(--r-m);font-size:14px;background:var(--surface);color:var(--text);cursor:pointer;text-align:left}
+.nbtone.on{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet);color:var(--violet-text)}

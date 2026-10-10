@@ -40,6 +40,12 @@ const PATHS: Record<string, string> = {
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
   smile: '<circle cx="12" cy="12" r="8"/><path d="M8.5 14a4 4 0 0 0 7 0M9.5 10h.01M14.5 10h.01"/>',
   bolt: '<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',
+  // The tone icons of the agent in Nabu (FTR.NAB.CMN-0001 design §1): the same
+  // drawings as on the site of Nabu.
+  tBusiness: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 12h18"/>',
+  tFriendly: '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.5 2.4 2.2 4 2.2s3-.7 4-2.2M9 9.5h.01M15 9.5h.01"/>',
+  tBrief: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
+  tMentor: '<path d="M3 6c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1zM12 7v13"/>',
   key: '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2M16 7l2 2M14 9l2 2"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>',

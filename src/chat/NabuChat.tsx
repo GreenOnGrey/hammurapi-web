@@ -3,14 +3,14 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { useTranslation } from "react-i18next";
 import { apiUrl } from "../api/base";
 import { ApiError, api } from "../api/client";
-import type { List, NabuAgent, NabuConversation, NabuMessage, NabuTone, NabuToolStep, Tone, NabuAgentWait } from "../api/types";
+import type { List, NabuAgent, NabuConversation, NabuMessage, NabuTone, NabuToolStep, NabuAgentWait } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { llmErrorText, transientLLMError } from "../lib/llm";
 import { relativeTime } from "../lib/format";
 import { useEvent } from "../lib/sse";
 import { Icon } from "../components/Icon";
-import { Avatar, Modal, useOutside, useToast } from "../components/ui";
+import { Modal, useOutside, useToast } from "../components/ui";
 import { useRecorder } from "./useRecorder";
 
 // FTR.HMR.CMN-0006 R5, R6: the chat is a window to the personal agent of the
@@ -20,9 +20,17 @@ import { useRecorder } from "./useRecorder";
 
 const NABU_TONES: NabuTone[] = ["business", "friendly", "brief", "mentor"];
 
-/** The tone icons of Hammurapi; "brief" of Nabu is "concise" here. */
-export const toneIcon = (tone: NabuTone | undefined): Tone =>
-  tone === "brief" ? "concise" : ((tone ?? "business") as Tone);
+/** The icon of the agent per tone, as on the site of Nabu: the tone is shown
+ * by the icon, not by a caption (FTR.NAB.CMN-0001 R31). */
+const TONE_ICONS = { business: "tBusiness", friendly: "tFriendly", brief: "tBrief", mentor: "tMentor" } as const;
+
+function AgentIcon({ tone, small }: { tone: NabuTone | undefined; small?: boolean }) {
+  return (
+    <span className={`nbagent${small ? " s" : ""}`} aria-hidden="true">
+      <Icon name={TONE_ICONS[tone ?? "business"] ?? "tBusiness"} size={small ? 14 : 18} />
+    </span>
+  );
+}
 
 const nabuKeys = {
   agent: ["nabu", "agent"] as const,
@@ -69,12 +77,11 @@ export function NabuChatPanel() {
       <div className="chat-h">
         <div className="who">
           <button className="avatar-btn" onMouseDown={(e) => agentMenu && e.stopPropagation()} onClick={() => setAgentMenu((v) => !v)}
-            aria-label={t("chat.agentSettings")} aria-expanded={agentMenu} title={t("chat.agentSettings")} disabled={!a}>
-            <Avatar agent tone={toneIcon(a?.tone)} name={a?.name ?? "N"} />
+            aria-label={t("chat.agentSettings")} aria-expanded={agentMenu} title={a ? t(`nabu.tones.${a.tone}`) : t("chat.agentSettings")} disabled={!a}>
+            <AgentIcon tone={a?.tone} />
           </button>
           <div style={{ minWidth: 0 }}>
             <b>{a?.name ?? "…"}</b>
-            <div className="small muted">{a ? t("chat.tone", { tone: t(`nabu.tones.${a.tone}`) }) : ""}</div>
             {a?.model && <div className="small muted mono" title={a.model.connection}>{a.model.name}</div>}
           </div>
           <button className="iconbtn chat-close" style={{ marginLeft: "auto" }} onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
@@ -286,11 +293,12 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
                 {" · "}{relativeTime(m.createdAt, i18n.language)}
               </div>
             )}
-            <div className="bub">
-              {m.text || (m.role === "assistant" && m.status !== "failed" && (
-                <span className="typing" aria-label={t("chat.typing")}><i /><i /><i /></span>
-              ))}
-            </div>
+            {m.role === "assistant" && (m.status === "streaming" || m.status === "pending") && <ToolSteps steps={m.toolSteps ?? []} />}
+            {(m.text || (m.role === "assistant" && m.status !== "failed")) && (
+              <div className="bub">
+                {m.text || <span className="typing" aria-label={t("chat.typing")}><i /><i /><i /></span>}
+              </div>
+            )}
             {wait?.messageId === m.id && (
               <div className={`turnstate${wait.state === "queued" ? " q" : ""}`} role="status">
                 {wait.state === "queued"
@@ -305,12 +313,6 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
                 ))}
               </div>
             )}
-            {m.toolSteps?.map((s) => (
-              <span key={s.id} className="edit">
-                <Icon name={s.status === "done" ? "check" : s.status === "error" ? "alert" : "clock"} size={13} />
-                {s.summary || `${s.server} · ${s.tool}`}
-              </span>
-            ))}
             {m.errorClass && (
               <div className={`llmerr${transientLLMError(m.errorClass) ? " amber" : ""}`} role="alert" style={{ marginTop: 6 }}>
                 <span>{llmErrorText(t, m.errorClass, t("llm.theConnection"))}</span>
@@ -406,9 +408,10 @@ function NabuAgentMenu({ agent, onClose }: { agent: NabuAgent; onClose: () => vo
       </div>
       <div className="sec">
         <div className="lab">{t("profile.tone")}</div>
-        <div className="chips">
+        <div className="nbtones">
           {NABU_TONES.map((tone) => (
-            <button key={tone} className={`chip${agent.tone === tone ? " on" : ""}`} onClick={() => patch.mutate({ tone })}>
+            <button key={tone} className={`nbtone${agent.tone === tone ? " on" : ""}`} aria-pressed={agent.tone === tone} onClick={() => patch.mutate({ tone })}>
+              <AgentIcon tone={tone} small />
               {t(`nabu.tones.${tone}`)}
             </button>
           ))}
@@ -467,5 +470,37 @@ export function NoAgentPanel() {
         </div>
       </div>
     </aside>
+  );
+}
+
+/** The tool calls of an answer, shown only while the answer is being written:
+ * they tell what the agent is doing now and go away with the finished answer.
+ * One line each, cut by the width of the panel; more than three fold to the
+ * last two, as on the site of Nabu. */
+function ToolSteps({ steps }: { steps: NabuToolStep[] }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  if (steps.length === 0) return null;
+  const shown = open || steps.length <= 3 ? steps : steps.slice(-2);
+  return (
+    <div className="nbsteps">
+      {steps.length > 3 && (
+        <button className="fold" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+          {open ? t("nabu.hideSteps") : t("nabu.moreSteps", { count: steps.length - 2 })}
+        </button>
+      )}
+      {shown.map((s) => {
+        // "tool — the first line of the result", as the core writes it
+        const rest = s.summary.includes(" — ") ? s.summary.slice(s.summary.indexOf(" — ") + 3) : s.tool;
+        const text = s.server ? `${s.server}: ${rest}` : rest;
+        return (
+          <div key={s.id} className="step" title={s.summary}>
+            <Icon name={s.status === "done" ? "check" : s.status === "error" ? "alert" : "clock"} size={13}
+              className={s.status === "done" ? "ok" : s.status === "error" ? "er" : "run"} />
+            <span className="tx">{text}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 }

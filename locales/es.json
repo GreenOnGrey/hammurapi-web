@@ -1407,7 +1407,9 @@
     "wait": {
       "starting": "El agente se está iniciando…",
       "queued": "{count, plural, =0 {En cola · usted es el siguiente} other {En cola · # por delante}}"
-    }
+    },
+    "moreSteps": "{count, plural, one {# paso más} other {# pasos más}}",
+    "hideSteps": "Ocultar pasos"
   },
   "noAgent": {
     "title": "El agente no está conectado",

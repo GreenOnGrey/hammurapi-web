@@ -1407,7 +1407,9 @@
     "wait": {
       "starting": "Агент запускается…",
       "queued": "{count, plural, =0 {В очереди · вы следующий} other {В очереди · перед вами #}}"
-    }
+    },
+    "moreSteps": "{count, plural, one {ещё # шаг} few {ещё # шага} many {ещё # шагов} other {ещё # шага}}",
+    "hideSteps": "Скрыть шаги"
   },
   "noAgent": {
     "title": "Агент не подключён",
