@@ -1263,6 +1263,30 @@ textarea.inp {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* a Markdown answer: the renderer builds the blocks, tables scroll inside the bubble */
+.m .bub.md {
+  white-space: normal;
+}
+.m .bub.md p,
+.m .bub.md ul,
+.m .bub.md ol {
+  margin: 6px 0;
+}
+.m .bub.md h3,
+.m .bub.md h4,
+.m .bub.md h5,
+.m .bub.md h6 {
+  font-size: 14px;
+  margin: 10px 0 4px;
+}
+.m .bub.md table.cov {
+  display: block;
+  overflow-x: auto;
+  overflow-wrap: normal;
+}
+.m .bub.md pre {
+  background: var(--surface);
+}
 .m.a .bub {
   background: var(--surface-2);
   border-top-left-radius: 4px;
@@ -2389,6 +2413,40 @@ table.cov tr.gap td {
   }
   .chat-fab {
     bottom: 64px;
+  }
+  /* The sticky action bar docks right above the bottom navigation (44px):
+     sticky offsets count from the padding of .main, so the offset takes the
+     padding back. The chat button moves above the bar, and the padding grows
+     to keep the end of the page clear of the button. */
+  .main:has(.actionbar.sticky) {
+    --main-pb: 150px;
+    padding-bottom: var(--main-pb);
+  }
+  .main:has(.actionbar.sticky .err-text) {
+    --main-pb: 192px;
+  }
+  .actionbar.sticky {
+    bottom: calc(44px - var(--main-pb));
+    margin: 0 -14px;
+    padding: 8px 10px;
+    gap: 6px;
+    border-width: 1px 0 0;
+    border-radius: 0;
+  }
+  .actionbar.sticky .grow:empty {
+    display: none;
+  }
+  .actionbar.sticky .err-text {
+    flex-basis: 100%;
+  }
+  .actionbar.sticky .btn {
+    flex: 1 1 auto;
+  }
+  .body:has(.actionbar.sticky) ~ .chat-fab {
+    bottom: 108px;
+  }
+  .body:has(.actionbar.sticky .err-text) ~ .chat-fab {
+    bottom: 150px;
   }
   .board,
   .two-col,

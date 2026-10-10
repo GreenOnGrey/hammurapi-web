@@ -21,6 +21,7 @@ import { llmErrorText, transientLLMError } from "../lib/llm";
 import { bytes, relativeTime } from "../lib/format";
 import { useEvent } from "../lib/sse";
 import { Icon } from "../components/Icon";
+import { Markdown } from "../components/Markdown";
 import { Avatar, useToast } from "../components/ui";
 import { AgentSettings } from "./AgentSettings";
 import { useRecorder } from "./useRecorder";
@@ -461,7 +462,9 @@ export function ChatPanel() {
                     {relativeTime(m.createdAt, i18n.language)}
                   </div>
                 )}
-                <div className="bub">{m.content}</div>
+                {m.role === "user"
+                  ? <div className="bub">{m.content}</div>
+                  : <div className="bub md"><Markdown text={m.content} /></div>}
                 {m.attachments.length > 0 && (
                   <div className="atts">
                     {m.attachments.map((a) => (
@@ -498,10 +501,10 @@ export function ChatPanel() {
             ))}
             {live && !live.errorClass && (
               <div className={`m a${live.error ? " err" : ""}`}>
-                <div className="bub">
+                <div className={`bub${!live.error && live.text ? " md" : ""}`}>
                   {live.error
                     ? live.error
-                    : live.text || (
+                    : live.text ? <Markdown text={live.text} /> : (
                         <span className="typing" aria-label={t("chat.typing")}>
                           <i />
                           <i />

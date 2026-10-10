@@ -10,6 +10,7 @@ import { llmErrorText, transientLLMError } from "../lib/llm";
 import { relativeTime } from "../lib/format";
 import { useEvent } from "../lib/sse";
 import { Icon } from "../components/Icon";
+import { Markdown } from "../components/Markdown";
 import { Modal, useOutside, useToast } from "../components/ui";
 import { useRecorder } from "./useRecorder";
 
@@ -89,8 +90,8 @@ export function NabuChatPanel() {
           </button>
         </div>
         {agentMenu && a && <NabuAgentMenu agent={a} onClose={() => setAgentMenu(false)} />}
-        <div className="line" style={{ gap: 6, marginTop: 8 }}>
-          <select className="inp" style={{ flex: 1 }} value={convId} onChange={(e) => setConvId(e.target.value)} aria-label={t("nabu.conversation")}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
+          <select className="inp" style={{ flex: 1, minWidth: 0 }} value={convId} onChange={(e) => setConvId(e.target.value)} aria-label={t("nabu.conversation")}>
             <option value="main">{t("nabu.mainConversation")}</option>
             {items.filter((c) => c.kind === "topic" && !c.archivedAt).map((c) => (
               <option key={c.id} value={c.id}>{c.title}</option>
@@ -295,8 +296,10 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
             )}
             {m.role === "assistant" && (m.status === "streaming" || m.status === "pending") && <ToolSteps steps={m.toolSteps ?? []} />}
             {(m.text || (m.role === "assistant" && m.status !== "failed")) && (
-              <div className="bub">
-                {m.text || <span className="typing" aria-label={t("chat.typing")}><i /><i /><i /></span>}
+              <div className={`bub${m.role === "assistant" && m.text ? " md" : ""}`}>
+                {m.text
+                  ? (m.role === "assistant" ? <Markdown text={m.text} /> : m.text)
+                  : <span className="typing" aria-label={t("chat.typing")}><i /><i /><i /></span>}
               </div>
             )}
             {wait?.messageId === m.id && (

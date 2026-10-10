@@ -103,7 +103,7 @@ function IssueView({ is }: { is: IssueCard }) {
 
       <section className="docsec">
         <h5>{t("issue.description")}</h5>
-        <div className="prose small">{is.description || <span className="muted">—</span>}</div>
+        <div className="prose small">{is.description ? <Markdown text={is.description} /> : <span className="muted">—</span>}</div>
       </section>
 
       <div className="row" style={{ margin: "18px 0 8px" }}>
