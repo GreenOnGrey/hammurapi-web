@@ -971,6 +971,14 @@ export interface NabuToolStep {
   status: "running" | "done" | "error";
 }
 
+/** A turn waiting for the pod of the agent in Nabu (FTR.NAB.CMN-0004 tech §2). */
+export interface NabuAgentWait {
+  conversationId: string;
+  messageId: string;
+  state: "starting" | "queued";
+  position?: number;
+}
+
 export interface NabuMessage {
   id: string;
   conversationId: string;

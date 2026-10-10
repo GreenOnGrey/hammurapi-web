@@ -1403,6 +1403,10 @@
       "web": "Nabu",
       "telegram": "Telegram",
       "client": "Hammurapi"
+    },
+    "wait": {
+      "starting": "Агент запускается…",
+      "queued": "{count, plural, =0 {В очереди · вы следующий} other {В очереди · перед вами #}}"
     }
   },
   "noAgent": {

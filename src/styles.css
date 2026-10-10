@@ -2580,3 +2580,10 @@ select.inp.inherit {
   color: var(--text-2);
   background: var(--surface-2);
 }
+
+/* FTR.NAB.CMN-0004 design §1: the state of a turn waiting for the pod of the agent */
+.turnstate{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:var(--muted);margin-top:5px}
+.turnstate.q{color:var(--amber)}
+.turnstate .spin{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--violet);animation:nb-spin 1s linear infinite}
+@keyframes nb-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.turnstate .spin{animation:none}}

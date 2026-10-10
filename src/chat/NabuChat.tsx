@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { useTranslation } from "react-i18next";
 import { apiUrl } from "../api/base";
 import { ApiError, api } from "../api/client";
-import type { List, NabuAgent, NabuConversation, NabuMessage, NabuTone, NabuToolStep, Tone } from "../api/types";
+import type { List, NabuAgent, NabuConversation, NabuMessage, NabuTone, NabuToolStep, Tone, NabuAgentWait } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { llmErrorText, transientLLMError } from "../lib/llm";
@@ -155,7 +155,17 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
     setOverrides((o) => ({ ...o, [m.id]: { ...(o[m.id] ?? ({} as NabuMessage)), ...m } as NabuMessage }));
   const find = (o: Record<string, NabuMessage>, id: string) => o[id] ?? messages.find((x) => x.id === id);
 
-  useEvent("nabu.message.created", (m: NabuMessage) => mine(m.conversationId) && put(m));
+  // FTR.NAB.CMN-0004 R7, R12: the pod of the agent starts, or the turn waits
+  // for a place; the line goes with the first event of the answer.
+  const [wait, setWait] = useState<NabuAgentWait | null>(null);
+  useEvent("nabu.agent.state", (d: NabuAgentWait) => {
+    if (mine(d.conversationId)) setWait(d);
+  });
+  useEvent("nabu.message.created", (m: NabuMessage) => {
+    if (!mine(m.conversationId)) return;
+    put(m);
+    if (m.role === "assistant") setWait(null);
+  });
   useEvent("nabu.message.delta", (d: { messageId: string; conversationId: string; delta: string }) => {
     if (!mine(d.conversationId)) return;
     setOverrides((o) => {
@@ -175,6 +185,7 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
   useEvent("nabu.message.done", (m: NabuMessage) => {
     if (!mine(m.conversationId)) return;
     put(m);
+    setWait(null);
     qc.invalidateQueries({ queryKey: nabuKeys.conversations });
   });
 
@@ -273,6 +284,13 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
                 <span className="typing" aria-label={t("chat.typing")}><i /><i /><i /></span>
               ))}
             </div>
+            {wait?.messageId === m.id && (
+              <div className={`turnstate${wait.state === "queued" ? " q" : ""}`} role="status">
+                {wait.state === "queued"
+                  ? <><Icon name="clock" size={12} />{t("nabu.wait.queued", { count: wait.position ?? 0 })}</>
+                  : <><span className="spin" aria-hidden="true" />{t("nabu.wait.starting")}</>}
+              </div>
+            )}
             {m.attachments?.length > 0 && (
               <div className="atts">
                 {m.attachments.map((x) => (

@@ -1403,6 +1403,10 @@
       "web": "Nabu",
       "telegram": "Telegram",
       "client": "Hammurapi"
+    },
+    "wait": {
+      "starting": "代理正在启动…",
+      "queued": "{count, plural, =0 {排队中 · 您是下一位} other {排队中 · 前面还有 # 位}}"
     }
   },
   "noAgent": {
