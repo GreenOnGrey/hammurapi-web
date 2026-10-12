@@ -1306,14 +1306,16 @@ button.avatar-btn[aria-expanded="true"] > span {
   .trow.release {
     grid-template-columns: auto minmax(0, 1fr);
   }
-  /* a card of the focus on a phone: the key and the action in the first line,
-     everything else under them at the whole width. The title used to share the
-     column of the key, so a long title pushed the action off the card. */
+  /* a row as a card on a phone — the focus, the lists of issues and releases:
+     the key and what stands next to it in the first line, everything else under
+     them at the whole width. The title used to share the column of the key, so
+     a long title pushed the badges off the card. */
   .irow > :nth-child(n + 3),
-  .trow > :nth-child(n + 5) {
+  .trow > :nth-child(n + 3) {
     grid-column: 1 / -1;
   }
-  .irow > :nth-child(2) {
+  .irow > :nth-child(2),
+  .trow > :nth-child(2) {
     justify-self: start;
   }
   /* no hint — no empty line for it between the title and the time */

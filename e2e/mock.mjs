@@ -39,7 +39,20 @@ const overview = {
   features: [card("FTR.NAB.CMN-0005", "UI Kit", "development", { step: "tech" }), card("FTR.NAB.CMN-0004", "Поды агентов", "validation", { done: 5 })],
   releases: [card("RLS.NAB-0003", "Память коммуникаций", "deploying", { feature: "FTR.NAB.CMN-0003" })],
 };
-const issues = [{ key: "ISS.NAB-0007", domain: "NAB", type: "idea", title: "Единый вид кнопок в двух продуктах", description: "Кнопки расходятся.", source: "web", status: "new", author: "ada", mergedInto: null, rejectReason: null, rolledBackRelease: null, createdAt: T("09:00", "10"), updatedAt: T("09:00", "10") }];
+const issue = (key, type, title, status, extra = {}) => ({ key, domain: "NAB", type, title, description: "Кнопки расходятся.", source: "web", status, author: "ada",
+  mergedInto: null, rejectReason: null, rolledBackRelease: null, createdAt: T("09:00", "10"), updatedAt: T("09:00", "10"), ...extra });
+// titles of different lengths: on a phone the badges of a row must stay in their place whatever the title
+const issues = [
+  issue("ISS.NAB-0007", "idea", "Единый вид кнопок в двух продуктах", "new"),
+  issue("ISS.NAB-0006", "idea", "Guardrails: контроль входящего и исходящего трафика агента", "verification"),
+  issue("ISS.NAB-0003", "problem", "Визард установки Nabu", "verification", { mergedInto: "ISS.NAB-0001" }),
+];
+const releases = [
+  { key: "RLS.NAB-0003", feature: "FTR.NAB.CMN-0003", featureTitle: "Память коммуникаций: заметки, договорённости и сводки", domain: "NAB", status: "deploying", plan: { order: [] }, metricResult: null,
+    confirmedBy: null, confirmedAt: null, rollbackReason: null, rolledBackBy: null, rolledBackAt: null, blockedReason: null, createdAt: T("09:00", "09") },
+  { key: "RLS.NAB-0002", feature: "FTR.NAB.CMN-0002", featureTitle: "Каналы", domain: "NAB", status: "succeeded", plan: { order: [] }, metricResult: null,
+    confirmedBy: "ada", confirmedAt: T("09:00", "05"), rollbackReason: null, rolledBackBy: null, rolledBackAt: null, blockedReason: null, createdAt: T("09:00", "04") },
+];
 const issueCard = { ...issues[0], key: "ISS.NAB-0007", status: "discovery", movedFrom: [], features: [], releases: [], mergedFrom: [], attachments: [],
   activity: [{ id: "a2", type: "discovery_updated", actor: null, isAgent: true, createdAt: T("12:35") }, { id: "a1", type: "created", actor: "ada", isAgent: false, createdAt: T("12:34") }],
   tokensIn: 1200, tokensOut: 800, permissions: { verify: true, reopen: false, discover: true } };
@@ -75,6 +88,7 @@ function api(url, c) {
   if (p === "/api/v1/focus") return focus;
   if (p === "/api/v1/overview") return overview;
   if (p === "/api/v1/issues") return { items: issues, nextCursor: null };
+  if (p === "/api/v1/releases") return { items: releases, nextCursor: null };
   if (/^\/api\/v1\/issues\/[^/]+$/.test(p)) return issueCard;
   if (/^\/api\/v1\/issues\/[^/]+\/discovery$/.test(p)) return discovery;
   if (p === "/api/v1/chat/session") return { model: "sonnet-5", connectionName: "Anthropic", thinking: "medium", configured: true };
