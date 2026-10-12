@@ -6,8 +6,7 @@ import { keys, useDomains, useServices } from "../../api/queries";
 import type { ServiceDTO } from "../../api/types";
 import { useSession } from "../../app/session";
 import { errorText } from "../../lib/errors";
-import { Icon } from "../../components/Icon";
-import { Loading, Modal, useToast } from "../../components/ui";
+import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 import { AutonomyModal } from "../feature/Autonomy";
 
 /** Services: the catalog from Backstage or the manual list (R10, R11). */

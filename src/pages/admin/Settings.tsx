@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import { keys } from "../../api/queries";
 import { errorText } from "../../lib/errors";
-import { Loading, useToast } from "../../components/ui";
+import { Loading, useToast } from "@green-on-grey/ui-kit";
 import { SpecScanSection } from "./SpecScan";
 
 interface Settings {

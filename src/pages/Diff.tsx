@@ -7,8 +7,7 @@ import { keys } from "../api/queries";
 import type { DiffLine, DiffResult } from "../api/types";
 import { errorText } from "../lib/errors";
 import { relativeTime, shortSha } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Loading } from "../components/ui";
+import { Icon, Loading } from "@green-on-grey/ui-kit";
 
 const CONTEXT = 2;
 

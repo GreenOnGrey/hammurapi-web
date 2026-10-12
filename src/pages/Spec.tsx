@@ -22,8 +22,7 @@ import type {
 } from "../api/types";
 import { SPEC_AREAS } from "../api/types";
 import { MarkdownEditor } from "../editor/MarkdownEditor";
-import { Icon } from "../components/Icon";
-import { Empty, Loading, Modal, useToast } from "../components/ui";
+import { Empty, Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 import { PhaseBadge } from "../components/cycle";
 import { bytes, dateTime } from "../lib/format";
 import { errorText } from "../lib/errors";
@@ -185,7 +184,7 @@ function TreeView({
                   >
                     <Chevron open={!!open[`s:${d.key}/${s.key}`]} />
                     <b>{s.key}</b> <span className="muted">{s.name}</span>
-                    <span className="count">{s.count}</span>
+                    <span className="count tcount">{s.count}</span>
                   </button>
                   {open[`s:${d.key}/${s.key}`] && (
                     <ul role="group">
@@ -234,7 +233,7 @@ function FeatureNode({
       <button className="node feat" onClick={() => toggle(k)} title={f.title}>
         <Chevron open={!!open[k]} />
         <span className="mono small">{f.key}</span>{" "}
-        <span className="ellipsis">{f.title}</span>
+        <span className="ellipsis ftitle-cut">{f.title}</span>
       </button>
       {open[k] && (
         <ul role="group">

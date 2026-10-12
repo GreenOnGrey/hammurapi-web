@@ -8,10 +8,8 @@ import type { DiscoveryView, FeatureSummary, IssueCard, List } from "../api/type
 import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { dateTime, relativeTime } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Empty, Loading, Modal, useToast } from "../components/ui";
+import { Empty, Icon, Loading, Markdown, Modal, useToast } from "@green-on-grey/ui-kit";
 import { AgentMark, IssueStatusBadge, IssueTypeBadge, KeyList, KeyLink } from "../components/cycle";
-import { Markdown } from "../components/Markdown";
 import { BlockedBanner } from "../components/BlockedBanner";
 
 export function IssuePage() {
@@ -125,8 +123,8 @@ function IssueView({ is }: { is: IssueCard }) {
 
       {is.permissions.verify && (
         <div className="actionbar sticky">
-          {!d?.complete && <span className="small err-text" style={{ margin: 0 }}>{t("issue.missing", { fields: (d?.missing ?? []).map((m) => t(`issue.field.${m}`)).join(", ") })}</span>}
-          <span className="grow" />
+          {!d?.complete && <span className="small err-text ab-err" style={{ margin: 0 }}>{t("issue.missing", { fields: (d?.missing ?? []).map((m) => t(`issue.field.${m}`)).join(", ") })}</span>}
+          <span className="grow ab-grow" />
           <button className="btn sm" onClick={() => setDialog("move")}>{t("issue.move")}</button>
           <button className="btn sm" onClick={() => setDialog("merge")}>{t("issue.merge")}</button>
           <button className="btn sm danger" onClick={() => setDialog("reject")}>{t("issue.reject")}</button>

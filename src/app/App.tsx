@@ -17,7 +17,7 @@ import {
   onReconnect,
 } from "../lib/sse";
 import { setDocumentLanguage } from "../lib/i18n";
-import { Loading } from "../components/ui";
+import { Loading } from "@green-on-grey/ui-kit";
 import { ChatProvider, SessionProvider } from "./session";
 import { Shell } from "./Shell";
 import { LoginPage } from "../pages/Login";

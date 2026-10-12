@@ -8,8 +8,7 @@ import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { joinFrontMatter, normalizeEnding, splitFrontMatter } from "../lib/markdown";
 import { useEvent } from "../lib/sse";
-import { Icon } from "../components/Icon";
-import { Loading, useToast } from "../components/ui";
+import { Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 import { MarkdownEditor, type EditorCommand, type EditorHandle } from "./MarkdownEditor";
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";

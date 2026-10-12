@@ -5,8 +5,7 @@ import { useDomains, useFocus, useOverview } from "../api/queries";
 import type { FocusItem, OverviewCard } from "../api/types";
 import { useChatContext } from "../app/session";
 import { duration } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Loading } from "../components/ui";
+import { Icon, Loading } from "@green-on-grey/ui-kit";
 import { adminPath } from "./admin/paths";
 import {
   IssueStatusBadge,

@@ -5,8 +5,7 @@ import { useApprovals, useDomains, useFeatures } from "../api/queries";
 import { AREAS, type FeatureSummary } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { duration } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Empty, Loading } from "../components/ui";
+import { Empty, Icon, Loading } from "@green-on-grey/ui-kit";
 import { KeyLink, KeyList, PhaseBadge } from "../components/cycle";
 import { ImportUploadModal } from "./Import";
 

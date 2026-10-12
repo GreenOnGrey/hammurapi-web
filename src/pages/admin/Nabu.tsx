@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import type { NabuSettingsView } from "../../api/types";
 import { errorText } from "../../lib/errors";
-import { Icon } from "../../components/Icon";
-import { Loading, Modal, useToast } from "../../components/ui";
+import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 
 // FTR.HMR.CMN-0006 R8, R11, tech §3.3, §4: the connection to Nabu, the binding
 // "scenario → service agent of Nabu" and the transfer of the agent settings.

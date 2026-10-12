@@ -24,7 +24,8 @@ also the read-only renderer of specification documents). Node 24.
 npm ci
 npm run dev        # http://localhost:5173; /api and /admin/api go to localhost:8080
 npm test           # vitest
-npm run lint       # oxlint + tsc (warnings are tolerated, errors are not)
+npm run lint       # oxlint + tsc + ui-kit-check (warnings are tolerated, errors are not)
+UI_KIT_SRC=../ui-kit npm run dev   # with the kit from its sources, to try a change of the kit
 npm run build      # typecheck + production build
 ```
 
@@ -41,6 +42,7 @@ src/chat/         chat panel: ChatPanel (built-in agent), NabuChat (personal age
 src/editor/       Milkdown editor (MarkdownEditor; readOnly for the navigator)
 src/lib/          sse, i18n, format, errors, llm
 locales/*.json    en (default and fallback), ru, de, es, zh-CN
+e2e/              the screen comparison: mock.mjs (a fixed API), screens.ts, screens.spec.ts (Playwright), compare.mjs
 ```
 
 ## Rules
@@ -61,7 +63,31 @@ locales/*.json    en (default and fallback), ru, de, es, zh-CN
 - Heavy pages (feature, admin, the specification navigator) are lazy-loaded.
 - Segmented switches use `.seg` (one row, any number of options); the admin menu groups (Agent)
   fold and look like menu items.
-- Check UI changes in a browser at desktop and phone width; tests do not cover layout.
+- Check UI changes in a browser at desktop and phone width; unit tests do not cover layout.
+- **Screens are compared when the look must not change, or must change only as listed** (a new version of the
+  kit, a refactoring of styles): the `visual` workflow builds two commits, shoots every screen of `e2e/screens.ts` on
+  the fixed API of `e2e/mock.mjs` and compares the shots with zero tolerance; with `report_only` it gives a report of
+  pairs for a person to accept. A page at an exact width without Playwright: `node e2e/mock.mjs`, then
+  `/__frame?p=/overview&w=390&theme=dark`.
+
+## UI kit
+
+The shared look — tokens, buttons, fields, tables, the top bar, sign-in, icons — comes from `@green-on-grey/ui-kit`
+(FTR.NAB.CMN-0005); `src/styles.css` holds the screens of Hammurapi only. The look is the one of Nabu.
+
+- **Take from the kit**: `Icon`, `Modal`, `useToast`, `Avatar`, `Switch`, `Empty`, `Loading`, `TopBar`, `Menu`, `Tabs`,
+  `Markdown`; `LoginScreen` from `…/login`; `useRecorder` from `…/chat`. `StatusBadge`, `AreaName` and `GitLabIcon` are
+  Hammurapi's own. The showcase lists every class and state: <https://greenongrey.github.io/ui-kit/>.
+- **Do not restyle the kit** (R23). A rule in `src/styles.css` styles a class of Hammurapi: `.actionbar .ab-grow`, never
+  `.actionbar .grow`. `ui-kit-check` in `npm run lint` fails on a rule whose target is an element of the kit, on a rule
+  without a class of Hammurapi and on a redefined token. Need another look — give the element a class of its own or
+  change the kit.
+- **A new shared element** goes to the kit when Nabu needs it too; a new icon goes to the kit at once.
+- **The kit knows nothing of tones**: `src/chat/tones.ts` gives the icon and the colour of the avatar of the agent.
+- **The version of the kit is exact** (no `^`); Dependabot proposes updates; `deploy/kit-lag.sh` stops a release that
+  is more than one minor behind.
+- The two chats (`ChatPanel`, `NabuChat`) are still Hammurapi's own components on the styles of the kit; they move
+  to the `Chat` of the kit in step 4 of FTR.NAB.CMN-0005.
 
 ## Releases
 

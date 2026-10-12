@@ -6,8 +6,7 @@ import { keys } from "../../api/queries";
 import type { CatalogError, CatalogSettings, CycleSettings } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { dateTime } from "../../lib/format";
-import { Icon } from "../../components/Icon";
-import { Loading, Switch, useToast } from "../../components/ui";
+import { Icon, Loading, Switch, useToast } from "@green-on-grey/ui-kit";
 
 /** Cycle settings (design spec §3.18): Backstage catalog, feature flags, stage. */
 export function CycleAdmin() {

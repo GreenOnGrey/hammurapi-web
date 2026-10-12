@@ -9,8 +9,8 @@ import { useChatContext } from "../app/session";
 import { DocumentPane } from "../editor/DocumentPane";
 import { errorText } from "../lib/errors";
 import { dateTime, relativeTime, shortSha } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Avatar, Empty, Loading, Modal, StatusBadge, useOutside, useToast } from "../components/ui";
+import { Avatar, Empty, Icon, Loading, Modal, useOutside, useToast } from "@green-on-grey/ui-kit";
+import { StatusBadge } from "../components/ui";
 import { AgentMark, KeyList, Lane, PhaseBadge, type LaneItem } from "../components/cycle";
 import { ImplementationTab } from "./feature/Implementation";
 import { ValidationTab } from "./feature/Validation";
@@ -318,7 +318,7 @@ function ActionBar({ f, gate, onSubmit, onApprove, onRegenerate, onHistory, busy
   return (
     <div className="actionbar">
       <StatusBadge status={gate.status} approvalRequired={f.approvalRequired} />
-      <span className="grow">{text}</span>
+      <span className="grow ab-grow">{text}</span>
       <Link className="btn sm" to={`/features/${f.uniqueId}/spec/${gate.area}/diff`}>{t("feature.viewChanges")}</Link>
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
       {gate.generated && f.permissions.regenerate && <button className="btn sm" disabled={busy} onClick={onRegenerate}><Icon name="refresh" size={14} />{t("feature.regenerate")}</button>}

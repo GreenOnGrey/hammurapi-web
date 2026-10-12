@@ -7,8 +7,7 @@ import { invalidateFeature, useValidation } from "../../api/queries";
 import type { ExpertKind, FeatureCard, ValidationSummary } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { dateTime } from "../../lib/format";
-import { Icon } from "../../components/Icon";
-import { Empty, Loading, Modal, useToast } from "../../components/ui";
+import { Empty, Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 import { Dot, Kpi, KeyList } from "../../components/cycle";
 import { Matrix } from "./Implementation";
 import { BlockedBanner } from "../../components/BlockedBanner";
@@ -98,7 +97,7 @@ export function ValidationTab({ f }: { f: FeatureCard }) {
       </div>
       <p className="small muted">{t("val.releaseHint")}</p>
       {d.permissions.return && (
-        <div className="actionbar"><span className="grow" /><button className="btn sm" onClick={() => setDialog("return")}><Icon name="undo" size={14} />{t("val.return")}</button></div>
+        <div className="actionbar"><span className="grow ab-grow" /><button className="btn sm" onClick={() => setDialog("return")}><Icon name="undo" size={14} />{t("val.return")}</button></div>
       )}
       {dialog === "return" && <ReturnModal f={f} onClose={() => setDialog(null)} />}
     </>

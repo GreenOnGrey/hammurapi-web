@@ -9,8 +9,7 @@ import { useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { bytes } from "../lib/format";
 import { useEvent } from "../lib/sse";
-import { Icon } from "../components/Icon";
-import { Loading, Modal } from "../components/ui";
+import { Icon, Loading, Modal } from "@green-on-grey/ui-kit";
 
 export function ImportUploadModal({ onClose }: { onClose: () => void }) {
   const { t, i18n } = useTranslation();

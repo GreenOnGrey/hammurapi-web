@@ -5,8 +5,7 @@ import { api, qs } from "../../api/client";
 import { keys } from "../../api/queries";
 import { AREAS, type AdminUser, type Area, type List, type UnlinkedUser } from "../../api/types";
 import { errorText } from "../../lib/errors";
-import { Icon } from "../../components/Icon";
-import { Loading, Switch, useToast } from "../../components/ui";
+import { Icon, Loading, Switch, useToast } from "@green-on-grey/ui-kit";
 
 export function UsersAdmin() {
   const { t } = useTranslation();

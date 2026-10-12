@@ -14,8 +14,7 @@ import type {
 import { SPEC_SCAN_INTERVALS } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { dateTime, duration } from "../../lib/format";
-import { Icon } from "../../components/Icon";
-import { Loading, useToast } from "../../components/ui";
+import { Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 import { adminPath } from "./paths";
 
 /** The check of the specification repository in Settings (FTR.HMR.CMN-0005 R1,

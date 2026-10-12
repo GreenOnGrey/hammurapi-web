@@ -5,8 +5,7 @@ import { api } from "../../api/client";
 import { keys, useServices } from "../../api/queries";
 import type { DeployConfig, DeploySettings, DeployType } from "../../api/types";
 import { errorText } from "../../lib/errors";
-import { Icon } from "../../components/Icon";
-import { Loading, useToast } from "../../components/ui";
+import { Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 
 const DEFAULT_PARAMS = `service={service}
 ref={ref}

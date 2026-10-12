@@ -7,8 +7,7 @@ import { invalidateCycle, useDomains } from "../api/queries";
 import type { IssueType } from "../api/types";
 import { useSession } from "../app/session";
 import { errorText } from "../lib/errors";
-import { Icon } from "../components/Icon";
-import { Modal } from "../components/ui";
+import { Icon, Modal } from "@green-on-grey/ui-kit";
 
 /** New issue: any user creates one; Discovery starts right away (R1, R4). */
 export function NewIssueModal({ onClose }: { onClose: () => void }) {

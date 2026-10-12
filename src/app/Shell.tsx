@@ -1,14 +1,7 @@
 import { useState } from "react";
-import {
-  Link,
-  NavLink,
-  Outlet,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Icon } from "../components/Icon";
-import { Avatar } from "../components/ui";
+import { Avatar, Icon, TopBar, type LinkComponent } from "@green-on-grey/ui-kit";
 import { ChatPanel } from "../chat/ChatPanel";
 import { NabuChatPanel, NoAgentPanel, useNabuAgent } from "../chat/NabuChat";
 import { GitLinkDialog } from "./GitLink";
@@ -37,6 +30,14 @@ export function stageOf(path: string): string {
   return path.startsWith("/admin") ? "" : "general";
 }
 
+/** The link of the router for the top bar of the kit (FTR.NAB.CMN-0005 arch §4.2). */
+const RouterLink: LinkComponent = ({ href, ...rest }) => <Link to={href} {...rest} />;
+
+const profileMenu = (close: () => void) => <ProfileMenu onClose={close} />;
+
+// The top bar is the one of the kit (FTR.NAB.CMN-0005 R5, design §4): the stages
+// in a row and behind the burger on a phone — the bottom navigation is gone
+// (design §7, change 1); the search and "New issue" are the actions of Hammurapi.
 export function Shell() {
   const { t } = useTranslation();
   const { me, profile, config } = useSession();
@@ -47,7 +48,6 @@ export function Shell() {
   const navigate = useNavigate();
   const location = useLocation();
   const [q, setQ] = useState("");
-  const [menu, setMenu] = useState(false);
   const [creating, setCreating] = useState(false);
   const current = stageOf(location.pathname);
 
@@ -62,60 +62,32 @@ export function Shell() {
       navigate(`/development?q=${encodeURIComponent(v)}&domain=all&status=all`);
   };
 
-  const stageLinks = STAGES.map((s) => (
-    <NavLink
-      key={s.key}
-      to={s.to}
-      end={s.to === "/"}
-      className={current === s.key ? "on" : undefined}
-    >
-      {t(`stages.${s.key}`)}
-    </NavLink>
-  ));
-
   return (
     <div className="app">
-      <div className="topbar">
-        <Link to="/" className="brand">
-          <img src="/logo.png" alt="" />
-          <span className="hide-m">Hammurapi</span>
-        </Link>
-        <nav className="nav hide-m" aria-label={t("stages.title")}>
-          {stageLinks}
-        </nav>
-        <form className="search" role="search" onSubmit={submitSearch}>
-          <Icon name="search" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={t("top.search")}
-            aria-label={t("top.search")}
-          />
-        </form>
-        <div className="top-actions">
+      <TopBar logo="/logo.png" name="Hammurapi" Link={RouterLink} profileMenu={profileMenu}
+        sections={STAGES.map((s) => ({ key: s.key, label: t(`stages.${s.key}`), href: s.to, active: current === s.key }))}
+        center={(
+          <form className="search" role="search" onSubmit={submitSearch}>
+            <Icon name="search" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("top.search")}
+              aria-label={t("top.search")}
+            />
+          </form>
+        )}
+        actions={(
           <button className="btn primary sm" onClick={() => setCreating(true)}>
             <Icon name="plus" />
             <span className="hide-m">{t("top.newIssue")}</span>
           </button>
-          <button
-            className="avatar"
-            style={menu ? { boxShadow: "0 0 0 2px var(--violet)" } : undefined}
-            onClick={() => setMenu((v) => !v)}
-            aria-label={t("profile.title")}
-            aria-expanded={menu}
-          >
-            <Avatar name={me.displayName} url={me.avatarUrl} />
-          </button>
-        </div>
-        {menu && <ProfileMenu onClose={() => setMenu(false)} />}
-      </div>
+        )}
+        avatar={<Avatar name={me.displayName} url={me.avatarUrl} />} />
       <div className="body">
         <Outlet />
         {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
       </div>
-      <nav className="bnav show-m" aria-label={t("stages.title")}>
-        {stageLinks}
-      </nav>
       {!chat.open && (
         <button
           className="btn primary chat-fab"

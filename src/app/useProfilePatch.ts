@@ -4,7 +4,7 @@ import { api } from "../api/client";
 import { keys } from "../api/queries";
 import type { Profile } from "../api/types";
 import { errorText } from "../lib/errors";
-import { useToast } from "../components/ui";
+import { useToast } from "@green-on-grey/ui-kit";
 
 /** PATCH /api/v1/profile; shared by the profile menu and the agent settings of the chat. */
 export function useProfilePatch() {

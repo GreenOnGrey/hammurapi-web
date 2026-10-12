@@ -11,8 +11,7 @@ import type {
   MissingCatalog,
 } from "../../api/types";
 import { errorText } from "../../lib/errors";
-import { Icon } from "../../components/Icon";
-import { Loading, Modal, Switch, useToast } from "../../components/ui";
+import { Icon, Loading, Modal, Switch, useToast } from "@green-on-grey/ui-kit";
 
 const KEY_RE = /^[A-Z][A-Z0-9]{1,9}$/;
 

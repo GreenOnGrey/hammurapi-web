@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDomains, useIssues } from "../api/queries";
 import { useChatContext } from "../app/session";
 import { relativeTime } from "../lib/format";
-import { Icon } from "../components/Icon";
-import { Empty, Loading } from "../components/ui";
+import { Empty, Icon, Loading } from "@green-on-grey/ui-kit";
 import { IssueStatusBadge, IssueTypeBadge, KeyLink, KeyList } from "../components/cycle";
 import { NewIssueModal } from "./NewIssue";
 

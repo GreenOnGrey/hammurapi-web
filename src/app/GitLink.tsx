@@ -5,8 +5,7 @@ import { useTranslation } from "react-i18next";
 import { apiUrl } from "../api/base";
 import { onGitAccountRequired, request, type DeferredChange } from "../api/client";
 import { errorText } from "../lib/errors";
-import { Icon } from "../components/Icon";
-import { Modal, useToast } from "../components/ui";
+import { Icon, Modal, useToast } from "@green-on-grey/ui-kit";
 import { useSession } from "./session";
 
 // FTR.HMR.CMN-0006 R2, tech §1.1: a change that writes to git needs the git

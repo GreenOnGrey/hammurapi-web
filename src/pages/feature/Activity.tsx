@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import { AREAS, type FeatureCard, type HistoryItem, type List } from "../../api/types";
 import { relativeTime, shortSha } from "../../lib/format";
-import { Avatar, Loading } from "../../components/ui";
+import { Avatar, Loading } from "@green-on-grey/ui-kit";
 
 /** History tab: gate events of all areas, newest first. */
 export function ActivityTab({ f }: { f: FeatureCard }) {

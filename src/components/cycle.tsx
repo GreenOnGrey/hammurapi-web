@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { FeaturePhase, IssueType } from "../api/types";
-import { Icon } from "./Icon";
+import { Icon } from "@green-on-grey/ui-kit";
 
 /** Link of an entity key: ISS → issue, FTR → feature, RLS → release. */
 export function keyHref(key: string): string {

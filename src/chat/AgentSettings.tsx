@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Tone } from "../api/types";
 import { useSession } from "../app/session";
 import { useProfilePatch } from "../app/useProfilePatch";
-import { useOutside } from "../components/ui";
+import { useOutside } from "@green-on-grey/ui-kit";
 
 const TONES: Tone[] = ["business", "friendly", "concise", "mentor"];
 

@@ -20,11 +20,10 @@ import { errorText } from "../lib/errors";
 import { llmErrorText, transientLLMError } from "../lib/llm";
 import { bytes, relativeTime } from "../lib/format";
 import { useEvent } from "../lib/sse";
-import { Icon } from "../components/Icon";
-import { Markdown } from "../components/Markdown";
-import { Avatar, useToast } from "../components/ui";
+import { Avatar, Icon, Markdown, useToast } from "@green-on-grey/ui-kit";
+import { useRecorder } from "@green-on-grey/ui-kit/chat";
+import { agentLook } from "./tones";
 import { AgentSettings } from "./AgentSettings";
-import { useRecorder } from "./useRecorder";
 
 interface Live {
   messageId: string;
@@ -361,7 +360,7 @@ export function ChatPanel() {
                 aria-expanded={agentMenu}
                 title={t("chat.agentSettings")}
               >
-                <Avatar agent tone={profile.agentTone} name={profile.agentName} />
+                <Avatar agent {...agentLook(profile.agentTone)} name={profile.agentName} />
               </button>
               <div>
                 <b>{profile.agentName}</b>

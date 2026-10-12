@@ -6,6 +6,7 @@ import ru from "../../locales/ru.json";
 import de from "../../locales/de.json";
 import es from "../../locales/es.json";
 import zhCN from "../../locales/zh-CN.json";
+import { resources as kit } from "@green-on-grey/ui-kit/locales";
 
 export const LANGUAGES = ["en", "ru", "de", "es", "zh-CN"] as const;
 export type Language = (typeof LANGUAGES)[number];
@@ -20,8 +21,10 @@ export const LANGUAGE_SHORT: Record<Language, string> = {
   en: "EN", ru: "RU", de: "DE", es: "ES", "zh-CN": "中文",
 };
 
+// `uikit` — the strings of the components of the kit (FTR.NAB.CMN-0005 arch §4.1).
 export const resources = {
-  en: { translation: en }, ru: { translation: ru }, de: { translation: de }, es: { translation: es }, "zh-CN": { translation: zhCN },
+  en: { translation: en, uikit: kit.en }, ru: { translation: ru, uikit: kit.ru }, de: { translation: de, uikit: kit.de },
+  es: { translation: es, uikit: kit.es }, "zh-CN": { translation: zhCN, uikit: kit.zh },
 };
 
 /** Before sign-in: the browser language if supported, otherwise the default (tech spec §15). */

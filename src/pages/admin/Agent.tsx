@@ -12,8 +12,7 @@ import type {
 import { errorText } from "../../lib/errors";
 import { llmErrorText } from "../../lib/llm";
 import { duration } from "../../lib/format";
-import { Icon } from "../../components/Icon";
-import { Loading, Modal, Switch, useToast } from "../../components/ui";
+import { Icon, Loading, Modal, Switch, useToast } from "@green-on-grey/ui-kit";
 
 const BASE = "/admin/api/v1/agent";
 

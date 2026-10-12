@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { blockedReason, parseLLMReason, transientLLMError } from "../lib/llm";
-import { Icon } from "./Icon";
+import { Icon } from "@green-on-grey/ui-kit";
 
 /** A stopped run: an LLM error is shown in the user's language, red for errors
  * of the connection and amber for temporary ones (FTR.HMR.CMN-0004 design §3.7). */

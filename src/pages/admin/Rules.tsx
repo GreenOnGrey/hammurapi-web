@@ -9,8 +9,7 @@ import { MarkdownEditor } from "../../editor/MarkdownEditor";
 import { errorText } from "../../lib/errors";
 import { joinFrontMatter, normalizeEnding, protectPlaceholders, restorePlaceholders, splitFrontMatter } from "../../lib/markdown";
 import { relativeTime } from "../../lib/format";
-import { Icon } from "../../components/Icon";
-import { Loading, Modal, useToast } from "../../components/ui";
+import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 
 /** Rules: changes go to a branch and PR/MR, applied after approval by another admin of the area. */
 export function RulesAdmin() {

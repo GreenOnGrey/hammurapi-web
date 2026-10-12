@@ -5,7 +5,7 @@ import { api } from "../../api/client";
 import { invalidateCycle, keys } from "../../api/queries";
 import type { Autonomy } from "../../api/types";
 import { errorText } from "../../lib/errors";
-import { Modal } from "../../components/ui";
+import { Modal } from "@green-on-grey/ui-kit";
 
 /** Autonomy of the agent in a service, set by its owners (R17, design spec §3.19). */
 export function AutonomyModal({ service, onClose }: { service: { key: string; autonomy: Autonomy }; onClose: () => void }) {

@@ -8,10 +8,8 @@ import { errorText } from "../../lib/errors";
 import { useSession } from "../../app/session";
 import { AutonomyModal } from "./Autonomy";
 
-import { Icon } from "../../components/Icon";
-import { Empty, Loading, useToast } from "../../components/ui";
+import { Empty, Icon, Loading, Markdown, useToast } from "@green-on-grey/ui-kit";
 import { AgentMark, Dot } from "../../components/cycle";
-import { Markdown } from "../../components/Markdown";
 import { BlockedBanner } from "../../components/BlockedBanner";
 
 /** Implementation tab (R21): PRs by service with CI and review, and the traceability matrix. */

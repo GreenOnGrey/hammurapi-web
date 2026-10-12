@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDomains, useReleases } from "../api/queries";
 import { useChatContext } from "../app/session";
 import { relativeTime } from "../lib/format";
-import { Empty, Loading } from "../components/ui";
+import { Empty, Loading } from "@green-on-grey/ui-kit";
 import { KeyLink, ReleaseStatusBadge } from "../components/cycle";
 
 /** Delivery: releases with the current step and the result (design spec §3.5). */

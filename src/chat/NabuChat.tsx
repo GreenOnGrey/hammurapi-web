@@ -9,10 +9,8 @@ import { errorText } from "../lib/errors";
 import { llmErrorText, transientLLMError } from "../lib/llm";
 import { relativeTime } from "../lib/format";
 import { useEvent } from "../lib/sse";
-import { Icon } from "../components/Icon";
-import { Markdown } from "../components/Markdown";
-import { Modal, useOutside, useToast } from "../components/ui";
-import { useRecorder } from "./useRecorder";
+import { Icon, Markdown, Modal, useOutside, useToast } from "@green-on-grey/ui-kit";
+import { useRecorder } from "@green-on-grey/ui-kit/chat";
 
 // FTR.HMR.CMN-0006 R5, R6: the chat is a window to the personal agent of the
 // user in Nabu — the same main conversation, topics and memory as in Nabu and
