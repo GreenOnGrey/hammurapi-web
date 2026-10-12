@@ -23,7 +23,13 @@ const config = (agent, login) => ({ provider: login === "gitlab" ? "gitlab" : "g
   uploadMaxBytes: 20000000, uploadAllowedTypes: ["image/png", "application/pdf"], importMaxBytes: 50000000, languages: ["en", "ru", "de", "es", "zh-CN"], defaultLanguage: "en", defaultBranch: "main" });
 const domains = [{ key: "NAB", name: "Nabu", approvalRequired: true, source: "manual", deletedInCatalog: false, createdAt: T("09:00", "01"), systems: [{ key: "CMN", name: "Common" }], experts: { product: [], technical: [] } }];
 const focus = {
-  research: [{ kind: "issue", key: "ISS.NAB-0007", title: "Единый вид кнопок в двух продуктах", action: "verify_discovery", waitingSince: T("09:00", "10") }],
+  // titles of different lengths: on a phone the action badge must stay in its place whatever the title
+  research: [
+    { kind: "issue", key: "ISS.HMR-0001", title: "Заменить агента на PI", action: "verify_discovery", waitingSince: T("09:00", "04") },
+    { kind: "issue", key: "ISS.NAB-0001", title: "Единый UI Kit", action: "verify_discovery", waitingSince: T("09:00", "07") },
+    { kind: "issue", key: "ISS.NAB-0002", title: "Подключение памяти к почте/мессенджеру", action: "verify_discovery", waitingSince: T("09:00", "07") },
+    { kind: "issue", key: "ISS.NAB-0003", title: "Визард установки Nabu", action: "verify_discovery", waitingSince: T("09:00", "09") },
+  ],
   development: [{ kind: "feature", key: "FTR.NAB.CMN-0005", title: "UI Kit", action: "approve_gate", waitingSince: T("12:00", "10"), hint: "Дизайн ждёт согласования" }],
   release: [], agent: [], spec: [],
 };
@@ -34,6 +40,11 @@ const overview = {
   releases: [card("RLS.NAB-0003", "Память коммуникаций", "deploying", { feature: "FTR.NAB.CMN-0003" })],
 };
 const issues = [{ key: "ISS.NAB-0007", domain: "NAB", type: "idea", title: "Единый вид кнопок в двух продуктах", description: "Кнопки расходятся.", source: "web", status: "new", author: "ada", mergedInto: null, rejectReason: null, rolledBackRelease: null, createdAt: T("09:00", "10"), updatedAt: T("09:00", "10") }];
+const issueCard = { ...issues[0], key: "ISS.NAB-0007", status: "discovery", movedFrom: [], features: [], releases: [], mergedFrom: [], attachments: [],
+  activity: [{ id: "a2", type: "discovery_updated", actor: null, isAgent: true, createdAt: T("12:35") }, { id: "a1", type: "created", actor: "ada", isAgent: false, createdAt: T("12:34") }],
+  tokensIn: 1200, tokensOut: 800, permissions: { verify: true, reopen: false, discover: true } };
+const discovery = { content: "## 1. Проблема\n\nКнопки в двух продуктах выглядят по-разному.\n\n1. Веб-поиск: доработка позиции.\n2. Документы: какие системы в скоупе.\n\n**Оценка:** средняя.", value: "Единый вид",
+  similar: [], systems: ["CMN"], services: [], revision: 2, updatedAt: T("12:35"), complete: true, missing: [], workflow: { state: "done", lastError: null, updatedAt: T("12:35"), nextRunAt: null } };
 const chatMsg = (id, role, content, extra = {}) => ({ id, role, mode: "general", context: null, content, isVoice: false, attachments: [], model: "sonnet", errorClass: null, retryOf: null, createdAt: T("14:00"), ...extra });
 // the newest first, as the API gives the history
 const history = [
@@ -64,6 +75,8 @@ function api(url, c) {
   if (p === "/api/v1/focus") return focus;
   if (p === "/api/v1/overview") return overview;
   if (p === "/api/v1/issues") return { items: issues, nextCursor: null };
+  if (/^\/api\/v1\/issues\/[^/]+$/.test(p)) return issueCard;
+  if (/^\/api\/v1\/issues\/[^/]+\/discovery$/.test(p)) return discovery;
   if (p === "/api/v1/chat/session") return { model: "sonnet-5", connectionName: "Anthropic", thinking: "medium", configured: true };
   if (p === "/api/v1/chat/history") return { items: history, nextCursor: null };
   if (p === "/api/v1/agent") return nabuAgent;

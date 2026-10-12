@@ -27,6 +27,7 @@ export const SCREENS: Screen[] = [
   { name: "focus-noagent", path: "/", cookies: { "mock-agent": "none" } },
   { name: "overview", path: "/overview" },
   { name: "research", path: "/research" },
+  { name: "issue", path: "/issues/ISS.NAB-0007" },
   { name: "development", path: "/development" },
   { name: "delivery", path: "/delivery" },
   { name: "spec", path: "/spec" },

@@ -197,6 +197,9 @@ button.avatar-btn[aria-expanded="true"] > span {
   gap: 14px;
   flex-wrap: wrap;
   align-items: center;
+  /* the line of the status does not touch what follows it; a block with a
+     larger margin of its own (the gates of a feature) keeps its distance */
+  margin-bottom: 12px;
 }
 .meta a {
   color: var(--violet-text);
@@ -517,6 +520,10 @@ button.avatar-btn[aria-expanded="true"] > span {
 }
 .doc.readonly .ProseMirror {
   cursor: default;
+}
+/* a line of the history: what happened, then who and when — apart from each other */
+.hist li > span + span {
+  margin-left: 8px;
 }
 .hist .h {
   display: grid;
@@ -1299,9 +1306,19 @@ button.avatar-btn[aria-expanded="true"] > span {
   .trow.release {
     grid-template-columns: auto minmax(0, 1fr);
   }
-  .irow > :nth-child(n + 4),
+  /* a card of the focus on a phone: the key and the action in the first line,
+     everything else under them at the whole width. The title used to share the
+     column of the key, so a long title pushed the action off the card. */
+  .irow > :nth-child(n + 3),
   .trow > :nth-child(n + 5) {
     grid-column: 1 / -1;
+  }
+  .irow > :nth-child(2) {
+    justify-self: start;
+  }
+  /* no hint — no empty line for it between the title and the time */
+  .irow > :nth-child(4):empty {
+    display: none;
   }
   .lane {
     grid-template-columns: 1fr !important;
