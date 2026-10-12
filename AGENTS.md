@@ -76,7 +76,7 @@ The shared look — tokens, buttons, fields, tables, the top bar, sign-in, icons
 (FTR.NAB.CMN-0005); `src/styles.css` holds the screens of Hammurapi only. The look is the one of Nabu.
 
 - **Take from the kit**: `Icon`, `Modal`, `useToast`, `Avatar`, `Switch`, `Empty`, `Loading`, `TopBar`, `Menu`, `Tabs`,
-  `Markdown`; `LoginScreen` from `…/login`; `useRecorder` from `…/chat`. `StatusBadge`, `AreaName` and `GitLabIcon` are
+  `Markdown`; `LoginScreen` from `…/login`; `Chat`, `ChatLayout`, `ConversationList` from `…/chat`. `StatusBadge`, `AreaName` and `GitLabIcon` are
   Hammurapi's own. The showcase lists every class and state: <https://greenongrey.github.io/ui-kit/>.
 - **Do not restyle the kit** (R23). A rule in `src/styles.css` styles a class of Hammurapi: `.actionbar .ab-grow`, never
   `.actionbar .grow`. `ui-kit-check` in `npm run lint` fails on a rule whose target is an element of the kit, on a rule
@@ -86,8 +86,10 @@ The shared look — tokens, buttons, fields, tables, the top bar, sign-in, icons
 - **The kit knows nothing of tones**: `src/chat/tones.ts` gives the icon and the colour of the avatar of the agent.
 - **The version of the kit is exact** (no `^`); Dependabot proposes updates; `deploy/kit-lag.sh` stops a release that
   is more than one minor behind.
-- The two chats (`ChatPanel`, `NabuChat`) are still Hammurapi's own components on the styles of the kit; they move
-  to the `Chat` of the kit in step 4 of FTR.NAB.CMN-0005.
+- **Both chats are the `Chat` of the kit** — the same component as on the site of Nabu. A panel keeps its header,
+  the modes and the files; the data comes from an adapter: `src/chat/ownAdapter.ts` (the built-in agent, `agent.*`
+  events) and `src/chat/nabuAdapter.ts` (the agent of Nabu, `nabu.*` events). An adapter turns answers and events into
+  the types of the kit and gives the handlers; the component never calls the API. No handler — no control.
 
 ## Releases
 

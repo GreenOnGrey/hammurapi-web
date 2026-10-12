@@ -666,34 +666,9 @@ button.avatar-btn[aria-expanded="true"] > span {
   align-items: center;
   gap: 6px;
 }
-/* a Markdown answer: the renderer builds the blocks, tables scroll inside the bubble */
-.m .bub.md {
-  white-space: normal;
-}
-.m .bub.md p,
-.m .bub.md ul,
-.m .bub.md ol {
-  margin: 6px 0;
-}
-.m .bub.md h3,
-.m .bub.md h4,
-.m .bub.md h5,
-.m .bub.md h6 {
-  font-size: 14px;
-  margin: 10px 0 4px;
-}
-.m .bub.md table {
-  display: block;
-  overflow-x: auto;
-  overflow-wrap: normal;
-}
-.m .bub.md pre {
-  background: var(--surface);
-}
-.m .tagline {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 0 4px 3px;
+/* the modes of the built-in chat stand over the composer of the kit */
+.chat-modes {
+  padding: 10px 10px 0;
 }
 .files .f {
   display: grid;
@@ -1476,14 +1451,6 @@ button.avatar-btn[aria-expanded="true"] > span {
   background: var(--surface-2);
 }
 
-/* FTR.NAB.CMN-0004 design §1: the state of a turn waiting for the pod of the agent */
-
-/* The tool calls of an answer in the chat of Nabu: one line each, never wider than the panel. */
-.nbsteps{display:flex;flex-direction:column;gap:4px;margin-bottom:6px;min-width:0}
-.nbsteps .step{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);border:1px solid var(--border);border-radius:var(--r-m);background:var(--surface-2);padding:4px 8px;min-width:0}
-.nbsteps .step .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.nbsteps .step .ok{color:var(--green);flex:none}.nbsteps .step .er{color:var(--red);flex:none}.nbsteps .step .run{color:var(--muted);flex:none}
-.nbsteps .fold{align-self:flex-start;font-size:12px;color:var(--muted);border:0;background:none;padding:2px 0;cursor:pointer}
 
 /* The agent of Nabu: the round icon of its tone and the choice of the tone, as on the site of Nabu. */
 .nbagent{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--violet),#12A876);flex:none}

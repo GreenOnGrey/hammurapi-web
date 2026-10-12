@@ -265,30 +265,15 @@
     "modeSpec": "Especificación",
     "modeGeneral": "Preguntas generales",
     "generalHint": "Preguntas sobre todas las especificaciones, sin ediciones",
-    "loadOlder": "Cargar mensajes anteriores",
     "empty": "Pregunta a {name} lo que quieras sobre tus especificaciones.",
     "tagSpec": "Especificación, {id}",
     "tagGeneral": "Preguntas generales",
     "voiceTag": "voz",
-    "typing": "El agente está escribiendo",
     "toolEdit": "Documento modificado",
     "toolRunning": "Trabajando…",
-    "attach": "Adjuntar archivos",
-    "placeholder": "Mensaje para {name}…",
-    "send": "Enviar",
-    "stop": "Detener",
     "noFiles": "Aún no hay archivos.",
     "notSent": "no enviado",
     "retention": "Los archivos se conservan durante el tiempo que fija el administrador.",
-    "voice": {
-      "hold": "Mantén pulsado para hablar",
-      "stop": "Suelta para transcribir",
-      "recording": "Grabando {seconds}, suelta para transcribir",
-      "review": "Transcripción, revísala antes de enviar",
-      "notRecognized": "No se reconoció la voz. Inténtalo de nuevo o escribe el mensaje.",
-      "unsupported": "Este navegador no admite la entrada de voz",
-      "micDenied": "Sin acceso al micrófono."
-    },
     "errors": {
       "agent_not_configured": "El agente no está configurado en esta instancia.",
       "agent_unavailable": "El agente no está disponible ahora. Inténtalo más tarde.",
@@ -1275,7 +1260,6 @@
       "review_update": "Cambios por revisión",
       "rollback_revert": "Reversión del release"
     },
-    "retry": "Reintentar",
     "theConnection": "LLM"
   },
   "spec": {
@@ -1395,21 +1379,13 @@
     "toneHint": "El nombre y el tono se guardan en Nabu y se aplican en todos los canales: aquí, en Nabu y en Telegram.",
     "conversation": "Conversación",
     "mainConversation": "Conversación principal",
-    "newTopic": "Nuevo tema",
-    "topicTitle": "Título del tema",
     "noContext": "Cuando hay una incidencia, una funcionalidad o una versión abierta, su contexto se añade a los mensajes.",
     "empty": "Es la misma conversación con {name} que en Nabu y Telegram. Pregunte lo que quiera.",
     "channels": {
       "web": "Nabu",
       "telegram": "Telegram",
       "client": "Hammurapi"
-    },
-    "wait": {
-      "starting": "El agente se está iniciando…",
-      "queued": "{count, plural, =0 {En cola · usted es el siguiente} other {En cola · # por delante}}"
-    },
-    "moreSteps": "{count, plural, one {# paso más} other {# pasos más}}",
-    "hideSteps": "Ocultar pasos"
+    }
   },
   "noAgent": {
     "title": "El agente no está conectado",

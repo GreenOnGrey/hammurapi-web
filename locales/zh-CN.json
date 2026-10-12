@@ -265,30 +265,15 @@
     "modeSpec": "规范",
     "modeGeneral": "一般问题",
     "generalHint": "关于所有规范的问题，不做修改",
-    "loadOlder": "加载更早的消息",
     "empty": "向 {name} 询问任何关于规范的问题。",
     "tagSpec": "规范，{id}",
     "tagGeneral": "一般问题",
     "voiceTag": "语音",
-    "typing": "代理正在输入",
     "toolEdit": "文档已修改",
     "toolRunning": "处理中…",
-    "attach": "附加文件",
-    "placeholder": "发送给 {name} 的消息…",
-    "send": "发送",
-    "stop": "停止",
     "noFiles": "暂无文件。",
     "notSent": "未发送",
     "retention": "文件的保存期限由管理员设定。",
-    "voice": {
-      "hold": "按住说话",
-      "stop": "松开以识别",
-      "recording": "录音 {seconds}，松开以识别",
-      "review": "识别结果，发送前请检查",
-      "notRecognized": "未能识别语音。请重试或直接输入。",
-      "unsupported": "此浏览器不支持语音输入",
-      "micDenied": "无法访问麦克风。"
-    },
     "errors": {
       "agent_not_configured": "此实例未配置代理。",
       "agent_unavailable": "代理暂时不可用，请稍后再试。",
@@ -1275,7 +1260,6 @@
       "review_update": "按评审修改",
       "rollback_revert": "回滚发布"
     },
-    "retry": "重试",
     "theConnection": "LLM"
   },
   "spec": {
@@ -1395,21 +1379,13 @@
     "toneHint": "名称和语气保存在 Nabu 中，在所有渠道生效：这里、Nabu 和 Telegram。",
     "conversation": "对话",
     "mainConversation": "主对话",
-    "newTopic": "新主题",
-    "topicTitle": "主题名称",
     "noContext": "打开问题、功能或发布时，其上下文会附加到消息中。",
     "empty": "这是与 {name} 的同一对话，与 Nabu 和 Telegram 中相同。尽管提问。",
     "channels": {
       "web": "Nabu",
       "telegram": "Telegram",
       "client": "Hammurapi"
-    },
-    "wait": {
-      "starting": "代理正在启动…",
-      "queued": "{count, plural, =0 {排队中 · 您是下一位} other {排队中 · 前面还有 # 位}}"
-    },
-    "moreSteps": "{count, plural, other {另外 # 个步骤}}",
-    "hideSteps": "隐藏步骤"
+    }
   },
   "noAgent": {
     "title": "智能体未连接",
