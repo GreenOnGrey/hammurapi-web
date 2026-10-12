@@ -78,7 +78,7 @@ export function Shell() {
           </form>
         )}
         actions={(
-          <button className="btn primary sm" onClick={() => setCreating(true)}>
+          <button className="btn primary sm" onClick={() => setCreating(true)} aria-label={t("top.newIssue")}>
             <Icon name="plus" />
             <span className="hide-m">{t("top.newIssue")}</span>
           </button>

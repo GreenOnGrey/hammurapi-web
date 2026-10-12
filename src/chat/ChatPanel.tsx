@@ -1,5 +1,5 @@
 import { apiUrl } from "../api/base";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Avatar, Icon } from "@green-on-grey/ui-kit";
@@ -23,6 +23,7 @@ export function ChatPanel() {
   const [mode, setMode] = useState<ChatMode>("general");
   const [view, setView] = useState<"chat" | "files">("chat");
   const [agentMenu, setAgentMenu] = useState(false);
+  const closeAgentMenu = useCallback(() => setAgentMenu(false), []);
 
   // The mode follows the screen: a subject opens "Specification", and the user
   // can switch back. A new subject resets it during render, without an effect.
@@ -97,7 +98,7 @@ export function ChatPanel() {
           </button>
         </div>
         {agentMenu && view === "chat" && (
-          <AgentSettings onClose={() => setAgentMenu(false)} />
+          <AgentSettings onClose={closeAgentMenu} />
         )}
         {view === "chat" && (
           <div className="ctx">

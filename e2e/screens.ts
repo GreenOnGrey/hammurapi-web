@@ -31,8 +31,10 @@ export const SCREENS: Screen[] = [
   { name: "delivery", path: "/delivery" },
   { name: "spec", path: "/spec" },
   { name: "admin", path: "/admin" },
+  { name: "agent-menu", path: "/", only: "desktop", act: click("Настройки агента") },
+  { name: "agent-menu-nabu", path: "/", only: "desktop", cookies: nabu, act: click("Настройки агента") },
   { name: "profile-menu", path: "/", act: click("Профиль") },
-  // on a phone the button keeps only its plus: it has no name to find it by
+  // before FTR.NAB.CMN-0005 the button had no name on a phone, so it is found by its place
   { name: "new-issue", path: "/", act: async (page) => { await page.locator(".topbar .btn.primary").click(); } },
   // on a phone the stages live behind the burger (design §7, change 1) and the chat opens over the screen
   { name: "stages", path: "/", only: "phone", act: async (page) => { const b = page.getByRole("button", { name: "Разделы", exact: true }); if (await b.count()) await b.click(); } },

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Icon, useOutside, useToast } from "@green-on-grey/ui-kit";
-import { Chat, ChatLayout, ConversationList } from "@green-on-grey/ui-kit/chat";
+import { Icon, useToast } from "@green-on-grey/ui-kit";
+import { AgentButton, AgentMenu, Chat, ChatLayout, ConversationList } from "@green-on-grey/ui-kit/chat";
 import { ApiError, api } from "../api/client";
 import type { NabuAgent, NabuTone } from "../api/types";
 import { useChatContext } from "../app/session";
@@ -21,14 +21,6 @@ const NABU_TONES: NabuTone[] = ["business", "friendly", "brief", "mentor"];
  * by the icon, not by a caption (FTR.NAB.CMN-0001 R31). */
 const TONE_ICONS = { business: "tBusiness", friendly: "tFriendly", brief: "tBrief", mentor: "tMentor" } as const;
 
-function AgentIcon({ tone, small }: { tone: NabuTone | undefined; small?: boolean }) {
-  return (
-    <span className={`nbagent${small ? " s" : ""}`} aria-hidden="true">
-      <Icon name={TONE_ICONS[tone ?? "business"] ?? "tBusiness"} size={small ? 14 : 18} />
-    </span>
-  );
-}
-
 export { useNabuAgent };
 
 export function NabuChatPanel() {
@@ -38,6 +30,7 @@ export function NabuChatPanel() {
   const { rows, offline, create } = useNabuConversations();
   const [convId, setConvId] = useState("main");
   const [agentMenu, setAgentMenu] = useState(false);
+  const closeAgentMenu = useCallback(() => setAgentMenu(false), []);
   const [listOpen, setListOpen] = useState(false);
   const a = agent.data;
   const unavailable = agent.error instanceof ApiError && agent.error.status >= 500;
@@ -48,10 +41,8 @@ export function NabuChatPanel() {
     <aside className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
       <div className="chat-h">
         <div className="who">
-          <button className="avatar-btn" onMouseDown={(e) => agentMenu && e.stopPropagation()} onClick={() => setAgentMenu((v) => !v)}
-            aria-label={t("chat.agentSettings")} aria-expanded={agentMenu} title={a ? t(`nabu.tones.${a.tone}`) : t("chat.agentSettings")} disabled={!a}>
-            <AgentIcon tone={a?.tone} />
-          </button>
+          <AgentButton icon={TONE_ICONS[a?.tone ?? "business"] ?? "tBusiness"} label={t("chat.agentSettings")}
+            title={a ? t(`nabu.tones.${a.tone}`) : t("chat.agentSettings")} expanded={agentMenu} disabled={!a} onClick={() => setAgentMenu((v) => !v)} />
           <div style={{ minWidth: 0 }}>
             <b>{a?.name ?? "…"}</b>
             {a?.model && <div className="small muted mono" title={a.model.connection}>{a.model.name}</div>}
@@ -65,7 +56,7 @@ export function NabuChatPanel() {
             <Icon name="x" />
           </button>
         </div>
-        {agentMenu && a && <NabuAgentMenu agent={a} onClose={() => setAgentMenu(false)} />}
+        {agentMenu && a && <NabuAgentMenu agent={a} onClose={closeAgentMenu} />}
         <div className="ctx">
           {chat.subject ? (
             <><span className="fid">{chat.subject.key}</span> {chat.area ? t(`areas.${chat.area}`) : chat.subject.title}</>
@@ -90,45 +81,21 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
   return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} />;
 }
 
-/** Name and tone of the personal agent, saved in Nabu for every channel (R6). */
+/** Name and tone of the personal agent, saved in Nabu for every channel (R6).
+ * The menu is the one of the kit, the same as on the site of Nabu (FTR.NAB.CMN-0005 R15). */
 function NabuAgentMenu({ agent, onClose }: { agent: NabuAgent; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
-  const [name, setName] = useState(agent.name);
-  const ref = useOutside<HTMLDivElement>(true, onClose);
   const patch = useMutation({
     mutationFn: (body: { name?: string; tone?: NabuTone }) => api.patch<NabuAgent>("/api/v1/agent", body),
     onSuccess: (a) => qc.setQueryData(nabuKeys.agent, a),
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
-  const saveName = () => {
-    const v = name.trim();
-    if (v && v !== agent.name) patch.mutate({ name: v });
-  };
   return (
-    <div className="menu agent-pop" ref={ref} role="dialog" aria-label={t("chat.agentSettings")}>
-      <div className="sec">
-        <div className="lab">{t("profile.agentName")}</div>
-        <div className="field" style={{ marginBottom: 0 }}>
-          <input className="inp" value={name} maxLength={40} aria-label={t("profile.agentName")} autoFocus
-            onChange={(e) => setName(e.target.value)} onBlur={saveName}
-            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
-        </div>
-      </div>
-      <div className="sec">
-        <div className="lab">{t("profile.tone")}</div>
-        <div className="nbtones">
-          {NABU_TONES.map((tone) => (
-            <button key={tone} className={`nbtone${agent.tone === tone ? " on" : ""}`} aria-pressed={agent.tone === tone} onClick={() => patch.mutate({ tone })}>
-              <AgentIcon tone={tone} small />
-              {t(`nabu.tones.${tone}`)}
-            </button>
-          ))}
-        </div>
-        <div className="hint">{t("nabu.toneHint")}</div>
-      </div>
-    </div>
+    <AgentMenu narrow label={t("chat.agentSettings")} name={agent.name} value={agent.tone} optionsLabel={t("profile.tone")} hint={t("nabu.toneHint")}
+      options={NABU_TONES.map((tone) => ({ key: tone, label: t(`nabu.tones.${tone}`), icon: TONE_ICONS[tone] }))}
+      onRename={(name) => patch.mutate({ name })} onPick={(tone) => patch.mutate({ tone: tone as NabuTone })} onClose={onClose} />
   );
 }
 
