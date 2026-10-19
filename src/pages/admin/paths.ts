@@ -9,3 +9,6 @@ export type AdminSection = (typeof ADMIN_SECTIONS)[number];
 export const AGENT_SECTIONS = ["agent/connections", "agent/models", "agent/skills", "agent/mcp", "agent/usage"] as const;
 
 export const adminPath = (s: AdminSection) => `/admin/${s}`;
+
+/** The pages of the administration: `/admin` and below it. */
+export const isAdminPath = (path: string) => path === "/admin" || path.startsWith("/admin/");

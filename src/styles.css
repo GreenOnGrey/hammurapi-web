@@ -1451,6 +1451,8 @@ button.avatar-btn[aria-expanded="true"] > span {
 .side .sidegroup:hover { background: var(--surface); }
 .side .sidegroup .chev { margin-left: auto; transition: transform .15s; }
 .side .sidegroup .chev.open { transform: rotate(90deg); }
+/* the group in the burger of a phone (FTR.NAB.CMN-0005 design §4): as the links of the kit there */
+.navmenu .side .sidegroup { padding: 10px 12px; font-size: 15px; color: var(--text); }
 /* The search sits at the right, next to "New issue". On phones the search is
    hidden and .top-actions keeps its own margin-left: auto. */
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { nabuAdminKey, useNabuSettings } from "./nabuSettings";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import type { NabuSettingsView } from "../../api/types";
@@ -11,16 +12,6 @@ import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 
 export const SERVICE_SCENARIOS = ["issue_analysis", "gate_generation", "conformance_check", "codegen", "review_update", "rollback_revert"] as const;
 
-export const nabuAdminKey = ["admin", "nabu"] as const;
-
-export function useNabuSettings(enabled = true) {
-  return useQuery({
-    queryKey: nabuAdminKey,
-    queryFn: () => api.get<NabuSettingsView>("/admin/api/v1/nabu"),
-    enabled,
-    staleTime: 30_000,
-  });
-}
 
 export function NabuAdmin() {
   const { t } = useTranslation();

@@ -6,6 +6,8 @@ import { ChatPanel } from "../chat/ChatPanel";
 import { NabuChatPanel, NoAgentPanel, useNabuAgent } from "../chat/NabuChat";
 import { GitLinkDialog } from "./GitLink";
 import { NewIssueModal } from "../pages/NewIssue";
+import { AdminNav } from "../pages/admin/nav";
+import { isAdminPath } from "../pages/admin/paths";
 import { ProfileMenu } from "./ProfileMenu";
 import { useChatContext, useSession } from "./session";
 
@@ -35,12 +37,15 @@ const RouterLink: LinkComponent = ({ href, ...rest }) => <Link to={href} {...res
 
 const profileMenu = (close: () => void) => <ProfileMenu onClose={close} />;
 
+// FTR.NAB.CMN-0005 design §4: in the administration the burger of a phone holds its sections
+const adminNav = (close: () => void) => <AdminNav onPick={close} />;
+
 // The top bar is the one of the kit (FTR.NAB.CMN-0005 R5, design §4): the stages
 // in a row and behind the burger on a phone — the bottom navigation is gone
 // (design §7, change 1); the search and "New issue" are the actions of Hammurapi.
 export function Shell() {
   const { t } = useTranslation();
-  const { me, profile, config } = useSession();
+  const { me, profile, config, isAnyAdmin } = useSession();
   // FTR.HMR.CMN-0006: the chat of the agent in Nabu, the built-in agent until
   // the transfer, or no agent at all (R9).
   const agentKind = !config.agent ? "builtin" : !config.agent.enabled ? "none" : (config.agent.provider ?? "builtin");
@@ -83,7 +88,8 @@ export function Shell() {
             <span className="hide-m">{t("top.newIssue")}</span>
           </button>
         )}
-        avatar={<Avatar name={me.displayName} url={me.avatarUrl} />} />
+        avatar={<Avatar name={me.displayName} url={me.avatarUrl} />}
+        menu={isAnyAdmin && isAdminPath(location.pathname) ? { label: t("admin.title"), render: adminNav } : undefined} />
       <div className="body">
         <Outlet />
         {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
