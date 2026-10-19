@@ -92,5 +92,5 @@ export function Kpi({ items }: { items: { value: ReactNode; label: ReactNode }[]
 }
 
 export function Dot({ tone }: { tone: "g" | "a" | "r" | "n" }) {
-  return <i className={`dot ${tone}`} aria-hidden="true" />;
+  return <i className={`sdot ${tone}`} aria-hidden="true" />;
 }

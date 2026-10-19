@@ -25,7 +25,7 @@ function StatusDot({ status, enabled = true }: { status: string; enabled?: boole
   const { t } = useTranslation();
   const s = enabled ? status : "disabled";
   const color = s === "ok" ? "g" : s === "unknown" || s === "disabled" ? "n" : "r";
-  return <span className="nowrap"><span className={`dot ${color}`} />{t(`llm.status.${s}`, { defaultValue: s })}</span>;
+  return <span className="nowrap"><span className={`sdot ${color}`} />{t(`llm.status.${s}`, { defaultValue: s })}</span>;
 }
 
 function ScenarioChips({ list }: { list: AgentScenario[] }) {
@@ -374,10 +374,10 @@ export function AgentSkillsAdmin() {
               <td><b className="mono">{s.name}</b><div className="small t2">{s.description}</div></td>
               <td><ScenarioChips list={s.scenarios} /></td>
               <td>
-                {s.status === "active" && <span><span className="dot g" />{t("admin.agent.skills.status.active")}</span>}
+                {s.status === "active" && <span><span className="sdot g" />{t("admin.agent.skills.status.active")}</span>}
                 {s.status !== "active" && (
                   <>
-                    <span><span className={`dot ${s.status === "pending_delete" ? "r" : "a"}`} />{t(`admin.agent.skills.status.${s.status}`)}</span>
+                    <span><span className={`sdot ${s.status === "pending_delete" ? "r" : "a"}`} />{t(`admin.agent.skills.status.${s.status}`)}</span>
                     {s.change && (
                       <div className="small t2">
                         <a href={s.change.prUrl} target="_blank" rel="noreferrer">PR #{s.change.prNumber}</a> · {s.change.author}

@@ -90,7 +90,7 @@ export function Shell() {
         )}
         avatar={<Avatar name={me.displayName} url={me.avatarUrl} />}
         menu={isAnyAdmin && isAdminPath(location.pathname) ? { label: t("admin.title"), render: adminNav } : undefined} />
-      <div className="body">
+      <div className="hbody">
         <Outlet />
         {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
       </div>

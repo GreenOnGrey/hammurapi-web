@@ -55,8 +55,8 @@ export function NabuAdmin() {
             <div className="line">
               <span>{t("admin.nabu.status")}</span>
               {v.connected
-                ? <span className="nowrap"><span className="dot g" />{t("admin.nabu.connected")}</span>
-                : <span className="nowrap" title={v.error}><span className="dot r" />{t("admin.nabu.unreachable")}</span>}
+                ? <span className="nowrap"><span className="sdot g" />{t("admin.nabu.connected")}</span>
+                : <span className="nowrap" title={v.error}><span className="sdot r" />{t("admin.nabu.unreachable")}</span>}
             </div>
           </div>
         )}
