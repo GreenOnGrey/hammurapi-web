@@ -1384,7 +1384,6 @@
       "brief": "Brief",
       "mentor": "Mentor"
     },
-    "toneHint": "Name and tone are saved in Nabu and apply in every channel: here, in Nabu and in Telegram.",
     "conversation": "Conversation",
     "mainConversation": "Main conversation",
     "noContext": "The screen context is added to your messages when you open an issue, a feature or a release.",

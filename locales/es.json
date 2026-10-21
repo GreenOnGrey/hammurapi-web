@@ -1384,7 +1384,6 @@
       "brief": "Breve",
       "mentor": "Mentor"
     },
-    "toneHint": "El nombre y el tono se guardan en Nabu y se aplican en todos los canales: aquí, en Nabu y en Telegram.",
     "conversation": "Conversación",
     "mainConversation": "Conversación principal",
     "noContext": "Cuando hay una incidencia, una funcionalidad o una versión abierta, su contexto se añade a los mensajes.",

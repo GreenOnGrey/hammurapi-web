@@ -1384,7 +1384,6 @@
       "brief": "Knapp",
       "mentor": "Mentor"
     },
-    "toneHint": "Name und Ton werden in Nabu gespeichert und gelten in allen Kanälen: hier, in Nabu und in Telegram.",
     "conversation": "Unterhaltung",
     "mainConversation": "Hauptunterhaltung",
     "noContext": "Wenn ein Issue, Feature oder Release geöffnet ist, wird dessen Kontext an Nachrichten angehängt.",

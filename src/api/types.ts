@@ -951,10 +951,26 @@ export interface MissingCatalog {
 
 export type NabuTone = "business" | "friendly" | "brief" | "mentor";
 
+/** A model the agent of Nabu can run on (FTR.NAB.CHAT-0001 R16), as Nabu gives it. */
+export interface NabuModel {
+  connectionId: string;
+  model: string;
+  name: string;
+  connection: string;
+  caps: { image: boolean; tools: boolean; reasoning: boolean; contextWindow: number };
+}
+
+/** GET /client/v1/me/agent of Nabu, proxied as /api/v1/agent (FTR.NAB.CHAT-0001 tech §2.2). */
 export interface NabuAgent {
   name: string;
   tone: NabuTone;
-  model: { name: string; connection: string } | null;
+  model: NabuModel | null;
+  defaultModel?: NabuModel | null;
+  /** The user chose the model; false — the default one. */
+  chosen?: boolean;
+  availableModels?: NabuModel[];
+  /** The fill of the context of the main conversation. */
+  context?: { tokens: number; window: number };
 }
 
 export interface NabuConversation {

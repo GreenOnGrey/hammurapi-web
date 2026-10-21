@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Icon, useToast } from "@green-on-grey/ui-kit";
-import { AgentButton, AgentMenu, Chat, ChatLayout, ConversationList } from "@green-on-grey/ui-kit/chat";
+import { AgentButton, AgentSettingsMenu, Chat, ChatLayout, ConversationList, type AgentModelChoice } from "@green-on-grey/ui-kit/chat";
 import { ApiError, api } from "../api/client";
 import type { NabuAgent, NabuTone } from "../api/types";
 import { useChatContext } from "../app/session";
@@ -83,21 +83,29 @@ function Conversation({ convId, agentName }: { convId: string; agentName: string
   return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} />;
 }
 
-/** Name and tone of the personal agent, saved in Nabu for every channel (R6).
- * The menu is the one of the kit, the same as on the site of Nabu (FTR.NAB.CMN-0005 R15). */
+/** Name, tone and model of the personal agent, saved in Nabu for every channel
+ * (R6). The menu is the kit's, the same as on the site of Nabu (FTR.HMR.SPEC-0001;
+ * FTR.NAB.CHAT-0001 R16, R17): Hammurapi gives the tones and the models. */
 function NabuAgentMenu({ agent, onClose }: { agent: NabuAgent; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
   const patch = useMutation({
-    mutationFn: (body: { name?: string; tone?: NabuTone }) => api.patch<NabuAgent>("/api/v1/agent", body),
+    mutationFn: (body: { name?: string; tone?: NabuTone; model?: AgentModelChoice }) => api.patch<NabuAgent>("/api/v1/agent", body),
+    // the icon in the header changes at once, as in Nabu
+    onMutate: (p) => qc.setQueryData<NabuAgent>(nabuKeys.agent, (old) => (old && (p.name || p.tone) ? { ...old, ...(p.name ? { name: p.name } : {}), ...(p.tone ? { tone: p.tone } : {}) } : old)),
     onSuccess: (a) => qc.setQueryData(nabuKeys.agent, a),
-    onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
+    onError: (e) => {
+      toast({ kind: "error", title: errorText(t, e) });
+      qc.invalidateQueries({ queryKey: nabuKeys.agent });
+    },
   });
   return (
-    <AgentMenu narrow label={t("chat.agentSettings")} name={agent.name} value={agent.tone} optionsLabel={t("profile.tone")} hint={t("nabu.toneHint")}
+    <AgentSettingsMenu name={agent.name} value={agent.tone}
       options={NABU_TONES.map((tone) => ({ key: tone, label: t(`nabu.tones.${tone}`), icon: TONE_ICONS[tone] }))}
-      onRename={(name) => patch.mutate({ name })} onPick={(tone) => patch.mutate({ tone: tone as NabuTone })} onClose={onClose} />
+      models={{ available: agent.availableModels ?? [], model: agent.model, defaultModel: agent.defaultModel ?? null, chosen: !!agent.chosen, contextTokens: agent.context?.tokens ?? 0 }}
+      onRename={(name) => patch.mutate({ name })} onPick={(tone) => patch.mutate({ tone: tone as NabuTone })}
+      onModel={(model) => patch.mutate({ model })} onClose={onClose} />
   );
 }
 

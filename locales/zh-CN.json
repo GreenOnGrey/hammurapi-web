@@ -1384,7 +1384,6 @@
       "brief": "简洁",
       "mentor": "导师"
     },
-    "toneHint": "名称和语气保存在 Nabu 中，在所有渠道生效：这里、Nabu 和 Telegram。",
     "conversation": "对话",
     "mainConversation": "主对话",
     "noContext": "打开问题、功能或发布时，其上下文会附加到消息中。",
