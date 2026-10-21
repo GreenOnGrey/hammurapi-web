@@ -49,6 +49,8 @@ export function FileViewer({
   const { t } = useTranslation();
   const [name, setName] = useState(initial);
   const file = pickFile(files, name);
+  // an image is fitted to the screen; the button or a click shows it at its own size (R5)
+  const [natural, setNatural] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
   // the parent passes a new function on every render; the dialog is set up once
@@ -103,7 +105,10 @@ export function FileViewer({
               className="inp fileviewer-pick"
               aria-label={t("spec.files")}
               value={file.name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNatural(false);
+              }}
             >
               {files.map((f) => (
                 <option key={f.path} value={f.name}>{f.name}</option>
@@ -111,6 +116,17 @@ export function FileViewer({
             </select>
           )}
           <span className="fileviewer-grow" />
+          {!isHtml && (
+            <button
+              className="btn ghost sm"
+              onClick={() => setNatural((v) => !v)}
+              aria-pressed={natural}
+              title={natural ? t("spec.fitToScreen") : t("spec.actualSize")}
+            >
+              <Icon name="compress" size={14} />
+              <span className="fileviewer-lbl">{natural ? t("spec.fitToScreen") : t("spec.actualSize")}</span>
+            </button>
+          )}
           {view && (
             <button
               className="btn ghost sm"
@@ -144,7 +160,7 @@ export function FileViewer({
               <HtmlPreview key={file.path} featureKey={featureKey} area={area} file={file} />
             )
           ) : (
-            <ImageView key={file.path} featureKey={featureKey} area={area} file={file} />
+            <ImageView key={file.path} featureKey={featureKey} area={area} file={file} natural={natural} onToggle={() => setNatural((v) => !v)} />
           )}
         </div>
       </div>
@@ -179,11 +195,16 @@ function HtmlPreview({ featureKey, area, file }: { featureKey: string; area: str
   return <iframe className="fileviewer-frame" title={file.name} sandbox="allow-scripts" srcDoc={html} />;
 }
 
-function ImageView({ featureKey, area, file }: { featureKey: string; area: string; file: SpecFile }) {
+function ImageView({ featureKey, area, file, natural, onToggle }: {
+  featureKey: string;
+  area: string;
+  file: SpecFile;
+  natural: boolean;
+  onToggle: () => void;
+}) {
   const { t } = useTranslation();
   const [src, setSrc] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [natural, setNatural] = useState(false);
   useEffect(() => {
     let url: string | null = null;
     let cancelled = false;
@@ -213,7 +234,7 @@ function ImageView({ featureKey, area, file }: { featureKey: string; area: strin
         src={src}
         alt={file.name}
         title={natural ? t("spec.fitToScreen") : t("spec.actualSize")}
-        onClick={() => setNatural((v) => !v)}
+        onClick={onToggle}
       />
     </div>
   );
