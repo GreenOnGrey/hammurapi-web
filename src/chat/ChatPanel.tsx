@@ -10,6 +10,7 @@ import type { Attachment, ChatMode, List } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { bytes, relativeTime } from "../lib/format";
 import { AgentSettings } from "./AgentSettings";
+import { CHAT_PANEL_ID, CollapseButton } from "./ChatRail";
 import { useOwnChat } from "./ownAdapter";
 import { agentLook } from "./tones";
 
@@ -38,6 +39,7 @@ export function ChatPanel() {
 
   return (
     <aside
+      id={CHAT_PANEL_ID}
       className={`chat${chat.open ? " open" : ""}`}
       aria-label={t("chat.title")}
     >
@@ -88,9 +90,10 @@ export function ChatPanel() {
               </button>
             </>
           )}
+          {view === "files" && <span className="chat-h-grow" />}
+          <CollapseButton />
           <button
             className="iconbtn chat-close"
-            style={view === "files" ? { marginLeft: "auto" } : undefined}
             onClick={() => chat.setOpen(false)}
             aria-label={t("common.close")}
           >

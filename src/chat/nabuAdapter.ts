@@ -23,8 +23,8 @@ export const nabuKeys = {
   messages: (id: string) => ["nabu", "messages", id] as const,
 };
 
-export function useNabuAgent() {
-  return useQuery({ queryKey: nabuKeys.agent, queryFn: () => api.get<NabuAgent>("/api/v1/agent"), staleTime: 60_000, retry: 1 });
+export function useNabuAgent(enabled = true) {
+  return useQuery({ queryKey: nabuKeys.agent, queryFn: () => api.get<NabuAgent>("/api/v1/agent"), staleTime: 60_000, retry: 1, enabled });
 }
 
 /** The caption of a message (FTR.NAB.CMN-0005 design §6.4): the specification it
@@ -151,6 +151,8 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
     if (mine(d.conversationId)) setWait(d);
   });
   useEvent("nabu.message.created", (m: NabuMessage) => {
+    // a notification of the agent comes whole (FTR.HMR.SPEC-0001 R10)
+    if (m.role === "assistant" && m.status === "done") chat.markUnread();
     if (!mine(m.conversationId)) return;
     put(m);
     if (m.role === "assistant") setWait(null);
@@ -172,6 +174,7 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
     });
   });
   useEvent("nabu.message.done", (m: NabuMessage) => {
+    if (m.role === "assistant") chat.markUnread();
     if (!mine(m.conversationId)) return;
     put(m);
     setWait(null);

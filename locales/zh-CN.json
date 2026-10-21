@@ -281,7 +281,11 @@
       "agent_failed": "代理无法回答。",
       "cancelled": "已停止。",
       "internal": "出现问题。"
-    }
+    },
+    "collapse": "收起聊天",
+    "expand": "展开与 {name} 的聊天",
+    "expandPlain": "展开聊天",
+    "unread": "新消息"
   },
   "profile": {
     "title": "个人资料",
@@ -1271,9 +1275,7 @@
     "empty": "规范为空",
     "emptyHint": "检查仓库后文档会出现（管理 → 设置）。",
     "indexed": "已索引 · 来自仓库",
-    "released": "已在 {release} 中发布",
     "fixOf": "修复对象",
-    "feature": "功能",
     "history": "git 历史",
     "issues": "任务",
     "implementation": "实现",
@@ -1291,7 +1293,13 @@
     "allAreas": "所有文档类型",
     "found": "{count, plural, other {找到 # 个文档}}",
     "nothingFound": "未找到结果",
-    "more": "显示更多"
+    "more": "显示更多",
+    "releasedBadge": "已发布",
+    "fixes": "修复",
+    "openInNewTab": "在新标签页中打开",
+    "tooLarge": "文件过大，无法预览",
+    "fitToScreen": "适应屏幕",
+    "actualSize": "实际大小"
   },
   "specScan": {
     "title": "仓库检查",

@@ -31,6 +31,11 @@ export const SCREENS: Screen[] = [
   { name: "development", path: "/development" },
   { name: "delivery", path: "/delivery" },
   { name: "spec", path: "/spec" },
+  // FTR.HMR.SPEC-0001 qa §8: the tree of features, the header without buttons, the folded chat, the viewer
+  { name: "spec-doc", path: "/spec/FTR.NAB.CMN-0005/product" },
+  { name: "spec-tree", path: "/spec", only: "phone" },
+  { name: "spec-chat-collapsed", path: "/spec/FTR.NAB.CMN-0005/product", only: "desktop", act: click("Свернуть чат") },
+  { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
   { name: "admin", path: "/admin" },
   { name: "agent-menu", path: "/", only: "desktop", act: click("Настройки агента") },
   { name: "agent-menu-nabu", path: "/", only: "desktop", cookies: nabu, act: click("Настройки агента") },

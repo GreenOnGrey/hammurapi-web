@@ -154,6 +154,7 @@ function Authenticated() {
             <Route index element={<FocusPage />} />
             <Route path="overview" element={<OverviewPage />} />
             <Route path="spec" element={spec} />
+            <Route path="spec/:featureKey" element={spec} />
             <Route path="spec/:featureKey/:area" element={spec} />
             <Route path="research" element={<IssuesPage />} />
             <Route path="issues/:key" element={<IssuePage />} />

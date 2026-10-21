@@ -281,7 +281,11 @@
       "agent_failed": "The agent could not answer.",
       "cancelled": "Stopped.",
       "internal": "Something went wrong."
-    }
+    },
+    "collapse": "Collapse chat",
+    "expand": "Expand chat with {name}",
+    "expandPlain": "Expand chat",
+    "unread": "New messages"
   },
   "profile": {
     "title": "Profile",
@@ -1271,9 +1275,7 @@
     "empty": "The specification is empty",
     "emptyHint": "Documents appear after the repository is checked (Admin → Settings).",
     "indexed": "Indexed · from the repository",
-    "released": "Released in {release}",
     "fixOf": "Fix of",
-    "feature": "Feature",
     "history": "History in git",
     "issues": "Issues",
     "implementation": "Implementation",
@@ -1291,7 +1293,13 @@
     "allAreas": "All areas",
     "found": "{count, plural, one {# document found} other {# documents found}}",
     "nothingFound": "Nothing found",
-    "more": "Show more"
+    "more": "Show more",
+    "releasedBadge": "Released",
+    "fixes": "Fixes",
+    "openInNewTab": "Open in new tab",
+    "tooLarge": "The file is too large to view",
+    "fitToScreen": "Fit to screen",
+    "actualSize": "Actual size"
   },
   "specScan": {
     "title": "Repository check",

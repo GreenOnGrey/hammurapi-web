@@ -281,7 +281,11 @@
       "agent_failed": "Der Agent konnte nicht antworten.",
       "cancelled": "Gestoppt.",
       "internal": "Etwas ist schiefgelaufen."
-    }
+    },
+    "collapse": "Chat einklappen",
+    "expand": "Chat mit {name} ausklappen",
+    "expandPlain": "Chat ausklappen",
+    "unread": "Neue Nachrichten"
   },
   "profile": {
     "title": "Profil",
@@ -1271,9 +1275,7 @@
     "empty": "Die Spezifikation ist leer",
     "emptyHint": "Dokumente erscheinen nach der Prüfung des Repositorys (Administration → Einstellungen).",
     "indexed": "Indiziert · aus dem Repository",
-    "released": "Veröffentlicht in {release}",
     "fixOf": "Fix für",
-    "feature": "Feature",
     "history": "Verlauf in git",
     "issues": "Aufgaben",
     "implementation": "Umsetzung",
@@ -1291,7 +1293,13 @@
     "allAreas": "Alle Bereiche",
     "found": "{count, plural, one {# Dokument gefunden} other {# Dokumente gefunden}}",
     "nothingFound": "Nichts gefunden",
-    "more": "Mehr anzeigen"
+    "more": "Mehr anzeigen",
+    "releasedBadge": "Veröffentlicht",
+    "fixes": "Korrekturen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "tooLarge": "Die Datei ist zu groß für die Ansicht",
+    "fitToScreen": "An Bildschirm anpassen",
+    "actualSize": "Originalgröße"
   },
   "specScan": {
     "title": "Repository-Prüfung",

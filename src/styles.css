@@ -709,6 +709,76 @@ button.avatar-btn[aria-expanded="true"] > span {
   box-shadow: var(--shadow);
 }
 
+/* ── Folded chat (FTR.HMR.SPEC-0001 R8–R11, design §3.4) ── */
+.hbody {
+  transition: grid-template-columns 0.2s ease;
+}
+.hbody.chat-collapsed {
+  grid-template-columns: minmax(0, 1fr) 40px;
+}
+.hbody.chat-collapsed > .chat {
+  display: none;
+}
+.chat-h-grow {
+  flex: 1;
+}
+.chat-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+  min-height: 0;
+}
+.chat-rail:hover {
+  background: var(--surface-2);
+}
+.chat-rail-av {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.chat-rail-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--violet);
+  border: 2px solid var(--surface);
+}
+.chat-rail-name {
+  writing-mode: vertical-rl;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-height: 60vh;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hbody {
+    transition: none;
+  }
+}
+@media (max-width: 900px) {
+  .hbody.chat-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .chat-rail,
+  .chat-collapse {
+    display: none;
+  }
+  .hbody.chat-collapsed > .chat.open {
+    display: flex;
+  }
+}
+
 /* ── Profile & admin ──────────────────────────────── */
 .rolechip {
   display: inline-flex;
@@ -1395,11 +1465,14 @@ button.avatar-btn[aria-expanded="true"] > span {
 }
 
 /* ── Specification navigator (FTR.HMR.CMN-0005) ─────────────────── */
-.specpage { display: flex; flex-direction: column; gap: 12px; }
+/* FTR.HMR.SPEC-0001 R15: the page holds still; the tree and the document scroll each on its own */
+.specpage { display: flex; flex-direction: column; gap: 12px; overflow: hidden; min-height: 0; padding-bottom: 0; }
 .specsearch { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: var(--r-m); background: var(--surface); padding: 6px 12px; }
 .specsearch input { flex: 1; border: 0; background: none; font: inherit; color: var(--text); outline: none; padding: 4px 0; }
-.specnav { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; min-height: 0; }
-.spectree { border-right: 1px solid var(--border); padding-right: 12px; overflow: auto; max-height: calc(100vh - 170px); position: sticky; top: 0; }
+.specnav { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; min-height: 0; flex: 1; }
+.spectree, .specbody { min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 32px; }
+.spectree { border-right: 1px solid var(--border); padding-right: 12px; }
+.specbody { min-width: 0; }
 .specbody > .show-m { display: none; margin-bottom: 8px; }
 .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
 .tree ul { padding-left: 14px; }
@@ -1408,6 +1481,35 @@ button.avatar-btn[aria-expanded="true"] > span {
 .tree .node.on { background: var(--violet-soft); color: var(--violet-text); font-weight: 500; }
 .tree .node .tcount { margin-left: auto; font-size: 12px; color: var(--muted); }
 .tree .node.feat .ftitle-cut { min-width: 0; }
+.tree .node.feat { padding: 0 6px 0 0; gap: 2px; }
+.tree .node.feat .specleaf { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; padding: 5px 0; color: inherit; text-decoration: none; overflow: hidden; white-space: nowrap; }
+.tree .specchev { flex: none; width: 20px; height: 22px; display: grid; place-items: center; background: none; border: 0; padding: 0; border-radius: 4px; color: inherit; cursor: pointer; }
+.tree button.specchev:hover { background: var(--border); }
+.specstatus { gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-2); }
+.specstatus .specsep { color: var(--muted); }
+.specstatus .specrel, .specstatus .spechist { color: var(--text-2); text-decoration: none; }
+.specstatus .spechist { display: inline-flex; align-items: center; gap: 4px; }
+.specstatus .specrel:hover, .specstatus .spechist:hover { text-decoration: underline; }
+/* wide content scrolls by itself, never the column (R15) */
+.specdoc .spectabs { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+.specdoc .spectabs::-webkit-scrollbar { display: none; }
+.specdoc .spectabs > * { flex: none; }
+.specmd table, .specmd pre { display: block; max-width: 100%; overflow-x: auto; }
+.specmd img { max-width: 100%; height: auto; }
+/* the viewer of files (R5–R7, design §3.3) */
+.fileviewer-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15, 13, 26, .6); padding: 16px; display: flex; }
+.fileviewer { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-l); box-shadow: var(--shadow); overflow: hidden; }
+.fileviewer-h { height: 48px; flex: none; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; border-bottom: 1px solid var(--border); }
+.fileviewer-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fileviewer-pick { width: auto; max-width: 240px; padding: 4px 8px; }
+.fileviewer-grow { flex: 1; }
+.fileviewer-b { flex: 1; min-height: 0; position: relative; background: var(--surface-2); display: flex; }
+.fileviewer-frame { flex: 1; border: 0; background: #fff; }
+.fileviewer-img { flex: 1; display: grid; place-items: center; padding: 24px; overflow: hidden; }
+.fileviewer-img img { max-width: 100%; max-height: 100%; cursor: zoom-in; background: repeating-conic-gradient(var(--surface) 0% 25%, transparent 0% 50%) 50% / 16px 16px; }
+.fileviewer-img.natural { display: block; overflow: auto; padding: 0; }
+.fileviewer-img.natural img { max-width: none; max-height: none; cursor: zoom-out; }
+.fileviewer-err { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .tree .chev { display: inline-block; width: 12px; color: var(--muted); transition: transform .15s; }
 .tree .chev.open { transform: rotate(90deg); }
 .specdoc { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 24px; align-items: start; }
@@ -1428,13 +1530,17 @@ button.avatar-btn[aria-expanded="true"] > span {
 .searchres .hit:hover { border-color: var(--border-strong); }
 .searchres .snippet { font-size: 14px; color: var(--text-2); }
 .searchres mark, .specsnippet mark { background: var(--amber-soft); color: var(--text); border-radius: 3px; padding: 0 2px; }
-.specimg { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; background: repeating-conic-gradient(var(--surface-2) 0% 25%, transparent 0% 50%) 50% / 16px 16px; }
-.spechtml { width: 100%; height: 70vh; border: 1px solid var(--border); border-radius: var(--r-m); background: #fff; }
 .issuecard { border-left: 3px solid var(--red); }
 .issuecard.warnc { border-left-color: var(--amber); }
 @media (max-width: 900px) {
   .specnav { grid-template-columns: 1fr; }
-  .specnav .spectree { display: none; border-right: 0; padding-right: 0; position: static; max-height: none; }
+  .specpage { overflow: visible; padding-bottom: 32px; }
+  .spectree, .specbody { overflow: visible; padding-bottom: 0; }
+  .specnav .spectree { display: none; border-right: 0; padding-right: 0; }
+  .fileviewer-scrim { padding: 0; }
+  .fileviewer { border-radius: 0; }
+  .fileviewer-lbl { display: none; }
+  .fileviewer-pick { max-width: 140px; }
   .specnav.tree-open .spectree { display: block; }
   .specnav.tree-open .specbody { display: none; }
   .specbody > .show-m { display: inline-flex; }

@@ -8,6 +8,7 @@ import type { NabuAgent, NabuTone } from "../api/types";
 import { useChatContext } from "../app/session";
 import { errorText } from "../lib/errors";
 import { nabuKeys, useNabuAgent, useNabuConversation, useNabuConversations } from "./nabuAdapter";
+import { CHAT_PANEL_ID, CollapseButton } from "./ChatRail";
 
 // FTR.HMR.CMN-0006 R5, R6: the chat is a window to the personal agent of the
 // user in Nabu — the same main conversation, topics and memory as in Nabu and
@@ -38,7 +39,7 @@ export function NabuChatPanel() {
   const closed = agent.error instanceof ApiError && (agent.error.code === "user_archived" || agent.error.code === "channel_unavailable");
 
   return (
-    <aside className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
+    <aside id={CHAT_PANEL_ID} className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
       <div className="chat-h">
         <div className="who">
           <AgentButton icon={TONE_ICONS[a?.tone ?? "business"] ?? "tBusiness"} label={t("chat.agentSettings")}
@@ -52,6 +53,7 @@ export function NabuChatPanel() {
             aria-label={t("nabu.conversation")} aria-expanded={listOpen}>
             <Icon name="msg2" />
           </button>
+          <CollapseButton />
           <button className="iconbtn chat-close" onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
             <Icon name="x" />
           </button>
@@ -104,11 +106,13 @@ export function NoAgentPanel() {
   const { t } = useTranslation();
   const chat = useChatContext();
   return (
-    <aside className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
+    <aside id={CHAT_PANEL_ID} className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
       <div className="chat-h">
         <div className="who">
           <b>{t("noAgent.title")}</b>
-          <button className="iconbtn chat-close" style={{ marginLeft: "auto" }} onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
+          <span className="chat-h-grow" />
+          <CollapseButton />
+          <button className="iconbtn chat-close" onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
             <Icon name="x" />
           </button>
         </div>

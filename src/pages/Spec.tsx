@@ -2,15 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Link,
+  Navigate,
   useLocation,
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import type { TFunction } from "i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api, qs } from "../api/client";
-import { apiUrl } from "../api/base";
 import { keys } from "../api/queries";
 import type {
   SpecArea,
@@ -22,16 +23,19 @@ import type {
 } from "../api/types";
 import { SPEC_AREAS } from "../api/types";
 import { MarkdownEditor } from "../editor/MarkdownEditor";
-import { Empty, Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
+import { Empty, Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 import { PhaseBadge } from "../components/cycle";
+import { FileViewer, rawUrl } from "../components/FileViewer";
 import { bytes, dateTime } from "../lib/format";
 import { errorText } from "../lib/errors";
 
 /** "Specification": the navigator of the specification merged to the default
- * branch, read-only (FTR.HMR.CMN-0005 R11–R16, R20). */
+ * branch, read-only (FTR.HMR.CMN-0005 R11–R16, R20; FTR.HMR.SPEC-0001). The tree
+ * and the document scroll each on its own (FTR.HMR.SPEC-0001 R15). */
 export function SpecPage() {
   const { t } = useTranslation();
   const { featureKey, area } = useParams();
+  const bodyRef = useRef<HTMLElement>(null);
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
   const tree = useQuery({
@@ -57,12 +61,11 @@ export function SpecPage() {
             <TreeView
               tree={tree.data}
               current={featureKey}
-              area={area as SpecArea | undefined}
               onOpen={() => setShowTree(false)}
             />
           )}
         </aside>
-        <section className="specbody">
+        <section className="specbody" ref={bodyRef}>
           <button
             className="btn ghost sm show-m"
             onClick={() => setShowTree(true)}
@@ -73,7 +76,16 @@ export function SpecPage() {
           {q ? (
             <SearchResults q={q} />
           ) : featureKey && area ? (
-            <DocumentView featureKey={featureKey} area={area as SpecArea} />
+            <DocumentView featureKey={featureKey} area={area as SpecArea} scrollRoot={bodyRef} />
+          ) : featureKey ? (
+            // FTR.HMR.SPEC-0001 R2: /spec/<ID> opens the first area of the feature
+            tree.isLoading ? (
+              <Loading />
+            ) : firstArea(findFeature(tree.data, featureKey)?.areas) ? (
+              <Navigate replace to={`/spec/${featureKey}/${firstArea(findFeature(tree.data, featureKey)?.areas)}`} />
+            ) : (
+              <Empty icon="alert" title={t("errors.spec_document_not_found")} />
+            )
           ) : tree.data && tree.data.domains.length === 0 ? (
             <Empty icon="book" title={t("spec.empty")}>
               {t("spec.emptyHint")}
@@ -128,33 +140,63 @@ function SearchBar({
   );
 }
 
-// ─── tree (R12) ─────────────────────────────────────────────────────
+// ─── tree (FTR.HMR.CMN-0005 R12; FTR.HMR.SPEC-0001 R1–R3) ───────────
 
-function TreeView({
+/** The first area of a feature in the order of the cycle (FTR.HMR.SPEC-0001 R2). */
+export function firstArea(areas: readonly string[] | undefined): SpecArea | undefined {
+  return SPEC_AREAS.find((a) => areas?.includes(a));
+}
+
+/** A feature of the tree with the keys of the nodes above it: domain, system, parents. */
+export function findFeature(
+  tree: SpecTree | undefined,
+  key: string,
+): (SpecTreeFeature & { path: string[] }) | undefined {
+  const walk = (fs: SpecTreeFeature[], path: string[]): (SpecTreeFeature & { path: string[] }) | undefined => {
+    for (const f of fs) {
+      if (f.key === key) return { ...f, path };
+      const found = walk(f.fixes, [...path, `f:${f.key}`]);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  for (const d of tree?.domains ?? [])
+    for (const s of d.systems) {
+      const found = walk(s.features, [`d:${d.key}`, `s:${d.key}/${s.key}`]);
+      if (found) return found;
+    }
+  return undefined;
+}
+
+export function TreeView({
   tree,
   current,
-  area,
   onOpen,
 }: {
   tree: SpecTree;
   current?: string;
-  area?: SpecArea;
   onOpen: () => void;
 }) {
   const { t } = useTranslation();
-  // Open path: the domain and system of the current document, and the feature itself.
-  const [open, setOpen] = useState<Record<string, boolean>>(() => {
-    const o: Record<string, boolean> = {};
-    if (current) {
-      const [, d, rest] = current.split(".");
-      const s = rest?.split("-")[0];
-      if (d) o[`d:${d}`] = true;
-      if (d && s) o[`s:${d}/${s}`] = true;
-      o[`f:${current}`] = true;
-    }
-    return o;
-  });
-  const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  // What the user opened or closed; the path to the current feature is open
+  // unless the user closed it (R3).
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+  const forced = useMemo(
+    () => new Set(current ? (findFeature(tree, current)?.path ?? []) : []),
+    [tree, current],
+  );
+  const isOpen = (k: string) => toggled[k] ?? forced.has(k);
+  const toggle = (k: string) => setToggled((o) => ({ ...o, [k]: !(o[k] ?? forced.has(k)) }));
+
+  // R15: a link to a feature low in the tree shows its row; clicks in the tree do not move it.
+  const ref = useRef<HTMLUListElement>(null);
+  const shown = useRef(false);
+  useEffect(() => {
+    if (shown.current || !current) return;
+    shown.current = true;
+    ref.current?.querySelector(".node.on")?.scrollIntoView({ block: "nearest" });
+  }, [current]);
+
   if (tree.domains.length === 0)
     return (
       <div className="small muted" style={{ padding: 12 }}>
@@ -162,40 +204,39 @@ function TreeView({
       </div>
     );
   return (
-    <ul className="tree" role="tree">
+    <ul className="tree" role="tree" ref={ref}>
       {tree.domains.map((d) => (
-        <li key={d.key} role="treeitem" aria-expanded={!!open[`d:${d.key}`]}>
+        <li key={d.key} role="treeitem" aria-expanded={isOpen(`d:${d.key}`)}>
           <button className="node dom" onClick={() => toggle(`d:${d.key}`)}>
-            <Chevron open={!!open[`d:${d.key}`]} />
+            <Chevron open={isOpen(`d:${d.key}`)} />
             <Icon name="grid" size={14} />
             <b>{d.key}</b> <span className="muted">{d.name}</span>
           </button>
-          {open[`d:${d.key}`] && (
+          {isOpen(`d:${d.key}`) && (
             <ul role="group">
               {d.systems.map((s) => (
                 <li
                   key={s.key}
                   role="treeitem"
-                  aria-expanded={!!open[`s:${d.key}/${s.key}`]}
+                  aria-expanded={isOpen(`s:${d.key}/${s.key}`)}
                 >
                   <button
                     className="node"
                     onClick={() => toggle(`s:${d.key}/${s.key}`)}
                   >
-                    <Chevron open={!!open[`s:${d.key}/${s.key}`]} />
+                    <Chevron open={isOpen(`s:${d.key}/${s.key}`)} />
                     <b>{s.key}</b> <span className="muted">{s.name}</span>
                     <span className="count tcount">{s.count}</span>
                   </button>
-                  {open[`s:${d.key}/${s.key}`] && (
+                  {isOpen(`s:${d.key}/${s.key}`) && (
                     <ul role="group">
                       {s.features.map((f) => (
                         <FeatureNode
                           key={f.key}
                           f={f}
-                          open={open}
+                          isOpen={isOpen}
                           toggle={toggle}
                           current={current}
-                          area={area}
                           onOpen={onOpen}
                         />
                       ))}
@@ -211,52 +252,59 @@ function TreeView({
   );
 }
 
+/** A feature is a leaf: its areas are the tabs of the document (R1). The
+ * chevron folds its fixes and does not open the document (R3). */
 function FeatureNode({
   f,
-  open,
+  isOpen,
   toggle,
   current,
-  area,
   onOpen,
 }: {
   f: SpecTreeFeature;
-  open: Record<string, boolean>;
+  isOpen: (k: string) => boolean;
   toggle: (k: string) => void;
   current?: string;
-  area?: SpecArea;
   onOpen: () => void;
 }) {
   const { t } = useTranslation();
   const k = `f:${f.key}`;
+  const hasFixes = f.fixes.length > 0;
   return (
-    <li role="treeitem" aria-expanded={!!open[k]}>
-      <button className="node feat" onClick={() => toggle(k)} title={f.title}>
-        <Chevron open={!!open[k]} />
-        <span className="mono small">{f.key}</span>{" "}
-        <span className="ellipsis ftitle-cut">{f.title}</span>
-      </button>
-      {open[k] && (
+    <li role="treeitem" aria-expanded={hasFixes ? isOpen(k) : undefined}>
+      <div className={`node feat${current === f.key ? " on" : ""}`}>
+        {hasFixes ? (
+          <button
+            className="specchev"
+            onClick={() => toggle(k)}
+            aria-label={t("spec.fixes")}
+            aria-expanded={isOpen(k)}
+          >
+            <Chevron open={isOpen(k)} />
+          </button>
+        ) : (
+          <span className="specchev" aria-hidden />
+        )}
+        <Link
+          className="specleaf"
+          to={`/spec/${f.key}`}
+          onClick={onOpen}
+          title={`${f.key} — ${f.title}`}
+          aria-current={current === f.key ? "page" : undefined}
+        >
+          <span className="mono small">{f.key}</span>{" "}
+          <span className="ellipsis ftitle-cut">{f.title}</span>
+        </Link>
+      </div>
+      {hasFixes && isOpen(k) && (
         <ul role="group">
-          {f.areas.map((a) => (
-            <li key={a} role="treeitem">
-              <Link
-                className={`node doc${current === f.key && area === a ? " on" : ""}`}
-                to={`/spec/${f.key}/${a}`}
-                onClick={onOpen}
-              >
-                <Icon name="files" size={13} />
-                {t(`areas.${a}`)}
-              </Link>
-            </li>
-          ))}
           {f.fixes.map((x) => (
             <FeatureNode
               key={x.key}
               f={x}
-              open={open}
+              isOpen={isOpen}
               toggle={toggle}
               current={current}
-              area={area}
               onOpen={onOpen}
             />
           ))}
@@ -279,9 +327,12 @@ function Chevron({ open }: { open: boolean }) {
 function DocumentView({
   featureKey,
   area,
+  scrollRoot,
 }: {
   featureKey: string;
   area: SpecArea;
+  /** The column of the document scrolls, not the page (FTR.HMR.SPEC-0001 R15). */
+  scrollRoot: React.RefObject<HTMLElement | null>;
 }) {
   const { t, i18n } = useTranslation();
   const toast = useToast();
@@ -308,7 +359,18 @@ function DocumentView({
     null,
   );
   const [preview, setPreview] = useState<SpecFile | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const d = doc.data;
+
+  // R15: another document opens from its top, or from the section of the link;
+  // the tree keeps its place. Only a change of the document resets the place.
+  const shownDoc = useRef("");
+  useEffect(() => {
+    const k = `${featureKey}/${area}`;
+    if (shownDoc.current === k) return;
+    shownDoc.current = k;
+    if (!location.hash) scrollRoot.current?.scrollTo({ top: 0 });
+  }, [featureKey, area, location.hash, scrollRoot]);
 
   // Anchors: headings of levels 2–3 get the slugs of the table of contents, in order.
   useEffect(() => {
@@ -329,11 +391,15 @@ function DocumentView({
           .toSorted((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (vis[0]) setActive((vis[0].target as HTMLElement).id);
       },
-      { rootMargin: "0px 0px -70% 0px" },
+      // the column of the document is the viewport; on a phone the page scrolls (null)
+      {
+        root: scrollRoot.current && getComputedStyle(scrollRoot.current).overflowY !== "visible" ? scrollRoot.current : null,
+        rootMargin: "0px 0px -70% 0px",
+      },
     );
     hs.forEach((h) => io.observe(h));
     return () => io.disconnect();
-  }, [d, rendered, location.hash]); // oxlint-disable-line react/exhaustive-effect-dependencies -- the headings are found again after the document is rendered or the anchor changes
+  }, [d, rendered, location.hash, scrollRoot]); // oxlint-disable-line react/exhaustive-effect-dependencies -- the headings are found again after the document is rendered or the anchor changes
 
   const copyLink = (slug: string) => {
     const url = `${window.location.origin}/spec/${featureKey}/${area}#${encodeURIComponent(slug)}`;
@@ -370,47 +436,7 @@ function DocumentView({
             {f.title}
           </h1>
         </div>
-        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-          {f.source === "repository" ? (
-            <span
-              className="st none"
-              title={
-                f.indexedAt ? dateTime(f.indexedAt, i18n.language) : undefined
-              }
-            >
-              <Icon name="refresh" size={12} /> {t("spec.indexed")}
-              {f.indexedAt && ` · ${dateTime(f.indexedAt, i18n.language)}`}
-            </span>
-          ) : f.phase === "released" && f.release ? (
-            <Link className="st approved" to={`/releases/${f.release}`}>
-              {t("spec.released", { release: f.release })}
-            </Link>
-          ) : (
-            <PhaseBadge phase={f.phase} />
-          )}
-          {f.parent && (
-            <span className="small muted">
-              {t("spec.fixOf")}{" "}
-              <Link className="mono" to={`/spec/${f.parent}/product`}>
-                {f.parent}
-              </Link>
-            </span>
-          )}
-          <span className="grow" />
-          <Link className="btn ghost sm" to={`/features/${d.featureKey}`}>
-            <Icon name="code" size={14} />
-            {t("spec.feature")}
-          </Link>
-          <a
-            className="btn ghost sm"
-            href={d.historyUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Icon name="clock" size={14} />
-            {t("spec.history")}
-          </a>
-        </div>
+        <DocStatus d={d} t={t} lng={i18n.language} />
         {f.issues.length > 0 && (
           <LinkRow label={t("spec.issues")}>
             {f.issues.map((i) => (
@@ -448,7 +474,7 @@ function DocumentView({
             ))}
           </LinkRow>
         )}
-        <div className="tabs" role="tablist" style={{ marginTop: 14 }}>
+        <div className="tabs spectabs" role="tablist" style={{ marginTop: 14 }}>
           {SPEC_AREAS.filter((a) => d.areas.includes(a)).map((a) => (
             <Link
               key={a}
@@ -508,7 +534,10 @@ function DocumentView({
                       {x.previewable && (
                         <button
                           className="btn ghost sm"
-                          onClick={() => setPreview(x)}
+                          onClick={(e) => {
+                            opener.current = e.currentTarget;
+                            setPreview(x);
+                          }}
                         >
                           {t("spec.open")}
                         </button>
@@ -570,12 +599,16 @@ function DocumentView({
           ))}
         </nav>
       )}
-      {preview && (
-        <FilePreview
+      {preview && files.data && (
+        <FileViewer
           featureKey={d.featureKey}
           area={area}
-          file={preview}
-          onClose={() => setPreview(null)}
+          files={files.data.files.filter((x) => x.previewable)}
+          initial={preview.name}
+          onClose={() => {
+            setPreview(null);
+            opener.current?.focus();
+          }}
         />
       )}
     </div>
@@ -597,86 +630,59 @@ export function stripFrontMatter(md: string): string {
   return m ? md.slice(m[0].length) : md;
 }
 
-function rawUrl(key: string, area: string, name: string, mode?: string) {
-  return apiUrl(
-    `/api/v1/spec/files/${encodeURIComponent(key)}/${area}/raw${qs({ name, mode })}`,
-  );
-}
-
-/** Images are fetched with the session and shown from an object URL (SVG only in
- * <img>, so its scripts never run); HTML runs in a sandboxed iframe without
- * allow-same-origin: it has no access to the session (arch §8). */
-function FilePreview({
-  featureKey,
-  area,
-  file,
-  onClose,
+/** The line of the status: the release with its date, or the time of indexing,
+ * then the history of the file at the provider when it is known; no buttons in
+ * the header (FTR.HMR.SPEC-0001 R12–R14). */
+export function DocStatus({
+  d,
+  t,
+  lng,
 }: {
-  featureKey: string;
-  area: string;
-  file: SpecFile;
-  onClose: () => void;
+  d: Pick<SpecDocument, "historyUrl" | "feature">;
+  t: TFunction;
+  lng: string;
 }) {
-  const { t } = useTranslation();
-  const [src, setSrc] = useState<string | null>(null);
-  const [html, setHtml] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  useEffect(() => {
-    let url: string | null = null;
-    let cancelled = false;
-    (async () => {
-      try {
-        if (file.mimeType === "text/html") {
-          const r = await api.get<{ html: string }>(
-            `/api/v1/spec/files/${encodeURIComponent(featureKey)}/${area}/raw${qs({ name: file.name, mode: "preview" })}`,
-          );
-          if (!cancelled) setHtml(r.html);
-          return;
-        }
-        const res = await fetch(
-          rawUrl(featureKey, area, file.name, "preview"),
-          { credentials: "include" },
-        );
-        if (!res.ok) throw new Error(String(res.status));
-        url = URL.createObjectURL(await res.blob());
-        if (!cancelled) setSrc(url);
-      } catch (e) {
-        if (!cancelled) setErr(errorText(t, e));
-      }
-    })();
-    return () => {
-      cancelled = true;
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [featureKey, area, file, t]);
+  const f = d.feature;
+  const parts: ReactNode[] = [];
+  if (f.source === "repository") {
+    parts.push(
+      <span key="st" className="st none">
+        <Icon name="refresh" size={12} /> {t("spec.indexed")}
+      </span>,
+    );
+    if (f.indexedAt) parts.push(<span key="at">{dateTime(f.indexedAt, lng)}</span>);
+  } else if (f.phase === "released" && f.release) {
+    parts.push(
+      <Link key="st" className="st approved" to={`/releases/${f.release}`}>
+        {t("spec.releasedBadge")}
+      </Link>,
+      <Link key="rel" className="mono specrel" to={`/releases/${f.release}`}>
+        {f.release}
+      </Link>,
+    );
+    if (f.releasedAt) parts.push(<span key="at">{dateTime(f.releasedAt, lng)}</span>);
+  } else {
+    parts.push(<PhaseBadge key="st" phase={f.phase} />);
+  }
+  if (d.historyUrl)
+    parts.push(
+      <a key="hist" className="spechist" href={d.historyUrl} target="_blank" rel="noreferrer">
+        <Icon name="clock" size={13} />
+        {t("spec.history")}
+      </a>,
+    );
   return (
-    <Modal
-      title={file.name}
-      wide
-      onClose={onClose}
-      footer={
-        <>
-          <a className="btn ghost" href={rawUrl(featureKey, area, file.name)}>
-            {t("spec.download")}
-          </a>
-          <button className="btn" onClick={onClose}>
-            {t("common.close")}
-          </button>
-        </>
-      }
-    >
-      {err && <div className="err-text">{err}</div>}
-      {!err && !src && html === null && <Loading />}
-      {src && <img className="specimg" src={src} alt={file.name} />}
-      {html !== null && (
-        <iframe
-          className="spechtml"
-          title={file.name}
-          sandbox="allow-scripts"
-          srcDoc={html}
-        />
+    <div className="row specstatus">
+      {parts.flatMap((p, i) => (i === 0 ? [p] : [<span key={`sep${i}`} className="specsep" aria-hidden>·</span>, p]))}
+      {f.parent && (
+        <span className="small muted">
+          {t("spec.fixOf")}{" "}
+          <Link className="mono" to={`/spec/${f.parent}`}>
+            {f.parent}
+          </Link>
+        </span>
       )}
-    </Modal>
+    </div>
   );
 }
 

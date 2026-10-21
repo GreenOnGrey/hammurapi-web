@@ -56,8 +56,9 @@ e2e/              the screen comparison: mock.mjs (a fixed API), screens.ts, scr
 - **Admin links are absolute** (`adminPath(...)`): relative links inside the `admin/*` splat route
   resolve against the whole URL.
 - **Untrusted content never becomes markup**: search snippets come with `‹…›` marks and are rendered
-  as text plus `<mark>`; repository HTML only in `<iframe sandbox="allow-scripts" srcdoc>` (no
-  `allow-same-origin`); SVG only in `<img>`; files of the API domain are fetched with credentials and
+  as text plus `<mark>`; repository HTML only in `<iframe sandbox="allow-scripts">` (no
+  `allow-same-origin`) — from the `viewUrl` of the core, served with `CSP: sandbox allow-scripts`, so a new tab
+  is an opaque origin too, or from `srcdoc` with an older core (FTR.HMR.SPEC-0001 arch §6); SVG only in `<img>`; files of the API domain are fetched with credentials and
   shown from object URLs (the API may be on another site than the SPA).
 - **SSE events** are listed in `src/lib/sse.ts`; App invalidates query keys on them.
 - Heavy pages (feature, admin, the specification navigator) are lazy-loaded.

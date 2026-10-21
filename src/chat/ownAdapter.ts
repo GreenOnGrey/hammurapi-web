@@ -124,6 +124,7 @@ export function useOwnChat(mode: ChatMode): Pick<ChatProps,
       return { ...l, tools: [...tools, { id: d.toolCallId, title: d.title || prev?.title || "", status: d.status || prev?.status || "" }] };
     }));
   useEvent("agent.done", (d: { messageId: string }) => {
+    chat.markUnread(); // the answer came while the chat was folded (FTR.HMR.SPEC-0001 R10)
     setLive((l) => (l && l.messageId === d.messageId ? { ...l, done: true } : l));
     setSending(false);
     qc.invalidateQueries({ queryKey: keys.chat });

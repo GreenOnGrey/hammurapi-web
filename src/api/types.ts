@@ -866,7 +866,8 @@ export interface SpecDocument {
   toc: SpecHeading[];
   blobSha: string;
   commit: string;
-  historyUrl: string;
+  /** Absent when the history of the file cannot be built (FTR.HMR.SPEC-0001 R13). */
+  historyUrl?: string;
   feature: {
     phase: FeaturePhase;
     source: "hammurapi" | "repository";
@@ -886,6 +887,8 @@ export interface SpecFile {
   size: number;
   mimeType: string;
   previewable: boolean;
+  /** The file as a page of its own in an opaque origin; absent in older cores (FTR.HMR.SPEC-0001 R6). */
+  viewUrl?: string;
 }
 
 export interface SpecSearchItem {

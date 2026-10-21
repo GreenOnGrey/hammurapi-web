@@ -78,6 +78,31 @@ const nabuMessages = [
   nabuMsg("n4", "assistant", "", { createdAt: T("14:10"), status: "failed", errorClass: "rate_limit" }),
 ];
 
+// FTR.HMR.SPEC-0001: the navigator — a tree, a released document with its links, files of the design.
+const specFeat = (key, title, areas, extra = {}) => ({ key, title, phase: "released", source: "hammurapi", areas, fixes: [], ...extra });
+const specTree = { commit: "c1", domains: [{ key: "NAB", name: "Nabu", systems: [{ key: "CMN", name: "Common", count: 4, features: [
+  specFeat("FTR.NAB.CMN-0001", "MVP Nabu", ["product", "design", "arch", "tech", "qa"]),
+  specFeat("FTR.NAB.CMN-0002", "Каналы агента", ["product", "design", "arch", "tech", "qa"], { fixes: [specFeat("FTR.NAB.CMN-0003", "fix: названия каналов", ["product"])] }),
+  specFeat("FTR.NAB.CMN-0005", "Общий UI-кит Hammurapi и Nabu с очень длинным названием", ["product", "design", "arch", "tech", "qa"]),
+  specFeat("FTR.NAB.CMN-0009", "Импорт из репозитория", ["arch", "tech"], { phase: "indexed", source: "repository" }),
+] }] }] };
+const specMarkdown = ["# Общий UI-кит", "", "## 1. Проблема", "", "Кнопки и поля в Hammurapi и Nabu выглядят по-разному.", "",
+  "## 2. Требования", "", "**R1.** Один кит для двух продуктов.", "", "| Метрика | Источник | Запрос | Цель | Срок оценки | Ответственный | Комментарий |", "|---|---|---|---|---|---|---|",
+  "| Расхождения | Снимки | Пары экранов с отличиями | 0 | 4 недели после релиза | Дизайн | Сравнение по пикселям без допуска |", "",
+  "## 3. Скоуп", "", "Входит: R1.", ""].join("\n");
+const specDoc = (key, area) => ({ featureKey: key, area, areas: ["product", "design", "arch", "tech", "qa"], path: `specs/NAB/CMN/${key}/${area}/spec.md`,
+  title: "Общий UI-кит", markdown: specMarkdown, blobSha: "b1", commit: "c1",
+  toc: [{ level: 2, text: "1. Проблема", slug: "1-problema" }, { level: 2, text: "2. Требования", slug: "2-trebovaniya" }, { level: 2, text: "3. Скоуп", slug: "3-skoup" }],
+  historyUrl: `https://github.com/GreenOnGrey/specs/commits/main/specs/NAB/CMN/${key}/${area}/spec.md`,
+  feature: { phase: "released", source: "hammurapi", title: "Общий UI-кит Hammurapi и Nabu с очень длинным названием", release: "RLS.NAB.CMN-0003", releasedAt: T("12:00", "04"),
+    indexedAt: null, parent: null, issues: [{ key: "ISS.NAB-0007", title: "Кнопки расходятся", url: "/issues/ISS.NAB-0007" }], pullRequests: [] } });
+const viewUrl = (key, area, name) => `/api/v1/spec/files/${key}/${area}/raw?mode=view&name=${name}`;
+const specFiles = (key, area) => area !== "design" ? [] : [
+  { path: `specs/NAB/CMN/${key}/design/mockups.html`, name: "mockups.html", size: 158_000, mimeType: "text/html", previewable: true, viewUrl: viewUrl(key, area, "mockups.html") },
+  { path: `specs/NAB/CMN/${key}/design/flows.pdf`, name: "flows.pdf", size: 2_300_000, mimeType: "application/pdf", previewable: false },
+];
+const MOCKUP = "<!doctype html><body style=\"margin:0;font:16px sans-serif;background:#eeedf3\"><div style=\"padding:24px 32px;background:#6d4aff;color:#fff\">Макеты</div><div style=\"display:grid;grid-template-columns:220px 1fr 300px;gap:16px;padding:24px\"><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div></div></body>";
+
 function api(url, c) {
   const p = url.pathname;
   if (p === "/api/v1/config") return config(c("mock-agent"), c("mock-login"));
@@ -94,6 +119,11 @@ function api(url, c) {
   if (p === "/api/v1/chat/session") return { model: "sonnet-5", connectionName: "Anthropic", thinking: "medium", configured: true };
   if (p === "/api/v1/chat/history") return { items: history, nextCursor: null };
   if (p === "/api/v1/agent") return nabuAgent;
+  if (p === "/api/v1/spec/tree") return specTree;
+  let m = /^\/api\/v1\/spec\/documents\/([^/]+)\/([^/]+)$/.exec(p);
+  if (m) return specDoc(decodeURIComponent(m[1]), m[2]);
+  m = /^\/api\/v1\/spec\/files\/([^/]+)\/([^/]+)$/.exec(p);
+  if (m) return { files: specFiles(decodeURIComponent(m[1]), m[2]) };
   if (p === "/api/v1/chat/conversations") return { items: nabuConversations };
   if (/^\/api\/v1\/chat\/conversations\/[^/]+\/messages$/.test(p)) return { items: p.includes("/main/") ? nabuMessages : [], nextCursor: null };
   return { items: [], nextCursor: null };
@@ -121,6 +151,11 @@ http.createServer((req, res) => {
   }
   if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin/api/")) {
     if (req.method !== "GET") { res.writeHead(204); return res.end(); }
+    // FTR.HMR.SPEC-0001 arch §6: a mockup as a page of its own, sandboxed into an opaque origin
+    if (url.pathname.endsWith("/raw") && url.searchParams.get("mode") === "view") {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": "sandbox allow-scripts" });
+      return res.end(MOCKUP);
+    }
     if (url.pathname === "/api/v1/auth/me" && cookie("mock-auth") === "0") { res.writeHead(401, { "content-type": "application/json" }); return res.end('{"error":{"code":"unauthenticated","message":"sign in"}}'); }
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify(api(url, cookie)));

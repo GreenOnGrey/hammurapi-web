@@ -281,7 +281,11 @@
       "agent_failed": "El agente no pudo responder.",
       "cancelled": "Detenido.",
       "internal": "Algo salió mal."
-    }
+    },
+    "collapse": "Contraer el chat",
+    "expand": "Expandir el chat con {name}",
+    "expandPlain": "Expandir el chat",
+    "unread": "Mensajes nuevos"
   },
   "profile": {
     "title": "Perfil",
@@ -1271,9 +1275,7 @@
     "empty": "La especificación está vacía",
     "emptyHint": "Los documentos aparecen tras revisar el repositorio (Administración → Ajustes).",
     "indexed": "Indexada · desde el repositorio",
-    "released": "Publicada en {release}",
     "fixOf": "Corrección de",
-    "feature": "Funcionalidad",
     "history": "Historial en git",
     "issues": "Tareas",
     "implementation": "Implementación",
@@ -1291,7 +1293,13 @@
     "allAreas": "Todas las áreas",
     "found": "{count, plural, one {# documento encontrado} other {# documentos encontrados}}",
     "nothingFound": "No se encontró nada",
-    "more": "Mostrar más"
+    "more": "Mostrar más",
+    "releasedBadge": "Publicado",
+    "fixes": "Correcciones",
+    "openInNewTab": "Abrir en una pestaña nueva",
+    "tooLarge": "El archivo es demasiado grande para verlo",
+    "fitToScreen": "Ajustar a la pantalla",
+    "actualSize": "Tamaño real"
   },
   "specScan": {
     "title": "Revisión del repositorio",

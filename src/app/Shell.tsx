@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Avatar, Icon, TopBar, type LinkComponent } from "@green-on-grey/ui-kit";
 import { ChatPanel } from "../chat/ChatPanel";
 import { NabuChatPanel, NoAgentPanel, useNabuAgent } from "../chat/NabuChat";
+import { ChatRail } from "../chat/ChatRail";
 import { GitLinkDialog } from "./GitLink";
 import { NewIssueModal } from "../pages/NewIssue";
 import { AdminNav } from "../pages/admin/nav";
@@ -90,9 +91,11 @@ export function Shell() {
         )}
         avatar={<Avatar name={me.displayName} url={me.avatarUrl} />}
         menu={isAnyAdmin && isAdminPath(location.pathname) ? { label: t("admin.title"), render: adminNav } : undefined} />
-      <div className="hbody">
+      {/* FTR.HMR.SPEC-0001 R8: folded, the panel stays mounted and hidden; the rail takes its column */}
+      <div className={`hbody${chat.collapsed ? " chat-collapsed" : ""}`}>
         <Outlet />
         {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
+        {chat.collapsed && <ChatRail kind={agentKind === "nabu" ? "nabu" : agentKind === "none" ? "none" : "builtin"} />}
       </div>
       {!chat.open && (
         <button
