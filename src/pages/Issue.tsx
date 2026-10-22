@@ -201,31 +201,85 @@ function RevisionBanner({ d }: { d?: DiscoveryView }) {
   );
 }
 
-function DiscoveryDoc({ d, estimate }: { d: DiscoveryView; estimate?: ReactNode }) {
+/** «Похожее» — folded like the estimate (FTR.HMR.DISC-0001 design §3.6b): the line names the possible
+ * duplicates first; unfolded — every item with how it relates. */
+function SimilarBlock({ items }: { items: NonNullable<DiscoveryView["similar"]> }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const dups = items.filter((s) => s.duplicate);
+  const line = dups.length > 0
+    ? t("disc.similar.dups", { count: dups.length, keys: dups.map((s) => s.key).join(", ") })
+    : t("disc.similar.line", { count: items.length, keys: items.slice(0, 2).map((s) => s.key).join(", ") });
+  return (
+    <section className="docsec">
+      <button type="button" className="estline" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <b>{t("issue.similar")}</b>
+        <span className={`estgrow small ${dups.length > 0 ? "simwarn" : "t2"}`}>{open ? "" : line}</span>
+        <span className="st none">{items.length}</span>
+        <Icon name="chevrons" size={16} className={`estchev${open ? " open" : ""}`} />
+      </button>
+      {open && (
+        <ul className="similarlist">
+          {items.toSorted((a, b) => Number(!!b.duplicate) - Number(!!a.duplicate)).map((s) => (
+            <li key={s.key}>
+              <div className="simhead"><KeyLink k={s.key} /> <span>{s.title}</span>
+                {s.duplicate && <span className="st in_review">{t("disc.similar.duplicate")}</span>}</div>
+              {s.note && <div className="small t2">{s.note}</div>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/** «Как измерим» — optional and folded like the estimate (FTR.HMR.DISC-0001 R23, design §3.6a). */
+function MeasureBlock({ d }: { d: DiscoveryView }) {
   const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const m = d.measure;
+  if (!m) {
+    return (
+      <section className="docsec">
+        <div className="estline" style={{ cursor: "default" }}>
+          <b>{t("issue.measure")}</b>
+          <span className="estgrow small muted">{t("disc.measure.none")}</span>
+        </div>
+      </section>
+    );
+  }
+  return (
+    <section className="docsec">
+      <button type="button" className="estline" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <b>{t("issue.measure")}</b>
+        <span className="estgrow small t2">{open ? "" : t("disc.measure.line", { source: m.source, target: m.target, window: m.window })}</span>
+        {d.measureCheckedAt && <span className="st approved">{t("disc.measure.checked")}</span>}
+        <Icon name="chevrons" size={16} className={`estchev${open ? " open" : ""}`} />
+      </button>
+      {open && (
+        <div className="measuregrid">
+          <div className="muted small">{t("issue.source")}</div><div>{m.source}</div>
+          <div className="muted small">{t("issue.target")}</div><div>{m.target}</div>
+          <div className="muted small">{t("issue.window")}</div><div>{m.window}</div>
+          <div className="muted small">{t("issue.query")}</div><pre className="measurequery">{m.query}</pre>
+          {d.measureCheckedAt && <><span /><div className="small muted"><Icon name="check" size={12} /> {t("issue.checked", { at: dateTime(d.measureCheckedAt, i18n.language) })}</div></>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function DiscoveryDoc({ d, estimate }: { d: DiscoveryView; estimate?: ReactNode }) {
+  const { t } = useTranslation();
   return (
     <>
       <section className="docsec">
         <h5>{t("issue.value")} <span className="req">{t("issue.required")}</span></h5>
         {d.value ? <p style={{ margin: 0 }}>{d.value}</p> : <span className="err-text">{t("issue.notFilled")}</span>}
       </section>
-      <section className="docsec">
-        <h5>{t("issue.measure")} <span className="req">{t("issue.required")}</span></h5>
-        {d.measure ? (
-          <table className="cov">
-            <thead><tr><th>{t("issue.source")}</th><th>{t("issue.query")}</th><th>{t("issue.target")}</th><th>{t("issue.window")}</th></tr></thead>
-            <tbody><tr><td>{d.measure.source}</td><td className="mono small">{d.measure.query}</td><td>{d.measure.target}</td><td>{d.measure.window}</td></tr></tbody>
-          </table>
-        ) : <span className="err-text">{t("issue.notFilled")}</span>}
-        {d.measureCheckedAt && <div className="small muted" style={{ marginTop: 6 }}><Icon name="check" size={12} /> {t("issue.checked", { at: dateTime(d.measureCheckedAt, i18n.language) })}</div>}
-      </section>
+      <MeasureBlock d={d} />
       {estimate}
-      {(d.similar?.length ?? 0) > 0 && (
-        <section className="docsec">
-          <h5>{t("issue.similar")}</h5>
-          {d.similar!.map((s) => <div key={s.key} className="small"><KeyLink k={s.key} /> {s.title}</div>)}
-        </section>
-      )}
+      {(d.similar?.length ?? 0) > 0 && <SimilarBlock items={d.similar!} />}
       {d.problemTarget && (
         <section className="docsec"><h5>{t("issue.problemFeature")}</h5><KeyLink k={d.problemTarget} /></section>
       )}
@@ -247,7 +301,8 @@ function DiscoveryEditModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryVi
   const save = useMutation({
     // the estimate and the rest of the document stay (FTR.HMR.DISC-0001 R18)
     mutationFn: () => api.put(`/api/v1/issues/${is.key}/discovery`, discoveryBody(d, {
-      content: content.trim() || `## ${t("issue.value")}\n\n${value}`,
+      // the value is a block of its own: an empty analysis gets only its heading (FTR.HMR.DISC-0001 design §3.6)
+      content: content.trim() || `## ${t("issue.document")}\n`,
       value,
       measure: m.source || m.query || m.target || m.window ? m : null,
     })),
@@ -257,10 +312,20 @@ function DiscoveryEditModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryVi
       onClose();
     },
   });
+  // FTR.HMR.DISC-0001 R23: the source is one of the configured metric sources, never a free text
+  const sources = useQuery({ queryKey: ["metric-sources"], queryFn: () => api.get<{ items: { name: string; type: string }[] }>("/api/v1/metric-sources") });
   const field = (k: keyof typeof m) => (
     <div className="field" key={k}>
       <label htmlFor={`disc-${k}`}>{t(`issue.${k}`)}</label>
-      <input id={`disc-${k}`} className={`inp${k === "query" ? " mono" : ""}`} value={m[k]} onChange={(e) => setM({ ...m, [k]: e.target.value })} />
+      {k === "source" ? (
+        <select id="disc-source" className="inp" value={m.source} onChange={(e) => setM({ ...m, source: e.target.value })}>
+          <option value="">{t("disc.measure.noSource")}</option>
+          {sources.data?.items.map((s) => <option key={s.name} value={s.name}>{s.name} ({s.type})</option>)}
+          {m.source && !sources.data?.items.some((s) => s.name === m.source) && <option value={m.source} disabled>{m.source}</option>}
+        </select>
+      ) : (
+        <input id={`disc-${k}`} className={`inp${k === "query" ? " mono" : ""}`} value={m[k]} onChange={(e) => setM({ ...m, [k]: e.target.value })} />
+      )}
     </div>
   );
   return (
@@ -272,7 +337,7 @@ function DiscoveryEditModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryVi
         <label htmlFor="disc-value">{t("issue.value")} <span className="req">{t("issue.required")}</span></label>
         <textarea id="disc-value" className="inp" rows={3} value={value} onChange={(e) => setValue(e.target.value)} />
       </div>
-      <h5 style={{ margin: "8px 0" }}>{t("issue.measure")} <span className="req">{t("issue.required")}</span></h5>
+      <h5 style={{ margin: "8px 0" }}>{t("issue.measure")} <span className="small muted" style={{ fontWeight: 400 }}>{t("disc.measure.optional")}</span></h5>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0 12px" }}>
         {(["source", "query", "target", "window"] as const).map(field)}
       </div>

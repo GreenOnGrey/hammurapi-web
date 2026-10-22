@@ -796,7 +796,8 @@
     "channel_unavailable": "El agente no está disponible para su cuenta.",
     "invalid_sort": "Orden de la lista desconocido.",
     "invalid_estimate": "La estimación tiene un error.",
-    "request_not_found": "No se encontró el encargo."
+    "request_not_found": "No se encontró el encargo.",
+    "invalid_measure": "El método de medición tiene un error."
   },
   "stages": {
     "title": "Etapas",
@@ -1490,6 +1491,18 @@
       "usd": "$",
       "tokens": "Tokens"
     },
-    "composer": "¿Qué revisar en el análisis?"
+    "composer": "¿Qué revisar en el análisis?",
+    "measure": {
+      "line": "{source} · objetivo {target} · ventana {window}",
+      "none": "Sin definir",
+      "checked": "verificado",
+      "optional": "opcional",
+      "noSource": "— sin definir —"
+    },
+    "similar": {
+      "line": "{count, plural, one {# elemento} other {# elementos}}: {keys}",
+      "dups": "{count, plural, one {posible duplicado} other {posibles duplicados}}: {keys}",
+      "duplicate": "posible duplicado"
+    }
   }
 }

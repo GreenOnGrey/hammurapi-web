@@ -796,7 +796,8 @@
     "channel_unavailable": "Der Agent ist für Ihr Konto nicht verfügbar.",
     "invalid_sort": "Unbekannte Sortierung der Liste.",
     "invalid_estimate": "Die Schätzung enthält einen Fehler.",
-    "request_not_found": "Der Auftrag wurde nicht gefunden."
+    "request_not_found": "Der Auftrag wurde nicht gefunden.",
+    "invalid_measure": "Die Messmethode enthält einen Fehler."
   },
   "stages": {
     "title": "Phasen",
@@ -1490,6 +1491,18 @@
       "usd": "$",
       "tokens": "Tokens"
     },
-    "composer": "Was soll an der Analyse überarbeitet werden?"
+    "composer": "Was soll an der Analyse überarbeitet werden?",
+    "measure": {
+      "line": "{source} · Ziel {target} · Fenster {window}",
+      "none": "Nicht festgelegt",
+      "checked": "geprüft",
+      "optional": "optional",
+      "noSource": "— nicht festgelegt —"
+    },
+    "similar": {
+      "line": "{count, plural, one {# Eintrag} other {# Einträge}}: {keys}",
+      "dups": "{count, plural, one {mögliches Duplikat} other {mögliche Duplikate}}: {keys}",
+      "duplicate": "mögliches Duplikat"
+    }
   }
 }

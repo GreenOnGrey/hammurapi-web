@@ -62,14 +62,14 @@ export function IssuesPage() {
         </Empty>
       )}
       {!!issues.data?.items.length && (
-        <div className="esthead" aria-hidden="false">
+        <div className="esthead">
           <span /><span /><span /><span />
           {(["agentUsd", "personHours", "days"] as const).map((c) => (
             <button key={c} type="button" className={`sortbtn${f.sort.replace("-", "") === c ? " on" : ""}`} onClick={() => sortBy(c)}>
               {t(`disc.col.${c}`)}{sortMark(c)}
             </button>
           ))}
-          <span />
+          <span className="estsrc" />
         </div>
       )}
       {!!issues.data?.items.length && (
@@ -90,7 +90,7 @@ export function IssuesPage() {
                 const v = !e ? "—" : c === "agentUsd" ? usd(e.agentUsd) : c === "personHours" ? t("disc.est.hours", { n: e.personHours.toLocaleString(i18n.language) }) : t("disc.est.daysShort", { n: e.days });
                 return <span key={c} className={`estcol${e?.confidence === "low" ? " low" : ""}`} title={e?.confidence === "low" ? t("disc.est.lowHint") : undefined}>{v}</span>;
               })}
-              <span className="small muted">{t(`issueSource.${is.source}`)} · {relativeTime(is.createdAt, i18n.language)}</span>
+              <span className="small muted issrc">{t(`issueSource.${is.source}`)} · {relativeTime(is.createdAt, i18n.language)}</span>
             </div>
           ))}
         </div>

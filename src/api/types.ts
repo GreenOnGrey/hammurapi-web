@@ -458,7 +458,8 @@ export interface DiscoveryView {
   value?: string | null;
   measure?: Measure | null;
   measureCheckedAt?: string | null;
-  similar?: { key: string; title: string; kind: "issue" | "feature" }[];
+  /** FTR.HMR.DISC-0001 design §3.6b: how an item relates and whether it may be a duplicate. */
+  similar?: { key: string; title: string; kind: "issue" | "feature"; note?: string; duplicate?: boolean }[];
   systems?: string[];
   services?: string[];
   problemTarget?: string | null;

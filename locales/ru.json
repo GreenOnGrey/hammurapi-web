@@ -796,7 +796,8 @@
     "channel_unavailable": "Агент недоступен для вашей учётной записи.",
     "invalid_sort": "Неизвестная сортировка списка.",
     "invalid_estimate": "Оценка заполнена с ошибкой.",
-    "request_not_found": "Поручение не найдено."
+    "request_not_found": "Поручение не найдено.",
+    "invalid_measure": "Способ измерения заполнен с ошибкой."
   },
   "stages": {
     "title": "Этапы",
@@ -1490,6 +1491,18 @@
       "usd": "$",
       "tokens": "Токены"
     },
-    "composer": "Что доработать в анализе?"
+    "composer": "Что доработать в анализе?",
+    "measure": {
+      "line": "{source} · цель {target} · окно {window}",
+      "none": "Не задано",
+      "checked": "проверен",
+      "optional": "не обязательно",
+      "noSource": "— не задан —"
+    },
+    "similar": {
+      "line": "{count, plural, one {# элемент} few {# элемента} many {# элементов} other {# элемента}}: {keys}",
+      "dups": "{count, plural, one {возможный дубликат} few {возможных дубликата} many {возможных дубликатов} other {возможного дубликата}}: {keys}",
+      "duplicate": "возможный дубликат"
+    }
   }
 }

@@ -796,7 +796,8 @@
     "channel_unavailable": "代理对您的账户不可用。",
     "invalid_sort": "未知的列表排序。",
     "invalid_estimate": "估算有误。",
-    "request_not_found": "未找到该指示。"
+    "request_not_found": "未找到该指示。",
+    "invalid_measure": "衡量方式有误。"
   },
   "stages": {
     "title": "阶段",
@@ -1490,6 +1491,18 @@
       "usd": "$",
       "tokens": "令牌"
     },
-    "composer": "分析中需要修订什么？"
+    "composer": "分析中需要修订什么？",
+    "measure": {
+      "line": "{source} · 目标 {target} · 窗口 {window}",
+      "none": "未设置",
+      "checked": "已检查",
+      "optional": "可选",
+      "noSource": "— 未设置 —"
+    },
+    "similar": {
+      "line": "{count} 项：{keys}",
+      "dups": "可能重复：{keys}",
+      "duplicate": "可能重复"
+    }
   }
 }

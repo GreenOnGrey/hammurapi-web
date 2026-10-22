@@ -796,7 +796,8 @@
     "channel_unavailable": "The agent is not available for your account.",
     "invalid_sort": "Unknown sort of the list.",
     "invalid_estimate": "The estimate has an error.",
-    "request_not_found": "The instruction is not found."
+    "request_not_found": "The instruction is not found.",
+    "invalid_measure": "The way to measure has an error."
   },
   "stages": {
     "title": "Stages",
@@ -1490,6 +1491,18 @@
       "usd": "$",
       "tokens": "Tokens"
     },
-    "composer": "What to revise in the analysis?"
+    "composer": "What to revise in the analysis?",
+    "measure": {
+      "line": "{source} · target {target} · window {window}",
+      "none": "Not set",
+      "checked": "checked",
+      "optional": "optional",
+      "noSource": "— not set —"
+    },
+    "similar": {
+      "line": "{count, plural, one {# item} other {# items}}: {keys}",
+      "dups": "{count, plural, one {possible duplicate} other {possible duplicates}}: {keys}",
+      "duplicate": "possible duplicate"
+    }
   }
 }
