@@ -59,7 +59,8 @@ export function EstimateBlock({ is, d, open, setOpen, canEdit }: {
           <b>{t("disc.est.title")}</b>
           <span className="estgrow small t2">{open ? "" : estimateLine(t, tot, lng)}</span>
           <ConfidenceBadge c={tot.confidence} />
-          <Icon name="chevrons" size={16} />
+          {/* folded — the chevron points down, unfolded — up (design §3.6) */}
+          <Icon name="chevrons" size={16} className={`estchev${open ? " open" : ""}`} />
         </button>
       ) : (
         <div className="estline" style={{ cursor: "default" }}>
@@ -76,10 +77,14 @@ export function EstimateBlock({ is, d, open, setOpen, canEdit }: {
           <div className="estgrid">
             <div>
               <h6>{t("disc.est.agent")}</h6>
+              {/* the header row keeps the rows level with the table of people */}
               <table className="cov">
+                <thead><tr><th /><th className="num">{t("disc.est.usd")}</th><th className="num">{t("disc.est.tokens")}</th></tr></thead>
                 <tbody>
-                  {e.agent.map((a) => <tr key={a.stage}><td>{t(`disc.est.stage.${a.stage}`)}</td><td className="num">{usd(a.usd)} · {tokens(a.tokens, lng)}</td></tr>)}
-                  <tr className="tot"><td>{t("disc.est.total")}</td><td className="num">{usd(tot.agentUsd)} · {tokens(tot.agentTokens ?? 0, lng)}</td></tr>
+                  {e.agent.map((a) => (
+                    <tr key={a.stage}><td>{t(`disc.est.stage.${a.stage}`)}</td><td className="num">{usd(a.usd)}</td><td className="num">{tokens(a.tokens, lng)}</td></tr>
+                  ))}
+                  <tr className="tot"><td>{t("disc.est.total")}</td><td className="num">{usd(tot.agentUsd)}</td><td className="num">{tokens(tot.agentTokens ?? 0, lng)}</td></tr>
                 </tbody>
               </table>
             </div>

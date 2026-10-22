@@ -1229,15 +1229,15 @@
     "prompt": "Numera todos los requisitos de la especificación de producto como **R1.** con criterios de aceptación."
   },
   "activity": {
-    "created": "creado",
-    "accepted": "aceptada",
-    "rejected": "rechazada",
-    "reopened": "reabierta",
-    "merged": "fusionada",
-    "merged_from": "se fusionó otra tarea",
-    "moved": "movida",
+    "created": "Creado",
+    "accepted": "Aceptada",
+    "rejected": "Rechazada",
+    "reopened": "Reabierta",
+    "merged": "Fusionada",
+    "merged_from": "Se fusionó otra tarea",
+    "moved": "Movida",
     "discovery_updated": "Análisis actualizado",
-    "returned_after_rollback": "volvió tras una reversión"
+    "returned_after_rollback": "Volvió tras una reversión"
   },
   "llm": {
     "errors": {
@@ -1486,7 +1486,9 @@
       },
       "daysLabel": "Plazo, días naturales",
       "waitLabel": "De ellos, espera de personas, días",
-      "basisLabel": "Base: claves de soluciones similares"
+      "basisLabel": "Base: claves de soluciones similares",
+      "usd": "$",
+      "tokens": "Tokens"
     },
     "composer": "¿Qué revisar en el análisis?"
   }

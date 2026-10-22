@@ -1690,8 +1690,16 @@ button.avatar-btn[aria-expanded="true"] > span {
 .estgrid {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
-  gap: 14px;
+  gap: 14px 24px;
   margin-top: 12px;
+}
+.estchev {
+  transform: rotate(90deg);
+  transition: transform 0.15s;
+  color: var(--muted);
+}
+.estchev.open {
+  transform: rotate(-90deg);
 }
 .estgrid h6 {
   margin: 0 0 6px;
@@ -1711,8 +1719,8 @@ button.avatar-btn[aria-expanded="true"] > span {
 }
 .estfoot {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px 24px;
   margin-top: 12px;
   font-size: 13px;
 }

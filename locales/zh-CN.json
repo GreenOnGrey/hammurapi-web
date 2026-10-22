@@ -1486,7 +1486,9 @@
       },
       "daysLabel": "周期，自然日",
       "waitLabel": "其中等待人员天数",
-      "basisLabel": "依据：相似方案的键"
+      "basisLabel": "依据：相似方案的键",
+      "usd": "$",
+      "tokens": "令牌"
     },
     "composer": "分析中需要修订什么？"
   }

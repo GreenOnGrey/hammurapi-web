@@ -57,7 +57,14 @@ const issueCard = { ...issues[0], key: "ISS.NAB-0007", status: "discovery", move
   activity: [{ id: "a2", type: "discovery_updated", actor: null, isAgent: true, createdAt: T("12:35") }, { id: "a1", type: "created", actor: "ada", isAgent: false, createdAt: T("12:34") }],
   tokensIn: 1200, tokensOut: 800, permissions: { verify: true, reopen: false, discover: true } };
 const discovery = { content: "## 1. Проблема\n\nКнопки в двух продуктах выглядят по-разному.\n\n1. Веб-поиск: доработка позиции.\n2. Документы: какие системы в скоупе.\n\n**Оценка:** средняя.", value: "Единый вид",
-  similar: [], systems: ["CMN"], services: [], revision: 2, updatedAt: T("12:35"), complete: true, missing: [], workflow: { state: "done", lastError: null, updatedAt: T("12:35"), nextRunAt: null } };
+  similar: [], systems: ["CMN"], services: [], revision: 2, updatedAt: T("12:35"), complete: true, missing: [], workflow: { state: "done", lastError: null, updatedAt: T("12:35"), nextRunAt: null },
+  // FTR.HMR.DISC-0001 R15: the draft estimate (the block opens with ?estimate=open)
+  estimate: { agent: [{ stage: "spec", usd: 45, tokens: 450000 }, { stage: "codegen", usd: 260, tokens: 2600000 }, { stage: "checks", usd: 95, tokens: 950000 }],
+    people: [{ stage: "spec", expertise: "product", personHours: 16 }, { stage: "spec", expertise: "tech", personHours: 24 }, { stage: "approval", expertise: "product", personHours: 6 },
+      { stage: "approval", expertise: "tech", personHours: 8 }, { stage: "validation", expertise: "product", personHours: 8 }, { stage: "validation", expertise: "tech", personHours: 24 },
+      { stage: "release", expertise: "product", personHours: 4 }, { stage: "release", expertise: "tech", personHours: 8 }],
+    days: 45, waitDays: 12, confidence: "low", basis: { features: [], judgement: true } },
+  estimateTotals: { agentUsd: 400, agentTokens: 4000000, personHours: 98, days: 45, confidence: "low" }, running: null };
 const chatMsg = (id, role, content, extra = {}) => ({ id, role, mode: "general", context: null, content, isVoice: false, attachments: [], model: "sonnet", errorClass: null, retryOf: null, createdAt: T("14:00"), ...extra });
 // the newest first, as the API gives the history
 const history = [

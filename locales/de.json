@@ -1229,15 +1229,15 @@
     "prompt": "Nummeriere alle Anforderungen der Produktspezifikation als **R1.** mit Akzeptanzkriterien."
   },
   "activity": {
-    "created": "erstellt",
-    "accepted": "angenommen",
-    "rejected": "abgelehnt",
-    "reopened": "wieder geöffnet",
-    "merged": "zusammengeführt",
-    "merged_from": "andere Aufgabe hineingeführt",
-    "moved": "verschoben",
+    "created": "Erstellt",
+    "accepted": "Angenommen",
+    "rejected": "Abgelehnt",
+    "reopened": "Wieder geöffnet",
+    "merged": "Zusammengeführt",
+    "merged_from": "Andere Aufgabe hineingeführt",
+    "moved": "Verschoben",
     "discovery_updated": "Analyse aktualisiert",
-    "returned_after_rollback": "nach Rollback zurückgekehrt"
+    "returned_after_rollback": "Nach Rollback zurückgekehrt"
   },
   "llm": {
     "errors": {
@@ -1486,7 +1486,9 @@
       },
       "daysLabel": "Dauer, Kalendertage",
       "waitLabel": "Davon Warten auf Menschen, Tage",
-      "basisLabel": "Grundlage: Schlüssel ähnlicher Lösungen"
+      "basisLabel": "Grundlage: Schlüssel ähnlicher Lösungen",
+      "usd": "$",
+      "tokens": "Tokens"
     },
     "composer": "Was soll an der Analyse überarbeitet werden?"
   }

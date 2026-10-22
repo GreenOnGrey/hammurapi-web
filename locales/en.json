@@ -1229,15 +1229,15 @@
     "prompt": "Number all requirements of the product specification as **R1.** with acceptance criteria."
   },
   "activity": {
-    "created": "created",
-    "accepted": "accepted",
-    "rejected": "rejected",
-    "reopened": "reopened",
-    "merged": "merged",
-    "merged_from": "another issue merged into it",
-    "moved": "moved",
+    "created": "Created",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "reopened": "Reopened",
+    "merged": "Merged",
+    "merged_from": "Another issue merged into it",
+    "moved": "Moved",
     "discovery_updated": "Analysis updated",
-    "returned_after_rollback": "returned after a rollback"
+    "returned_after_rollback": "Returned after a rollback"
   },
   "llm": {
     "errors": {
@@ -1486,7 +1486,9 @@
       },
       "daysLabel": "Term, calendar days",
       "waitLabel": "Of them waiting for people, days",
-      "basisLabel": "Basis: keys of similar features"
+      "basisLabel": "Basis: keys of similar features",
+      "usd": "$",
+      "tokens": "Tokens"
     },
     "composer": "What to revise in the analysis?"
   }
