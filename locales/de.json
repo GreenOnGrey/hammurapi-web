@@ -793,7 +793,10 @@
     "nabu_not_bound": "Das Szenario ist keinem Service-Agenten von Nabu zugeordnet. Ordnen Sie es unter Administration → Nabu zu.",
     "git_account_is_login": "Dieses Git-Konto ist Ihr Anmeldekonto und kann nicht getrennt werden.",
     "user_archived": "Der Agent ist für Ihr Konto nicht verfügbar.",
-    "channel_unavailable": "Der Agent ist für Ihr Konto nicht verfügbar."
+    "channel_unavailable": "Der Agent ist für Ihr Konto nicht verfügbar.",
+    "invalid_sort": "Unbekannte Sortierung der Liste.",
+    "invalid_estimate": "Die Schätzung enthält einen Fehler.",
+    "request_not_found": "Der Auftrag wurde nicht gefunden."
   },
   "stages": {
     "title": "Phasen",
@@ -1397,5 +1400,94 @@
   "noAgent": {
     "title": "Der Agent ist nicht verbunden",
     "text": "Chat, Issue-Analyse und Generierung sind verfügbar, sobald Hammurapi mit Nabu verbunden ist. Wenden Sie sich an Ihren Administrator."
+  },
+  "disc": {
+    "topic": {
+      "pinned": "Der Chat ist an die Aufgabe gebunden. Öffnen Sie eine andere Aufgabe, um das Thema zu wechseln",
+      "title": "Diskussion von {key}",
+      "draftHint": "Das Thema erscheint nach der ersten Nachricht in der Liste der Unterhaltungen"
+    },
+    "suggest": {
+      "known": "Was ist über die Aufgabe bekannt?",
+      "similar": "Ähnliche Aufgaben finden",
+      "metric": "Metrik präzisieren",
+      "estimate": "Schätzung prüfen",
+      "duplicates": "Duplikate finden",
+      "value": "Erkläre den Nutzen",
+      "why": "Warum diese Entscheidung?",
+      "where": "Wo ist die Lösung der Aufgabe?"
+    },
+    "task": {
+      "title": "Auftrag an den Rechercheur",
+      "more": "Vollständig anzeigen",
+      "less": "Einklappen",
+      "queued": "In der Warteschlange",
+      "afterCurrent": "nach der laufenden Recherche",
+      "running": "Läuft",
+      "done": "Fertig",
+      "failed": "Fehlgeschlagen",
+      "details": "Details"
+    },
+    "revision": "Revision {n}",
+    "openRevision": "Revision {n} öffnen",
+    "revising": "Der Rechercheur überarbeitet die Analyse im Auftrag von {authors}",
+    "queued": "{count, plural, one {# weiterer Auftrag} other {# weitere Aufträge}} in der Warteschlange",
+    "waitRevision": "Warten Sie, bis die Überarbeitung fertig ist",
+    "sendBack": "Zur Überarbeitung zurückgeben",
+    "manual": "Manuelle Bearbeitung",
+    "instruction": "Auftrag",
+    "col": {
+      "agentUsd": "Agent",
+      "personHours": "Menschen",
+      "days": "Dauer"
+    },
+    "est": {
+      "title": "Vorläufige Schätzung",
+      "none": "Keine Schätzung",
+      "add": "Hinzufügen",
+      "edit": "Schätzung bearbeiten",
+      "editTitle": "Vorläufige Schätzung — Bearbeitung",
+      "agent": "Agent",
+      "agentUsd": "Agent, $",
+      "people": "Menschen, Personenstunden",
+      "total": "Gesamt",
+      "all": "Alle",
+      "term": "Dauer",
+      "days": "{count, plural, one {# Kalendertag bis zum Release} other {# Kalendertage bis zum Release}}",
+      "wait": "davon Warten auf Menschen ≈ {count, plural, one {# Tag} other {# Tage}}",
+      "basis": "Grundlage",
+      "judgement": "Urteil des Rechercheurs",
+      "line": "≈ {usd} Agenten · {hours} Pers.-Std. · {days, plural, one {# Tag} other {# Tage}}",
+      "preparing": "Die Schätzung wird erstellt",
+      "hours": "{n} PStd",
+      "daysShort": "{n} T",
+      "card": "{days} T · {hours} PStd",
+      "lowHint": "Geringe Sicherheit",
+      "confidence": {
+        "high": "hoch",
+        "medium": "mittel",
+        "low": "niedrig"
+      },
+      "confidenceLabel": "Sicherheit",
+      "stage": {
+        "spec": "Spezifikation",
+        "codegen": "Codegenerierung",
+        "checks": "Prüfungen"
+      },
+      "pstage": {
+        "spec": "Spezifikation mit dem Agenten",
+        "approval": "Freigabe",
+        "validation": "Validierung der PRs",
+        "release": "Bestätigung des Releases"
+      },
+      "expertise": {
+        "product": "Produkt",
+        "tech": "Technik"
+      },
+      "daysLabel": "Dauer, Kalendertage",
+      "waitLabel": "Davon Warten auf Menschen, Tage",
+      "basisLabel": "Grundlage: Schlüssel ähnlicher Lösungen"
+    },
+    "composer": "Was soll an der Analyse überarbeitet werden?"
   }
 }

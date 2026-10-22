@@ -385,6 +385,60 @@ export interface IssueDTO {
   rolledBackRelease: string | null;
   createdAt: string;
   updatedAt: string;
+  /** FTR.HMR.DISC-0001 R17: the summary of the draft estimate in the Research list. */
+  estimate?: EstimateTotals | null;
+}
+
+// ─── FTR.HMR.DISC-0001: the draft estimate, the topic of an issue, instructions ──
+
+export type EstimateConfidence = "high" | "medium" | "low";
+export type EstimateAgentStage = "spec" | "codegen" | "checks";
+export type EstimatePeopleStage = "spec" | "approval" | "validation" | "release";
+export type Expertise = "product" | "tech";
+
+export interface Estimate {
+  agent: { stage: EstimateAgentStage; usd: number; tokens: number }[];
+  people: { stage: EstimatePeopleStage; expertise: Expertise; personHours: number }[];
+  days: number;
+  waitDays: number;
+  confidence: EstimateConfidence;
+  basis: { features: string[]; judgement: boolean };
+}
+
+export interface EstimateTotals {
+  agentUsd: number;
+  agentTokens?: number;
+  personHours: number;
+  days: number;
+  confidence: EstimateConfidence;
+}
+
+export interface IssueTopic {
+  conversationId: string | null;
+  title: string;
+}
+
+export interface DiscoveryRequest {
+  id: string;
+  issueKey: string;
+  author: string | null;
+  instructions: string;
+  state: "queued" | "running" | "done" | "failed";
+  position: number | null;
+  revision: number | null;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+/** The payload of a notice of Hammurapi in a topic (FTR.HMR.DISC-0001 tech §5.3). */
+export interface DiscoveryNoticePayload {
+  kind: "discovery.revision" | "discovery.failed";
+  issueKey: string;
+  revision: number;
+  requestIds: string[];
+  coAuthors: string[];
+  error?: string;
 }
 
 export interface IssueCard extends IssueDTO {
@@ -413,6 +467,11 @@ export interface DiscoveryView {
   complete: boolean;
   missing: string[];
   workflow: { state: string; lastError: string | null; updatedAt: string; nextRunAt: string | null } | null;
+  estimate?: Estimate | null;
+  estimateTotals?: EstimateTotals | null;
+  changeSummary?: string | null;
+  /** The revision of the researcher going on (FTR.HMR.DISC-0001 design §3.5). */
+  running?: { requestAuthors: string[]; queued: number } | null;
 }
 
 export interface Revision {
@@ -421,6 +480,9 @@ export interface Revision {
   isAgent: boolean;
   actor: string | null;
   createdAt: string;
+  changeSummary?: string | null;
+  /** The instructions the revision answers (FTR.HMR.DISC-0001 design §3.5). */
+  requests?: { id: string; author: string | null; instructions: string }[];
 }
 
 export interface ServiceDTO {
@@ -622,6 +684,8 @@ export interface OverviewCard {
   total: number;
   blocked: boolean;
   domain: string;
+  /** FTR.HMR.DISC-0001 R17: days and person-hours on the card of an issue. */
+  estimate?: { days: number; personHours: number } | null;
 }
 
 export interface Overview {
@@ -1001,9 +1065,12 @@ export interface NabuAgentWait {
 export interface NabuMessage {
   id: string;
   conversationId: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "notice";
   text: string;
   channel: string;
+  /** FTR.NAB.CHAT-0002: the product that wrote a notice and its data. */
+  clientName?: string | null;
+  payload?: Record<string, unknown> | null;
   status: "pending" | "streaming" | "done" | "failed";
   attachments: { id: string; fileName: string; mimeType: string }[];
   toolSteps: NabuToolStep[];

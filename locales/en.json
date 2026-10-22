@@ -793,7 +793,10 @@
     "nabu_not_bound": "The scenario is not bound to a service agent of Nabu. Bind it in Administration → Nabu.",
     "git_account_is_login": "This git account is your sign-in account and cannot be unlinked.",
     "user_archived": "The agent is not available for your account.",
-    "channel_unavailable": "The agent is not available for your account."
+    "channel_unavailable": "The agent is not available for your account.",
+    "invalid_sort": "Unknown sort of the list.",
+    "invalid_estimate": "The estimate has an error.",
+    "request_not_found": "The instruction is not found."
   },
   "stages": {
     "title": "Stages",
@@ -1397,5 +1400,94 @@
   "noAgent": {
     "title": "The agent is not connected",
     "text": "Chat, issue analysis and generation become available once Hammurapi is connected to Nabu. Contact your administrator."
+  },
+  "disc": {
+    "topic": {
+      "pinned": "The chat is pinned to the issue. Open another issue to change the topic",
+      "title": "Discussion of {key}",
+      "draftHint": "The topic appears in the list of conversations after the first message"
+    },
+    "suggest": {
+      "known": "What is known about the issue?",
+      "similar": "Find similar issues",
+      "metric": "Refine the metric",
+      "estimate": "Check the estimate",
+      "duplicates": "Find duplicates",
+      "value": "Explain the value",
+      "why": "Why this decision?",
+      "where": "Where is the feature of the issue?"
+    },
+    "task": {
+      "title": "Instruction to the researcher",
+      "more": "Show in full",
+      "less": "Collapse",
+      "queued": "Queued",
+      "afterCurrent": "after the current research",
+      "running": "Running",
+      "done": "Done",
+      "failed": "Failed",
+      "details": "Details"
+    },
+    "revision": "revision {n}",
+    "openRevision": "Open revision {n}",
+    "revising": "The researcher revises the analysis by the instruction of {authors}",
+    "queued": "{count, plural, one {# more instruction} other {# more instructions}} queued",
+    "waitRevision": "Wait for the revision to finish",
+    "sendBack": "Send back for revision",
+    "manual": "Manual edit",
+    "instruction": "Instruction",
+    "col": {
+      "agentUsd": "Agent",
+      "personHours": "People",
+      "days": "Term"
+    },
+    "est": {
+      "title": "Draft estimate",
+      "none": "No estimate",
+      "add": "Add",
+      "edit": "Edit the estimate",
+      "editTitle": "Draft estimate — edit",
+      "agent": "Agent",
+      "agentUsd": "Agent, $",
+      "people": "People, person-hours",
+      "total": "Total",
+      "all": "All",
+      "term": "Term",
+      "days": "{count, plural, one {# calendar day to the release} other {# calendar days to the release}}",
+      "wait": "of them waiting for people ≈ {count, plural, one {# day} other {# days}}",
+      "basis": "Basis",
+      "judgement": "Judgement of the researcher",
+      "line": "≈ {usd} of agents · {hours} person-hours · {days, plural, one {# day} other {# days}}",
+      "preparing": "The estimate is being prepared",
+      "hours": "{n} p-h",
+      "daysShort": "{n} d",
+      "card": "{days} d · {hours} p-h",
+      "lowHint": "Low confidence",
+      "confidence": {
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "confidenceLabel": "Confidence",
+      "stage": {
+        "spec": "Specification",
+        "codegen": "Code generation",
+        "checks": "Checks"
+      },
+      "pstage": {
+        "spec": "Specification with the agent",
+        "approval": "Approval",
+        "validation": "Validation of PRs",
+        "release": "Confirmation of the release"
+      },
+      "expertise": {
+        "product": "Product",
+        "tech": "Tech"
+      },
+      "daysLabel": "Term, calendar days",
+      "waitLabel": "Of them waiting for people, days",
+      "basisLabel": "Basis: keys of similar features"
+    },
+    "composer": "What to revise in the analysis?"
   }
 }

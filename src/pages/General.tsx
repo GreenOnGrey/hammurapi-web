@@ -318,6 +318,7 @@ function Column({
 }
 
 function IssueCardMini({ c }: { c: OverviewCard }) {
+  const { t } = useTranslation();
   return (
     <Link className="card mini" to={keyHref(c.key)}>
       <div className="row">
@@ -328,6 +329,8 @@ function IssueCardMini({ c }: { c: OverviewCard }) {
       <div className="row">
         <IssueStatusBadge status={c.status} />
         {c.blocked && <Icon name="alert" size={14} />}
+        {/* FTR.HMR.DISC-0001 R17: days and person-hours, without the cost of agents */}
+        {c.estimate && <span className="small muted"><Icon name="clock" size={12} /> {t("disc.est.card", { days: c.estimate.days, hours: c.estimate.personHours })}</span>}
       </div>
     </Link>
   );

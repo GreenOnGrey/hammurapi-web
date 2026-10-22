@@ -793,7 +793,10 @@
     "nabu_not_bound": "该场景未绑定 Nabu 服务智能体。请在“管理 → Nabu”中绑定。",
     "git_account_is_login": "该 git 账户是您的登录账户，无法解绑。",
     "user_archived": "代理对您的账户不可用。",
-    "channel_unavailable": "代理对您的账户不可用。"
+    "channel_unavailable": "代理对您的账户不可用。",
+    "invalid_sort": "未知的列表排序。",
+    "invalid_estimate": "估算有误。",
+    "request_not_found": "未找到该指示。"
   },
   "stages": {
     "title": "阶段",
@@ -1397,5 +1400,94 @@
   "noAgent": {
     "title": "智能体未连接",
     "text": "将 Hammurapi 连接到 Nabu 后即可使用聊天、问题分析和生成功能。请联系管理员。"
+  },
+  "disc": {
+    "topic": {
+      "pinned": "聊天已固定到此任务。打开其他任务以切换主题",
+      "title": "讨论 {key}",
+      "draftHint": "发送第一条消息后，主题才会出现在对话列表中"
+    },
+    "suggest": {
+      "known": "关于此任务已知什么？",
+      "similar": "查找相似任务",
+      "metric": "细化指标",
+      "estimate": "检查估算",
+      "duplicates": "查找重复项",
+      "value": "解释价值",
+      "why": "为什么做出此决定？",
+      "where": "此任务的方案在哪里？"
+    },
+    "task": {
+      "title": "给研究员的指示",
+      "more": "显示全部",
+      "less": "收起",
+      "queued": "排队中",
+      "afterCurrent": "在当前研究之后",
+      "running": "进行中",
+      "done": "完成",
+      "failed": "失败",
+      "details": "详情"
+    },
+    "revision": "修订 {n}",
+    "openRevision": "打开修订 {n}",
+    "revising": "研究员正在按 {authors} 的指示修订分析",
+    "queued": "还有 {count} 个指示在排队",
+    "waitRevision": "请等待修订完成",
+    "sendBack": "退回修订",
+    "manual": "手动编辑",
+    "instruction": "指示",
+    "col": {
+      "agentUsd": "智能体",
+      "personHours": "人员",
+      "days": "周期"
+    },
+    "est": {
+      "title": "初步估算",
+      "none": "暂无估算",
+      "add": "添加",
+      "edit": "编辑估算",
+      "editTitle": "初步估算 — 编辑",
+      "agent": "智能体",
+      "agentUsd": "智能体，$",
+      "people": "人员，人时",
+      "total": "合计",
+      "all": "总计",
+      "term": "周期",
+      "days": "距发布 {count} 个自然日",
+      "wait": "其中等待人员约 {count} 天",
+      "basis": "依据",
+      "judgement": "研究员的判断",
+      "line": "≈ 智能体 {usd} · {hours} 人时 · {days} 天",
+      "preparing": "估算准备中",
+      "hours": "{n} 人时",
+      "daysShort": "{n} 天",
+      "card": "{days} 天 · {hours} 人时",
+      "lowHint": "置信度低",
+      "confidence": {
+        "high": "高",
+        "medium": "中",
+        "low": "低"
+      },
+      "confidenceLabel": "置信度",
+      "stage": {
+        "spec": "规格",
+        "codegen": "代码生成",
+        "checks": "检查"
+      },
+      "pstage": {
+        "spec": "与智能体编写规格",
+        "approval": "审批",
+        "validation": "验证 PR",
+        "release": "确认发布"
+      },
+      "expertise": {
+        "product": "产品",
+        "tech": "技术"
+      },
+      "daysLabel": "周期，自然日",
+      "waitLabel": "其中等待人员天数",
+      "basisLabel": "依据：相似方案的键"
+    },
+    "composer": "分析中需要修订什么？"
   }
 }

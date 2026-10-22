@@ -7,6 +7,7 @@ import { relativeTime } from "../lib/format";
 import { Empty, Icon, Loading } from "@green-on-grey/ui-kit";
 import { IssueStatusBadge, IssueTypeBadge, KeyLink, KeyList } from "../components/cycle";
 import { NewIssueModal } from "./NewIssue";
+import { usd } from "./IssueEstimate";
 
 /** Discovery stage: the list of issues (design spec §3.3). */
 export function IssuesPage() {
@@ -20,7 +21,11 @@ export function IssuesPage() {
     type: params.get("type") ?? "",
     status: params.get("status") ?? "open",
     q: params.get("q") ?? "",
+    sort: params.get("sort") ?? "",
   };
+  // FTR.HMR.DISC-0001 R17: a click on a column sorts by it, a second click reverses
+  const sortBy = (col: string) => set("sort", f.sort === col ? `-${col}` : f.sort === `-${col}` ? "" : col);
+  const sortMark = (col: string) => (f.sort === col ? " ↑" : f.sort === `-${col}` ? " ↓" : "");
   const domains = useDomains();
   const issues = useIssues(f);
   const { setSubject } = chat;
@@ -57,9 +62,20 @@ export function IssuesPage() {
         </Empty>
       )}
       {!!issues.data?.items.length && (
+        <div className="esthead" aria-hidden="false">
+          <span /><span /><span /><span />
+          {(["agentUsd", "personHours", "days"] as const).map((c) => (
+            <button key={c} type="button" className={`sortbtn${f.sort.replace("-", "") === c ? " on" : ""}`} onClick={() => sortBy(c)}>
+              {t(`disc.col.${c}`)}{sortMark(c)}
+            </button>
+          ))}
+          <span />
+        </div>
+      )}
+      {!!issues.data?.items.length && (
         <div className="table">
           {issues.data.items.map((is) => (
-            <div key={is.key} className="trow issue" role="link" tabIndex={0}
+            <div key={is.key} className="trow issue withest" role="link" tabIndex={0}
               onClick={() => navigate(`/issues/${is.key}`)} onKeyDown={(e) => e.key === "Enter" && navigate(`/issues/${is.key}`)}>
               <span><KeyLink k={is.key} /></span>
               <span><IssueTypeBadge type={is.type} /></span>
@@ -69,6 +85,11 @@ export function IssuesPage() {
                 {is.rolledBackRelease && <span className="small t2"><Icon name="undo" size={12} /> <KeyList keys={[is.rolledBackRelease]} /></span>}
                 {is.mergedInto && <span className="small t2">→ <KeyList keys={[is.mergedInto]} /></span>}
               </span>
+              {(["agentUsd", "personHours", "days"] as const).map((c) => {
+                const e = is.estimate;
+                const v = !e ? "—" : c === "agentUsd" ? usd(e.agentUsd) : c === "personHours" ? t("disc.est.hours", { n: e.personHours.toLocaleString(i18n.language) }) : t("disc.est.daysShort", { n: e.days });
+                return <span key={c} className={`estcol${e?.confidence === "low" ? " low" : ""}`} title={e?.confidence === "low" ? t("disc.est.lowHint") : undefined}>{v}</span>;
+              })}
               <span className="small muted">{t(`issueSource.${is.source}`)} · {relativeTime(is.createdAt, i18n.language)}</span>
             </div>
           ))}

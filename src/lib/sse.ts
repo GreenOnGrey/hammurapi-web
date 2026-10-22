@@ -13,7 +13,9 @@ export type EventType =
   | "nabu.message.created" | "nabu.message.delta" | "nabu.message.done" | "nabu.tool.step"
   | "nabu.conversation.updated" | "nabu.agent.updated" | "nabu.connected" | "nabu.disconnected"
   // FTR.NAB.CMN-0004: a turn waits for the pod of the agent
-  | "nabu.agent.state";
+  | "nabu.agent.state"
+  // FTR.HMR.DISC-0001: the state of an instruction to the researcher
+  | "discovery.request.updated";
 
 const TYPES: EventType[] = [
   "agent.token", "agent.tool_call", "agent.done", "agent.error",
@@ -23,7 +25,7 @@ const TYPES: EventType[] = [
   "chat.error", "chat.model", "agent.connection_status",
   "nabu.message.created", "nabu.message.delta", "nabu.message.done", "nabu.tool.step",
   "nabu.conversation.updated", "nabu.agent.updated", "nabu.connected", "nabu.disconnected",
-  "nabu.agent.state",
+  "nabu.agent.state", "discovery.request.updated",
 ];
 
 type Handler = (data: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any

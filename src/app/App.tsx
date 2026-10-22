@@ -107,6 +107,10 @@ function Authenticated() {
       onEvent("discovery.progress", (d: { key: string }) =>
         qc.invalidateQueries({ queryKey: keys.discovery(d.key) }),
       ),
+      onEvent("discovery.request.updated", (d: { id: string; issueKey: string }) => {
+        qc.invalidateQueries({ queryKey: keys.discoveryRequest(d.id) });
+        qc.invalidateQueries({ queryKey: keys.discovery(d.issueKey) });
+      }),
       onEvent("feature.updated", () => invalidateCycle(qc)),
       onEvent("task.progress", () =>
         qc.invalidateQueries({ queryKey: ["implementation"] }),

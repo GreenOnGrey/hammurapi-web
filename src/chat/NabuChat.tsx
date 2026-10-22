@@ -1,11 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Icon, useToast } from "@green-on-grey/ui-kit";
 import { AgentButton, AgentSettingsMenu, Chat, ChatLayout, ConversationList, type AgentModelChoice } from "@green-on-grey/ui-kit/chat";
 import { ApiError, api } from "../api/client";
 import type { NabuAgent, NabuTone } from "../api/types";
-import { useChatContext } from "../app/session";
+import { useChatContext, useSession } from "../app/session";
+import { useIssue, useIssueTopic } from "../api/queries";
+import type { IssueStatus } from "../api/types";
 import { errorText } from "../lib/errors";
 import { nabuKeys, useNabuAgent, useNabuConversation, useNabuConversations } from "./nabuAdapter";
 import { CHAT_PANEL_ID, CollapseButton } from "./ChatRail";
@@ -33,6 +35,9 @@ export function NabuChatPanel() {
   const [agentMenu, setAgentMenu] = useState(false);
   const closeAgentMenu = useCallback(() => setAgentMenu(false), []);
   const [listOpen, setListOpen] = useState(false);
+  // FTR.HMR.DISC-0001 R4: on the page of an issue the chat is pinned to its topic
+  const issueKey = chat.subject?.type === "issue" ? chat.subject.key : null;
+  const topic = useIssueTopic(issueKey ?? "", issueKey !== null);
   const a = agent.data;
   const unavailable = agent.error instanceof ApiError && agent.error.status >= 500;
   // FTR.NAB.CMN-0002 R15, R18: the channel is closed for the user in Nabu or the account is archived there
@@ -48,18 +53,22 @@ export function NabuChatPanel() {
             <b>{a?.name ?? "…"}</b>
             {a?.model && <div className="small muted mono" title={a.model.connection}>{a.model.name}</div>}
           </div>
-          {/* the conversations lie over the messages, as on a phone in Nabu (FTR.NAB.CMN-0005 design §6.2) */}
-          <button className={`iconbtn${listOpen ? " on" : ""}`} style={{ marginLeft: "auto" }} onClick={() => setListOpen((v) => !v)}
-            aria-label={t("nabu.conversation")} aria-expanded={listOpen}>
-            <Icon name="msg2" />
-          </button>
+          {/* the conversations lie over the messages, as on a phone in Nabu (FTR.NAB.CMN-0005 design §6.2);
+              the topic of an issue has no list (FTR.HMR.DISC-0001 design §3.1) */}
+          {issueKey ? <span style={{ marginLeft: "auto" }} /> : (
+            <button className={`iconbtn${listOpen ? " on" : ""}`} style={{ marginLeft: "auto" }} onClick={() => setListOpen((v) => !v)}
+              aria-label={t("nabu.conversation")} aria-expanded={listOpen}>
+              <Icon name="msg2" />
+            </button>
+          )}
           <CollapseButton />
           <button className="iconbtn chat-close" onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
             <Icon name="x" />
           </button>
         </div>
         {agentMenu && a && <NabuAgentMenu agent={a} onClose={closeAgentMenu} />}
-        <div className="ctx">
+        <div className={`ctx${issueKey ? " topic" : ""}`} title={issueKey ? t("disc.topic.pinned") : undefined}>
+          {issueKey && <Icon name="lock" size={13} />}
           {chat.subject ? (
             <><span className="fid">{chat.subject.key}</span> {chat.area ? t(`areas.${chat.area}`) : chat.subject.title}</>
           ) : t("nabu.noContext")}
@@ -67,20 +76,69 @@ export function NabuChatPanel() {
         {(offline || unavailable) && !closed && <div className="llmerr amber small" role="status">{t("errors.nabu_unavailable")}</div>}
         {closed && <div className="llmerr amber small" role="status">{t("errors.channel_unavailable")}</div>}
       </div>
-      <ChatLayout narrow>
-        <ConversationList conversations={rows} currentId={convId} open={listOpen} onClose={() => setListOpen(false)}
-          onPick={(id) => { setConvId(id); setListOpen(false); }}
-          onCreate={async (title) => { setConvId(await create(title)); setListOpen(false); }} />
-        <Conversation key={convId} convId={convId} agentName={a?.name ?? "Nabu"} />
-      </ChatLayout>
+      {issueKey ? (
+        <ChatLayout narrow>
+          {topic.data ? (
+            <Conversation key={topic.data.conversationId ?? `draft:${issueKey}`} convId={topic.data.conversationId} issueKey={issueKey}
+              agentName={a?.name ?? "Nabu"} />
+          ) : topic.error ? <div className="msgs"><div className="err-text">{errorText(t, topic.error)}</div></div> : null}
+        </ChatLayout>
+      ) : (
+        <ChatLayout narrow>
+          <ConversationList conversations={rows} currentId={convId} open={listOpen} onClose={() => setListOpen(false)}
+            onPick={(id) => { setConvId(id); setListOpen(false); }}
+            onCreate={async (title) => { setConvId(await create(title)); setListOpen(false); }} />
+          <Conversation key={convId} convId={convId} agentName={a?.name ?? "Nabu"} />
+        </ChatLayout>
+      )}
     </aside>
   );
 }
 
-function Conversation({ convId, agentName }: { convId: string; agentName: string }) {
+function Conversation({ convId, issueKey, agentName }: { convId: string | null; issueKey?: string; agentName: string }) {
   const { t } = useTranslation();
-  const chat = useNabuConversation(convId);
-  return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} />;
+  const chat = useNabuConversation(convId, issueKey);
+  const { isExpertOf } = useSession();
+  const issue = useIssue(issueKey ?? "", !!issueKey);
+  const is = issueKey ? issue.data : undefined;
+  // FTR.HMR.DISC-0001 design §3.2: the draft of the topic is the empty conversation of Hammurapi (ui-kit `empty`);
+  // an expert of an issue in verification is asked what to revise (R5)
+  const draft: ReactNode = issueKey && convId === null
+    ? <TopicDraft issueKey={issueKey} status={is?.status} expert={!!is && isExpertOf(is.domain)}
+        onPick={(text) => void chat.onSend(text, [], false).catch(() => undefined)} />
+    : undefined;
+  const placeholder = is?.status === "verification" && isExpertOf(is.domain) ? t("disc.composer") : undefined;
+  return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} empty={draft} placeholder={placeholder} />;
+}
+
+/** The suggestions of the draft by the status of the issue and the role (FTR.HMR.DISC-0001 design §3.2). */
+export function topicSuggestions(status: IssueStatus | undefined, expert: boolean): string[] {
+  switch (status) {
+    case "new":
+    case "discovery":
+      return expert ? ["known", "similar"] : ["known"];
+    case "verification":
+      return expert ? ["metric", "estimate", "duplicates"] : ["value", "duplicates"];
+    default:
+      return ["why", "where"];
+  }
+}
+
+/** The draft of the topic of an issue: nothing exists in Nabu until the first message (R2). */
+function TopicDraft({ issueKey, status, expert, onPick }: { issueKey: string; status?: IssueStatus; expert: boolean; onPick: (text: string) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="empty topicdraft">
+      <div className="ic"><Icon name="msg" /></div>
+      <b>{t("disc.topic.title", { key: issueKey })}</b>
+      {t("disc.topic.draftHint")}
+      <div className="sugg">
+        {topicSuggestions(status, expert).map((s) => (
+          <button key={s} type="button" className="chip sugchip" onClick={() => onPick(t(`disc.suggest.${s}`))}>{t(`disc.suggest.${s}`)}</button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /** Name, tone and model of the personal agent, saved in Nabu for every channel

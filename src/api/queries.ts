@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, DiscoveryView, DomainDTO, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -17,6 +17,8 @@ export const keys = {
   issues: (f?: object) => (f ? (["issues", f] as const) : (["issues"] as const)),
   issue: (key: string) => ["issue", key] as const,
   discovery: (key: string) => ["discovery", key] as const,
+  topic: (key: string) => ["issue-topic", key] as const,
+  discoveryRequest: (id: string) => ["discovery-request", id] as const,
   features: (f?: object) => (f ? (["features", f] as const) : (["features"] as const)),
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
@@ -85,13 +87,23 @@ export interface IssueFilter {
   type: string;
   status: string;
   q: string;
+  /** FTR.HMR.DISC-0001 R17: agentUsd, personHours or days, "-" first for the descending order. */
+  sort?: string;
 }
 
 export const useIssues = (f: IssueFilter) =>
   useQuery({ queryKey: keys.issues(f), queryFn: () => api.get<List<IssueDTO>>(`/api/v1/issues${qs({ ...f, limit: 200 })}`) });
 
-export const useIssue = (key: string) =>
-  useQuery({ queryKey: keys.issue(key), queryFn: () => api.get<IssueCard>(`/api/v1/issues/${key}`), retry: false });
+export const useIssue = (key: string, enabled = true) =>
+  useQuery({ queryKey: keys.issue(key), queryFn: () => api.get<IssueCard>(`/api/v1/issues/${key}`), retry: false, enabled });
+
+/** The topic of the user for the issue in Nabu (FTR.HMR.DISC-0001 R2, R3); null — the draft. */
+export const useIssueTopic = (key: string, enabled: boolean) =>
+  useQuery({ queryKey: keys.topic(key), queryFn: () => api.get<IssueTopic>(`/api/v1/issues/${key}/topic`), enabled, retry: 1 });
+
+/** An instruction to the researcher with its state (FTR.HMR.DISC-0001 tech §3.2). */
+export const useDiscoveryRequest = (id: string) =>
+  useQuery({ queryKey: keys.discoveryRequest(id), queryFn: () => api.get<DiscoveryRequest>(`/api/v1/discovery-requests/${id}`), staleTime: 30_000 });
 
 export const useDiscovery = (key: string) =>
   useQuery({ queryKey: keys.discovery(key), queryFn: () => api.get<DiscoveryView>(`/api/v1/issues/${key}/discovery`) });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import { dateTime, relativeTime } from "../lib/format";
 import { Empty, Icon, Loading, Markdown, Modal, useToast } from "@green-on-grey/ui-kit";
 import { AgentMark, IssueStatusBadge, IssueTypeBadge, KeyList, KeyLink } from "../components/cycle";
 import { BlockedBanner } from "../components/BlockedBanner";
+import { EstimateBlock, EstimateChip, discoveryBody } from "./IssueEstimate";
 
 export function IssuePage() {
   const { t } = useTranslation();
@@ -70,6 +71,18 @@ function IssueView({ is }: { is: IssueCard }) {
   const d = disc.data;
   const running = is.status === "new" || is.status === "discovery";
   const blocked = d?.workflow?.state === "blocked";
+  const chat = useChatContext();
+  const { isExpertOf } = useSession();
+  const expert = isExpertOf(is.domain);
+  const [estOpen, setEstOpen] = useState(false);
+  // FTR.HMR.DISC-0001 R5: «Send back for revision» opens the chat of the issue with the focus in the composer
+  const reviseInChat = () => {
+    chat.setCollapsed(false);
+    chat.setOpen(true);
+    setTimeout(() => document.querySelector<HTMLTextAreaElement>(".chat textarea")?.focus(), 50);
+  };
+  const revising = running && !!d?.revision; // the researcher revises an existing document
+  const nabu = config.agent?.provider === "nabu";
   return (
     <main className="main">
       <div className="crumbs">
@@ -85,6 +98,9 @@ function IssueView({ is }: { is: IssueCard }) {
         {is.movedFrom.length > 0 && <span className="muted">{t("issue.movedFrom", { keys: is.movedFrom.join(", ") })}</span>}
         {is.mergedFrom.length > 0 && <span>{t("issue.mergedFrom")} <KeyList keys={is.mergedFrom} /></span>}
         {(is.tokensIn + is.tokensOut) > 0 && <span className="muted">{t("common.tokens", { n: (is.tokensIn + is.tokensOut).toLocaleString(i18n.language) })}</span>}
+        {/* FTR.HMR.DISC-0001 R17: the cost of the work in the header */}
+        <EstimateChip d={d} onOpen={() => { setEstOpen(true); document.getElementById("estimate")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} />
+        {!noAgent && running && !d?.estimateTotals && <span className="muted">{t("disc.est.preparing")}</span>}
       </div>
 
       {is.rolledBackRelease && (
@@ -119,16 +135,20 @@ function IssueView({ is }: { is: IssueCard }) {
       {noAgent && !d?.complete && <div className="banner info"><Icon name="cpu" /><span className="grow">{t("issue.manualDiscovery")}</span></div>}
       {!noAgent && running && !d?.content && <DiscoveryRunning d={d} />}
       {blocked && <BlockedBanner title={t("issue.discoveryBlocked")} reason={d?.workflow?.lastError} />}
-      {d?.content && <DiscoveryDoc d={d} />}
+      {revising && !blocked && <RevisionBanner d={d} />}
+      {d?.content && <DiscoveryDoc d={d} estimate={<EstimateBlock is={is} d={d} open={estOpen} setOpen={setEstOpen} canEdit={expert && (noAgent || !running || blocked)} />} />}
 
-      {is.permissions.verify && (
+      {(is.permissions.verify || (expert && revising && !blocked)) && (
         <div className="actionbar sticky">
-          {!d?.complete && <span className="small err-text ab-err" style={{ margin: 0 }}>{t("issue.missing", { fields: (d?.missing ?? []).map((m) => t(`issue.field.${m}`)).join(", ") })}</span>}
+          {revising && !blocked
+            ? <span className="small muted ab-err" style={{ margin: 0 }}>{t("disc.waitRevision")}</span>
+            : !d?.complete && <span className="small err-text ab-err" style={{ margin: 0 }}>{t("issue.missing", { fields: (d?.missing ?? []).map((m) => t(`issue.field.${m}`)).join(", ") })}</span>}
           <span className="grow ab-grow" />
-          <button className="btn sm" onClick={() => setDialog("move")}>{t("issue.move")}</button>
-          <button className="btn sm" onClick={() => setDialog("merge")}>{t("issue.merge")}</button>
-          <button className="btn sm danger" onClick={() => setDialog("reject")}>{t("issue.reject")}</button>
-          <button className="btn primary sm" disabled={!d?.complete} title={d?.complete ? undefined : t("issue.acceptDisabled")} onClick={() => setDialog("accept")}>
+          <button className="btn sm" disabled={revising} onClick={() => setDialog("move")}>{t("issue.move")}</button>
+          <button className="btn sm" disabled={revising} onClick={() => setDialog("merge")}>{t("issue.merge")}</button>
+          <button className="btn sm danger" disabled={revising} onClick={() => setDialog("reject")}>{t("issue.reject")}</button>
+          {nabu && !noAgent && !revising && <button className="btn sm" onClick={reviseInChat}><Icon name="msg" size={14} />{t("disc.sendBack")}</button>}
+          <button className="btn primary sm" disabled={!d?.complete || revising} title={d?.complete ? undefined : t("issue.acceptDisabled")} onClick={() => setDialog("accept")}>
             <Icon name="check" size={15} />{t("issue.accept")}
           </button>
         </div>
@@ -166,7 +186,22 @@ function DiscoveryRunning({ d }: { d?: DiscoveryView }) {
   );
 }
 
-function DiscoveryDoc({ d }: { d: DiscoveryView }) {
+/** The researcher revises the document by instructions (FTR.HMR.DISC-0001 design §3.5). */
+function RevisionBanner({ d }: { d?: DiscoveryView }) {
+  const { t } = useTranslation();
+  const r = d?.running;
+  return (
+    <div className="banner info" role="status">
+      <span className="ring" />
+      <span className="grow">
+        {r?.requestAuthors.length ? t("disc.revising", { authors: r.requestAuthors.join(", ") }) : t("issue.agentWorking")}
+        {r && r.queued > 0 ? ` · ${t("disc.queued", { count: r.queued })}` : ""}
+      </span>
+    </div>
+  );
+}
+
+function DiscoveryDoc({ d, estimate }: { d: DiscoveryView; estimate?: ReactNode }) {
   const { t, i18n } = useTranslation();
   return (
     <>
@@ -184,6 +219,7 @@ function DiscoveryDoc({ d }: { d: DiscoveryView }) {
         ) : <span className="err-text">{t("issue.notFilled")}</span>}
         {d.measureCheckedAt && <div className="small muted" style={{ marginTop: 6 }}><Icon name="check" size={12} /> {t("issue.checked", { at: dateTime(d.measureCheckedAt, i18n.language) })}</div>}
       </section>
+      {estimate}
       {(d.similar?.length ?? 0) > 0 && (
         <section className="docsec">
           <h5>{t("issue.similar")}</h5>
@@ -209,11 +245,12 @@ function DiscoveryEditModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryVi
   const [m, setM] = useState({ source: d?.measure?.source ?? "", query: d?.measure?.query ?? "", target: d?.measure?.target ?? "", window: d?.measure?.window ?? "" });
   const [content, setContent] = useState(d?.content ?? "");
   const save = useMutation({
-    mutationFn: () => api.put(`/api/v1/issues/${is.key}/discovery`, {
+    // the estimate and the rest of the document stay (FTR.HMR.DISC-0001 R18)
+    mutationFn: () => api.put(`/api/v1/issues/${is.key}/discovery`, discoveryBody(d, {
       content: content.trim() || `## ${t("issue.value")}\n\n${value}`,
       value,
       measure: m.source || m.query || m.target || m.window ? m : null,
-    }),
+    })),
     onSuccess: () => {
       invalidateCycle(qc);
       qc.invalidateQueries({ queryKey: keys.discovery(is.key) });
@@ -400,9 +437,14 @@ function RevisionsModal({ is, onClose }: { is: IssueCard; onClose: () => void })
       {revs.data?.items.toReversed().map((r) => (
         <details key={r.revision} className="docsec">
           <summary className="row small">
-            <b>#{r.revision}</b> {r.isAgent ? <AgentMark /> : null} <span className="t2">{r.actor ?? ""}</span>
+            <b>#{r.revision}</b> {r.isAgent ? <AgentMark /> : null} <span className="t2">{r.isAgent ? "" : `${t("disc.manual")} · ${r.actor ?? ""}`}</span>
+            {/* FTR.HMR.DISC-0001 design §3.5: the instructions the revision answers */}
+            {(r.requests?.length ?? 0) > 0 && (
+              <span className="t2">{t("disc.instruction")}: «{r.requests![0].instructions}» · {[...new Set(r.requests!.map((q) => q.author ?? ""))].join(", ")}</span>
+            )}
             <span className="muted">{dateTime(r.createdAt, i18n.language)}</span>
           </summary>
+          {r.changeSummary && <Markdown text={r.changeSummary} />}
           <Markdown text={r.content} />
         </details>
       ))}

@@ -12,6 +12,9 @@ import { errorText } from "../lib/errors";
 import { relativeTime } from "../lib/format";
 import { llmErrorText, transientLLMError } from "../lib/llm";
 import { useEvent } from "../lib/sse";
+import { keys } from "../api/queries";
+import type { IssueTopic } from "../api/types";
+import { noticeContent, revisionContent } from "./discoveryCards";
 
 // The adapter of the window to the agent of Nabu (FTR.HMR.CMN-0006 R5, R6;
 // FTR.NAB.CMN-0005 R12, tech §5): the requests through Hammurapi, the nabu.*
@@ -46,6 +49,11 @@ export function nabuStepText(s: NabuToolStep): string {
 /** A message of Nabu as the kit draws it. */
 export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentWait | null): ChatMessage {
   const base = { id: m.id, text: m.text, createdAt: m.createdAt, status: m.status, mark: nabuMark(t, m) };
+  if (m.role === "notice") {
+    // FTR.NAB.CHAT-0002: a notice of a product, not words of the agent; FTR.HMR.DISC-0001: the card of the result
+    const name = m.clientName ?? m.channel.replace(/^client:/, "");
+    return { ...base, role: "assistant", variant: "notice", mark: { icon: "plug", text: name.replace(/^./, (c) => c.toUpperCase()) }, content: noticeContent(m) };
+  }
   if (m.role === "user") {
     return {
       ...base, role: "user",
@@ -56,6 +64,8 @@ export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentW
   return {
     ...base, role: "assistant",
     steps: (m.toolSteps ?? []).map((s) => ({ id: s.id, text: nabuStepText(s), title: s.summary, status: s.status })),
+    // FTR.HMR.DISC-0001 design §3.3: the instruction to the researcher is a card under the answer
+    content: revisionContent(m),
     error: m.errorClass ? { text: llmErrorText(t, m.errorClass, t("llm.theConnection")), transient: transientLLMError(m.errorClass) } : undefined,
   };
 }
@@ -101,8 +111,10 @@ export function useNabuConversations() {
   return { rows, offline, create };
 }
 
-/** One conversation with the agent of Nabu: what the `Chat` of the kit needs, apart from the look. */
-export function useNabuConversation(convId: string): Pick<ChatProps,
+/** One conversation with the agent of Nabu: what the `Chat` of the kit needs, apart from the look.
+ * With issueKey it is the topic of the issue (FTR.HMR.DISC-0001 R2): convId null is
+ * the draft, and messages go through the issue, which creates the topic with the first one. */
+export function useNabuConversation(convId: string | null, issueKey?: string): Pick<ChatProps,
   "messages" | "loading" | "historyError" | "hasOlder" | "loadingOlder" | "busy" | "upload" | "onSend" | "onLoadOlder" | "onRetry" | "onUpload" | "onTranscribe"> {
   const { t } = useTranslation();
   const { config } = useSession();
@@ -114,7 +126,8 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
   const fail = (e: unknown, text?: string) => toast({ kind: "error", title: errorText(t, e), text });
 
   const history = useInfiniteQuery({
-    queryKey: nabuKeys.messages(convId),
+    queryKey: nabuKeys.messages(convId ?? `draft:${issueKey}`),
+    enabled: convId !== null,
     initialPageParam: "",
     queryFn: ({ pageParam }) =>
       api.get<List<NabuMessage>>(`/api/v1/chat/conversations/${convId}/messages?limit=50${pageParam ? `&cursor=${pageParam}` : ""}`),
@@ -122,7 +135,7 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
   });
   // "main" is resolved by Nabu; the events carry the real id.
   const realId = history.data?.pages[0]?.items[0]?.conversationId ?? convId;
-  const mine = (id: string) => id === convId || id === realId;
+  const mine = (id: string) => convId !== null && (id === convId || id === realId);
 
   const raw = useMemo(() => {
     const byId = new Map<string, NabuMessage>();
@@ -151,8 +164,8 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
     if (mine(d.conversationId)) setWait(d);
   });
   useEvent("nabu.message.created", (m: NabuMessage) => {
-    // a notification of the agent comes whole (FTR.HMR.SPEC-0001 R10)
-    if (m.role === "assistant" && m.status === "done") chat.markUnread();
+    // a notification of the agent comes whole (FTR.HMR.SPEC-0001 R10), and so does a notice (FTR.HMR.DISC-0001 NT-07)
+    if ((m.role === "assistant" && m.status === "done") || m.role === "notice") chat.markUnread();
     if (!mine(m.conversationId)) return;
     put(m);
     if (m.role === "assistant") setWait(null);
@@ -186,6 +199,16 @@ export function useNabuConversation(convId: string): Pick<ChatProps,
     // every message carries the screen the user looks at (FTR.HMR.CMN-0006 R6)
     const context = chat.subject ? { type: chat.subject.type, key: chat.subject.key, area: chat.area ?? undefined } : undefined;
     try {
+      if (issueKey) {
+        // the server adds the context of the issue and creates the topic with the first message
+        const res = await api.post<{ conversationId: string; message: NabuMessage }>(`/api/v1/issues/${issueKey}/topic/messages`, { text, attachmentIds });
+        if (res.message) put({ ...res.message, conversationId: res.conversationId });
+        if (res.conversationId !== convId) {
+          qc.setQueryData<IssueTopic>(keys.topic(issueKey), (old) => ({ title: old?.title ?? "", conversationId: res.conversationId }));
+          qc.invalidateQueries({ queryKey: nabuKeys.conversations });
+        }
+        return;
+      }
       const res = await api.post<{ messageId: string; message: NabuMessage }>(`/api/v1/chat/conversations/${convId}/messages`, { text, attachmentIds, context });
       put(res.message);
     } catch (e) {

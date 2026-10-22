@@ -1574,3 +1574,192 @@ button.avatar-btn[aria-expanded="true"] > span {
 }
 
 
+
+/* FTR.HMR.DISC-0001: the topic of an issue, instructions, the draft estimate */
+.ctx.topic {
+  gap: 6px;
+}
+.topicdraft .sugg {
+  margin: 12px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 260px;
+}
+.sugchip {
+  justify-content: flex-start;
+  cursor: pointer;
+}
+.sugchip:hover {
+  background: var(--violet-soft);
+  color: var(--violet-text);
+}
+.taskcard {
+  border: 1px solid var(--violet);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.taskcard .th {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--violet-text);
+  margin-bottom: 6px;
+}
+.taskcard .tx {
+  white-space: pre-wrap;
+}
+.taskcard .tx.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.taskcard .tf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.taskcard a,
+.resultcard a {
+  color: var(--violet-text);
+  text-decoration: none;
+  font-size: 13px;
+}
+.linkbtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin-top: 4px;
+  color: var(--violet-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.ring.tiny {
+  width: 10px;
+  height: 10px;
+}
+.resultcard {
+  border-left: 3px solid var(--green);
+  background: var(--surface-2);
+  border-radius: 4px 14px 14px 14px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.resultcard.bad {
+  border-left-color: var(--red);
+}
+.estchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.estline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.estgrow {
+  flex: 1;
+}
+.estgrid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+.estgrid h6 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.estgrid .num,
+.estnum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.estgrid .tot {
+  font-weight: 600;
+}
+.estfoot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.estinp {
+  width: 72px;
+  text-align: right;
+}
+.trow.issue.withest {
+  grid-template-columns: auto auto minmax(0, 1fr) auto 64px 64px 56px auto;
+}
+.estcol {
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: right;
+}
+.estcol.low {
+  color: var(--muted);
+}
+.esthead {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto 64px 64px 56px auto;
+  gap: 12px;
+  padding: 0 12px 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.esthead .sortbtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: right;
+}
+.esthead .sortbtn.on {
+  color: var(--violet-text);
+}
+@media (max-width: 900px) {
+  .estgrid,
+  .estfoot {
+    grid-template-columns: 1fr;
+  }
+  .esthead {
+    display: none;
+  }
+  .trow.issue.withest {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}

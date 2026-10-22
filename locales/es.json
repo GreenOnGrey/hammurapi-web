@@ -793,7 +793,10 @@
     "nabu_not_bound": "El escenario no está asignado a un agente de servicio de Nabu. Asígnelo en Administración → Nabu.",
     "git_account_is_login": "Esta cuenta git es su cuenta de inicio de sesión y no se puede desvincular.",
     "user_archived": "El agente no está disponible para su cuenta.",
-    "channel_unavailable": "El agente no está disponible para su cuenta."
+    "channel_unavailable": "El agente no está disponible para su cuenta.",
+    "invalid_sort": "Orden de la lista desconocido.",
+    "invalid_estimate": "La estimación tiene un error.",
+    "request_not_found": "No se encontró el encargo."
   },
   "stages": {
     "title": "Etapas",
@@ -1397,5 +1400,94 @@
   "noAgent": {
     "title": "El agente no está conectado",
     "text": "El chat, el análisis de incidencias y la generación estarán disponibles cuando Hammurapi se conecte a Nabu. Contacte con su administrador."
+  },
+  "disc": {
+    "topic": {
+      "pinned": "El chat está fijado a la tarea. Abra otra tarea para cambiar de tema",
+      "title": "Discusión de {key}",
+      "draftHint": "El tema aparece en la lista de conversaciones tras el primer mensaje"
+    },
+    "suggest": {
+      "known": "¿Qué se sabe de la tarea?",
+      "similar": "Buscar tareas similares",
+      "metric": "Precisar la métrica",
+      "estimate": "Revisar la estimación",
+      "duplicates": "Buscar duplicados",
+      "value": "Explica el valor",
+      "why": "¿Por qué esta decisión?",
+      "where": "¿Dónde está la solución de la tarea?"
+    },
+    "task": {
+      "title": "Encargo al investigador",
+      "more": "Mostrar completo",
+      "less": "Contraer",
+      "queued": "En cola",
+      "afterCurrent": "tras la investigación actual",
+      "running": "En curso",
+      "done": "Hecho",
+      "failed": "Falló",
+      "details": "Detalles"
+    },
+    "revision": "revisión {n}",
+    "openRevision": "Abrir la revisión {n}",
+    "revising": "El investigador revisa el análisis por encargo de {authors}",
+    "queued": "{count, plural, one {# encargo más} other {# encargos más}} en cola",
+    "waitRevision": "Espere a que termine la revisión",
+    "sendBack": "Devolver para revisión",
+    "manual": "Edición manual",
+    "instruction": "Encargo",
+    "col": {
+      "agentUsd": "Agente",
+      "personHours": "Personas",
+      "days": "Plazo"
+    },
+    "est": {
+      "title": "Estimación preliminar",
+      "none": "Sin estimación",
+      "add": "Añadir",
+      "edit": "Editar la estimación",
+      "editTitle": "Estimación preliminar — edición",
+      "agent": "Agente",
+      "agentUsd": "Agente, $",
+      "people": "Personas, horas-persona",
+      "total": "Total",
+      "all": "Todo",
+      "term": "Plazo",
+      "days": "{count, plural, one {# día natural hasta el lanzamiento} other {# días naturales hasta el lanzamiento}}",
+      "wait": "de ellos, espera de personas ≈ {count, plural, one {# día} other {# días}}",
+      "basis": "Base",
+      "judgement": "Criterio del investigador",
+      "line": "≈ {usd} de agentes · {hours} h-persona · {days, plural, one {# día} other {# días}}",
+      "preparing": "La estimación se está preparando",
+      "hours": "{n} h-p",
+      "daysShort": "{n} d",
+      "card": "{days} d · {hours} h-p",
+      "lowHint": "Confianza baja",
+      "confidence": {
+        "high": "alta",
+        "medium": "media",
+        "low": "baja"
+      },
+      "confidenceLabel": "Confianza",
+      "stage": {
+        "spec": "Especificación",
+        "codegen": "Generación de código",
+        "checks": "Comprobaciones"
+      },
+      "pstage": {
+        "spec": "Especificación con el agente",
+        "approval": "Aprobación",
+        "validation": "Validación de PR",
+        "release": "Confirmación del lanzamiento"
+      },
+      "expertise": {
+        "product": "Producto",
+        "tech": "Técnica"
+      },
+      "daysLabel": "Plazo, días naturales",
+      "waitLabel": "De ellos, espera de personas, días",
+      "basisLabel": "Base: claves de soluciones similares"
+    },
+    "composer": "¿Qué revisar en el análisis?"
   }
 }
