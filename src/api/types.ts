@@ -10,6 +10,8 @@ export type FeaturePhase = "spec" | "codegen" | "validation" | "in_release" | "r
 export type Autonomy = "plan" | "pr" | "autonomous";
 export type IssueType = "idea" | "problem";
 export type IssueStatus = "new" | "discovery" | "verification" | "accepted" | "resolved" | "rejected" | "merged";
+/** The statuses that end the research of an issue (FTR.HMR.DISC-0001 R25). */
+export const RESEARCH_ENDED: readonly IssueStatus[] = ["accepted", "rejected", "merged"];
 export type ReleaseStatus = "merging" | "deploying" | "enabling_flags" | "evaluating" | "awaiting_confirmation" | "succeeded" | "rolling_back" | "rolled_back";
 /** Who approves an area: product and design — product experts, the rest — technical. */
 export const approverKind = (a: Area): ExpertKind => (a === "product" || a === "design" ? "product" : "technical");

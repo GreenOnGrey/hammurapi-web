@@ -16,6 +16,7 @@ import {
   onEvent,
   onReconnect,
 } from "../lib/sse";
+import { RESEARCH_ENDED, type IssueStatus } from "../api/types";
 import { setDocumentLanguage } from "../lib/i18n";
 import { Loading } from "@green-on-grey/ui-kit";
 import { ChatProvider, SessionProvider } from "./session";
@@ -103,7 +104,11 @@ function Authenticated() {
         qc.invalidateQueries({ queryKey: keys.focus });
       }),
       onEvent("feature.deleted", () => invalidateCycle(qc)),
-      onEvent("issue.updated", () => invalidateCycle(qc)),
+      onEvent("issue.updated", (d: { key: string; status: IssueStatus }) => {
+        invalidateCycle(qc);
+        // FTR.HMR.DISC-0001 R25: the research ended — the topic is archived, the chat shows a draft
+        if (RESEARCH_ENDED.includes(d.status)) qc.invalidateQueries({ queryKey: keys.topic(d.key) });
+      }),
       onEvent("discovery.progress", (d: { key: string }) =>
         qc.invalidateQueries({ queryKey: keys.discovery(d.key) }),
       ),
