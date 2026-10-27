@@ -1,4 +1,5 @@
 // Types of the Hammurapi API (hammurapi-core). Keep in sync with the Go DTOs.
+import type { ChatSubagent } from "@green-on-grey/ui-kit/chat";
 
 export const AREAS = ["product", "design", "arch", "tech", "qa"] as const;
 export type Area = (typeof AREAS)[number];
@@ -1055,6 +1056,8 @@ export interface NabuToolStep {
   tool: string;
   summary: string;
   status: "running" | "done" | "error";
+  /** The tasks of a call of subagents (FTR.NAB.CMN-0009 R8). */
+  subagents?: ChatSubagent[];
 }
 
 /** A turn waiting for the pod of the agent in Nabu (FTR.NAB.CMN-0004 tech §2). */
@@ -1074,7 +1077,11 @@ export interface NabuMessage {
   /** FTR.NAB.CHAT-0002: the product that wrote a notice and its data. */
   clientName?: string | null;
   payload?: Record<string, unknown> | null;
-  status: "pending" | "streaming" | "done" | "failed";
+  /** `stopped`: the user stopped the answer (FTR.NAB.CHAT-0004 R9). */
+  status: "pending" | "streaming" | "done" | "failed" | "stopped";
+  /** A user message waiting in the queue for its answer (FTR.NAB.CHAT-0004 R1). */
+  queued?: boolean;
+  replyTo?: string | null;
   attachments: { id: string; fileName: string; mimeType: string }[];
   toolSteps: NabuToolStep[];
   context?: { type: string; key: string; area?: string } | null;

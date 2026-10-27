@@ -797,7 +797,10 @@
     "invalid_sort": "未知的列表排序。",
     "invalid_estimate": "估算有误。",
     "request_not_found": "未找到该指示。",
-    "invalid_measure": "衡量方式有误。"
+    "invalid_measure": "衡量方式有误。",
+    "queue_full": "队列中已有 {max} 条消息——请等待回答或取消部分消息",
+    "message_started": "代理已在回答这条消息",
+    "not_running": "回答已经结束"
   },
   "stages": {
     "title": "阶段",

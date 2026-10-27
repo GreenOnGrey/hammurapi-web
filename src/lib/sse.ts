@@ -10,7 +10,7 @@ export type EventType =
   | "approvals.changed" | "import.progress"
   | "chat.error" | "chat.model" | "agent.connection_status"
   // FTR.HMR.CMN-0006: the stream of the personal agent in Nabu, relayed by api.
-  | "nabu.message.created" | "nabu.message.delta" | "nabu.message.done" | "nabu.tool.step"
+  | "nabu.message.created" | "nabu.message.delta" | "nabu.message.done" | "nabu.message.cancelled" | "nabu.tool.step"
   | "nabu.conversation.updated" | "nabu.agent.updated" | "nabu.connected" | "nabu.disconnected"
   // FTR.NAB.CMN-0004: a turn waits for the pod of the agent
   | "nabu.agent.state"
@@ -23,7 +23,7 @@ const TYPES: EventType[] = [
   "issue.updated", "discovery.progress", "feature.updated", "task.progress", "validation.updated",
   "release.updated", "release.blocked", "focus.changed", "spec.index_updated",
   "chat.error", "chat.model", "agent.connection_status",
-  "nabu.message.created", "nabu.message.delta", "nabu.message.done", "nabu.tool.step",
+  "nabu.message.created", "nabu.message.delta", "nabu.message.done", "nabu.message.cancelled", "nabu.tool.step",
   "nabu.conversation.updated", "nabu.agent.updated", "nabu.connected", "nabu.disconnected",
   "nabu.agent.state", "discovery.request.updated",
 ];

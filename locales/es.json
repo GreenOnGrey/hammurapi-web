@@ -797,7 +797,10 @@
     "invalid_sort": "Orden de la lista desconocido.",
     "invalid_estimate": "La estimación tiene un error.",
     "request_not_found": "No se encontró el encargo.",
-    "invalid_measure": "El método de medición tiene un error."
+    "invalid_measure": "El método de medición tiene un error.",
+    "queue_full": "Ya hay {max} mensajes en la cola: espere las respuestas o cancele algunos",
+    "message_started": "El agente ya está respondiendo a este mensaje",
+    "not_running": "La respuesta ya ha terminado"
   },
   "stages": {
     "title": "Etapas",

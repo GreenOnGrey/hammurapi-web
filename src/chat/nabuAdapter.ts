@@ -56,14 +56,14 @@ export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentW
   }
   if (m.role === "user") {
     return {
-      ...base, role: "user",
+      ...base, role: "user", queued: m.queued,
       attachments: (m.attachments ?? []).map((a) => ({ id: a.id, fileName: a.fileName, href: apiUrl(`/api/v1/chat/attachments/${a.id}`) })),
       wait: wait?.messageId === m.id ? (wait.state === "queued" ? { state: "queued", position: wait.position ?? 0 } : { state: "starting" }) : undefined,
     };
   }
   return {
     ...base, role: "assistant",
-    steps: (m.toolSteps ?? []).map((s) => ({ id: s.id, text: nabuStepText(s), title: s.summary, status: s.status })),
+    steps: (m.toolSteps ?? []).map((s) => ({ id: s.id, text: nabuStepText(s), title: s.summary, status: s.status, subagents: s.subagents })),
     // FTR.HMR.DISC-0001 design §3.3: the instruction to the researcher is a card under the answer
     content: revisionContent(m),
     error: m.errorClass ? { text: llmErrorText(t, m.errorClass, t("llm.theConnection")), transient: transientLLMError(m.errorClass) } : undefined,
@@ -115,7 +115,8 @@ export function useNabuConversations() {
  * With issueKey it is the topic of the issue (FTR.HMR.DISC-0001 R2): convId null is
  * the draft, and messages go through the issue, which creates the topic with the first one. */
 export function useNabuConversation(convId: string | null, issueKey?: string): Pick<ChatProps,
-  "messages" | "loading" | "historyError" | "hasOlder" | "loadingOlder" | "busy" | "upload" | "onSend" | "onLoadOlder" | "onRetry" | "onUpload" | "onTranscribe"> {
+  "messages" | "loading" | "historyError" | "hasOlder" | "loadingOlder" | "busy" | "upload" | "onSend" | "onLoadOlder" | "onRetry" | "onUpload" | "onTranscribe"
+  | "allowQueue" | "onCancelQueued" | "onStop"> {
   const { t } = useTranslation();
   const { config } = useSession();
   const chat = useChatContext();
@@ -137,21 +138,19 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
   const realId = history.data?.pages[0]?.items[0]?.conversationId ?? convId;
   const mine = (id: string) => convId !== null && (id === convId || id === realId);
 
+  // FTR.NAB.CHAT-0004 R3: the messages cancelled in the queue leave the conversation
+  const [cancelled, setCancelled] = useState<ReadonlySet<string>>(new Set());
+  // FTR.NAB.CHAT-0004 design §3 p. 8: a retry behind the queue waits marked on its answer
+  const [retrying, setRetrying] = useState<ReadonlySet<string>>(new Set());
   const raw = useMemo(() => {
     const byId = new Map<string, NabuMessage>();
     for (const p of history.data?.pages ?? []) for (const m of p.items) byId.set(m.id, m);
     for (const m of Object.values(overrides)) {
       if (m.conversationId === convId || m.conversationId === realId) byId.set(m.id, { ...byId.get(m.id), ...m });
     }
+    for (const id of cancelled) byId.delete(id);
     return [...byId.values()].toSorted((a, b) => a.createdAt.localeCompare(b.createdAt) || (a.role === "user" ? -1 : 1));
-  }, [history.data, overrides, convId, realId]);
-
-  const streaming = raw.some((m) => m.role === "assistant" && (m.status === "streaming" || m.status === "pending"));
-  // The composer is locked from sending until the answer stops streaming:
-  // the end of the stream comes from the server, so it is an effect.
-  useEffect(() => {
-    if (!streaming) setBusy(false); // oxlint-disable-line react/set-state-in-effect
-  }, [streaming]);
+  }, [history.data, overrides, convId, realId, cancelled]);
 
   const put = (m: Partial<NabuMessage> & { id: string }) =>
     setOverrides((o) => ({ ...o, [m.id]: { ...(o[m.id] ?? ({} as NabuMessage)), ...m } as NabuMessage }));
@@ -169,6 +168,16 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
     if (!mine(m.conversationId)) return;
     put(m);
     if (m.role === "assistant") setWait(null);
+    // FTR.NAB.CHAT-0004 R1: the answer began — its message is no longer in the queue
+    const asked = m.replyTo ? raw.find((x) => x.id === m.replyTo) : undefined;
+    if (asked?.queued) put({ ...asked, queued: false });
+    if (m.role === "assistant" && m.replyTo) {
+      const retried = raw.filter((x) => x.role === "assistant" && x.replyTo === m.replyTo && retrying.has(x.id)).map((x) => x.id);
+      if (retried.length > 0) setRetrying((r) => new Set([...r].filter((id) => !retried.includes(id))));
+    }
+  });
+  useEvent("nabu.message.cancelled", (d: { id: string; conversationId: string }) => {
+    if (mine(d.conversationId)) setCancelled((s) => new Set(s).add(d.id));
   });
   useEvent("nabu.message.delta", (d: { messageId: string; conversationId: string; delta: string }) => {
     if (!mine(d.conversationId)) return;
@@ -212,9 +221,10 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
       const res = await api.post<{ messageId: string; message: NabuMessage }>(`/api/v1/chat/conversations/${convId}/messages`, { text, attachmentIds, context });
       put(res.message);
     } catch (e) {
-      setBusy(false);
-      fail(e);
+      fail(e); // FTR.NAB.CHAT-0004 R4: queue_full keeps the text in the field
       throw e;
+    } finally {
+      setBusy(false); // FTR.NAB.CHAT-0004 tech §4: busy is the request only; the answer is waited for in the queue
     }
   };
 
@@ -226,10 +236,10 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
     if (out && !busy) void send(out, []).catch(() => undefined); // oxlint-disable-line react/set-state-in-effect
   }, [chat.outbox]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const messages = useMemo(() => raw.map((m) => toNabuChatMessage(t, m, wait)), [raw, wait, t]);
+  const messages = useMemo(() => raw.map((m) => ({ ...toNabuChatMessage(t, m, wait), retryQueued: retrying.has(m.id) || undefined })), [raw, wait, t, retrying]);
 
   return {
-    messages, busy,
+    messages, busy, allowQueue: true,
     loading: history.isLoading,
     historyError: history.error ? errorText(t, history.error) : undefined,
     hasOlder: history.hasNextPage,
@@ -242,9 +252,30 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
       setBusy(true);
       try {
         await api.post(`/api/v1/chat/messages/${messageId}/retry`);
+        const old = raw.find((x) => x.id === messageId);
+        const behind = raw.some((x) => (x.role === "assistant" && (x.status === "streaming" || x.status === "pending")) || x.queued);
+        if (old && behind) setRetrying((r) => new Set(r).add(old.id));
       } catch (e) {
-        setBusy(false);
         fail(e);
+      } finally {
+        setBusy(false);
+      }
+    },
+    async onCancelQueued(messageId) {
+      try {
+        await api.del(`/api/v1/chat/messages/${messageId}`);
+        setCancelled((s) => new Set(s).add(messageId));
+      } catch (e) {
+        fail(e); // message_started: the agent began the answer, its events come next
+      }
+    },
+    async onStop(answerId) {
+      try {
+        await api.post(`/api/v1/chat/messages/${answerId}/stop`);
+      } catch (e) {
+        if (e instanceof ApiError && e.code === "not_running") return; // the answer ended by itself
+        fail(e);
+        throw e;
       }
     },
     async onUpload(file) {

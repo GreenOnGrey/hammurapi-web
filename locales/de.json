@@ -797,7 +797,10 @@
     "invalid_sort": "Unbekannte Sortierung der Liste.",
     "invalid_estimate": "Die Schätzung enthält einen Fehler.",
     "request_not_found": "Der Auftrag wurde nicht gefunden.",
-    "invalid_measure": "Die Messmethode enthält einen Fehler."
+    "invalid_measure": "Die Messmethode enthält einen Fehler.",
+    "queue_full": "In der Warteschlange sind bereits {max} Nachrichten — warten Sie auf die Antworten oder brechen Sie einige ab",
+    "message_started": "Der Agent beantwortet diese Nachricht bereits",
+    "not_running": "Die Antwort ist bereits beendet"
   },
   "stages": {
     "title": "Phasen",

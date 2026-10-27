@@ -797,7 +797,10 @@
     "invalid_sort": "Unknown sort of the list.",
     "invalid_estimate": "The estimate has an error.",
     "request_not_found": "The instruction is not found.",
-    "invalid_measure": "The way to measure has an error."
+    "invalid_measure": "The way to measure has an error.",
+    "queue_full": "{max, plural, one {The queue already has # message} other {The queue already has # messages}} — wait for the answers or cancel some",
+    "message_started": "The agent is already answering this message",
+    "not_running": "The answer has already ended"
   },
   "stages": {
     "title": "Stages",
