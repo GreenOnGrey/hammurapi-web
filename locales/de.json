@@ -800,7 +800,9 @@
     "invalid_measure": "Die Messmethode enthält einen Fehler.",
     "queue_full": "In der Warteschlange sind bereits {max} Nachrichten — warten Sie auf die Antworten oder brechen Sie einige ab",
     "message_started": "Der Agent beantwortet diese Nachricht bereits",
-    "not_running": "Die Antwort ist bereits beendet"
+    "not_running": "Die Antwort ist bereits beendet",
+    "unknown_question": "Die Frage ist nicht mehr offen: Seite neu laden",
+    "invalid_answer": "Antworten prüfen"
   },
   "stages": {
     "title": "Phasen",
@@ -1430,7 +1432,15 @@
       "running": "Läuft",
       "done": "Fertig",
       "failed": "Fehlgeschlagen",
-      "details": "Details"
+      "details": "Details",
+      "answers": "Antworten",
+      "context": "Kontext",
+      "also": "Außerdem",
+      "source": {
+        "expert": "Experte",
+        "user": "Experte im Chat",
+        "memory": "aus dem Gedächtnis · bestätigt"
+      }
     },
     "revision": "Revision {n}",
     "openRevision": "Revision {n} öffnen",
@@ -1506,6 +1516,22 @@
       "line": "{count, plural, one {# Eintrag} other {# Einträge}}: {keys}",
       "dups": "{count, plural, one {mögliches Duplikat} other {mögliche Duplikate}}: {keys}",
       "duplicate": "mögliches Duplikat"
+    },
+    "q": {
+      "title": "Offene Fragen",
+      "round": "Runde {n}",
+      "none": "Keine Fragen",
+      "recommended": "Empfehlung:",
+      "accept": "Empfehlung annehmen",
+      "own": "Eigene Antwort",
+      "ownPlaceholder": "Ihre Antwort",
+      "options": "Optionen:",
+      "answered": "{n} von {total} beantwortet",
+      "later": "Unbeantwortete gehen in die nächste Runde",
+      "send": "Antworten senden",
+      "answer": "Antwort: {text}",
+      "revAnswers": "Antworten: {ids}",
+      "acceptOpen": "{count, plural, one {# offene Frage bleibt} other {# offene Fragen bleiben}}"
     }
   }
 }

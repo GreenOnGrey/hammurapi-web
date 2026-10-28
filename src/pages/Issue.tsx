@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api/client";
 import { invalidateCycle, keys, useDiscovery, useDomains, useIssue, useRevisions } from "../api/queries";
-import type { DiscoveryView, FeatureSummary, IssueCard, List } from "../api/types";
+import type { TFunction } from "i18next";
+import type { DiscoveryView, FeatureSummary, IssueCard, List, Revision } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { dateTime, relativeTime } from "../lib/format";
@@ -12,6 +13,7 @@ import { Empty, Icon, Loading, Markdown, Modal, useToast } from "@green-on-grey/
 import { AgentMark, IssueStatusBadge, IssueTypeBadge, KeyList, KeyLink } from "../components/cycle";
 import { BlockedBanner } from "../components/BlockedBanner";
 import { EstimateBlock, EstimateChip, discoveryBody } from "./IssueEstimate";
+import { QuestionsBlock, linkQuestions, useQuestionLinks } from "./IssueQuestions";
 
 export function IssuePage() {
   const { t } = useTranslation();
@@ -82,6 +84,8 @@ function IssueView({ is }: { is: IssueCard }) {
     setTimeout(() => document.querySelector<HTMLTextAreaElement>(".chat textarea")?.focus(), 50);
   };
   const revising = running && !!d?.revision; // the researcher revises an existing document
+  // FTR.HMR.DISC-0001 R27: experts answer the questions while Discovery can change
+  const canAnswer = expert && !noAgent && (running || is.status === "verification");
   const nabu = config.agent?.provider === "nabu";
   return (
     <main className="main">
@@ -136,7 +140,8 @@ function IssueView({ is }: { is: IssueCard }) {
       {!noAgent && running && !d?.content && <DiscoveryRunning d={d} />}
       {blocked && <BlockedBanner title={t("issue.discoveryBlocked")} reason={d?.workflow?.lastError} />}
       {revising && !blocked && <RevisionBanner d={d} />}
-      {d?.content && <DiscoveryDoc d={d} estimate={<EstimateBlock is={is} d={d} open={estOpen} setOpen={setEstOpen} canEdit={expert && (noAgent || !running || blocked)} />} />}
+      {d?.content && <DiscoveryDoc d={d} issueKey={is.key} canAnswer={canAnswer}
+        estimate={<EstimateBlock is={is} d={d} open={estOpen} setOpen={setEstOpen} canEdit={expert && (noAgent || !running || blocked)} />} />}
 
       {(is.permissions.verify || (expert && revising && !blocked)) && (
         <div className="actionbar sticky">
@@ -269,8 +274,10 @@ function MeasureBlock({ d }: { d: DiscoveryView }) {
   );
 }
 
-function DiscoveryDoc({ d, estimate }: { d: DiscoveryView; estimate?: ReactNode }) {
+function DiscoveryDoc({ d, issueKey, canAnswer, estimate }: { d: DiscoveryView; issueKey: string; canAnswer: boolean; estimate?: ReactNode }) {
   const { t } = useTranslation();
+  const links = useQuestionLinks();
+  const ids = (d.questions ?? []).map((q) => q.id);
   return (
     <>
       <section className="docsec">
@@ -283,10 +290,12 @@ function DiscoveryDoc({ d, estimate }: { d: DiscoveryView; estimate?: ReactNode 
       {d.problemTarget && (
         <section className="docsec"><h5>{t("issue.problemFeature")}</h5><KeyLink k={d.problemTarget} /></section>
       )}
-      <section className="docsec">
+      {/* FTR.HMR.DISC-0001 design §3.6c: «(допущение, см. Q5)» leads to the question */}
+      <section className="docsec" onClick={links.onClick}>
         <h5>{t("issue.document")}</h5>
-        <Markdown text={d.content ?? ""} />
+        <Markdown text={linkQuestions(d.content ?? "", ids)} />
       </section>
+      <QuestionsBlock key={`${issueKey}:${d.revision}`} issueKey={issueKey} d={d} canAnswer={canAnswer} highlighted={links.highlighted} />
     </>
   );
 }
@@ -408,6 +417,8 @@ function AcceptModal({ is, d, onClose }: { is: IssueCard; d?: DiscoveryView; onC
         <div className="preview-id">{t("accept.preview", { key: `FTR.${is.domain}.${sys}-${String(nextNum + 1).padStart(4, "0")}`, issue: is.key })}</div>
       )}
       <p className="small t2">{t("accept.text")}</p>
+      {/* FTR.HMR.DISC-0001 design §3.6c: the questions do not block the acceptance */}
+      {(d?.questions?.length ?? 0) > 0 && <div className="banner warn"><Icon name="alert" /><span className="grow">{t("disc.q.acceptOpen", { count: d!.questions!.length })}</span></div>}
       {accept.error && <div className="err-text">{errorText(t, accept.error)}</div>}
     </Modal>
   );
@@ -493,6 +504,17 @@ function MoveModal({ is, onClose }: { is: IssueCard; onClose: () => void }) {
   );
 }
 
+/** «Поручение: «…» · Ответы: Q1, Q2 · А. Петров» — what a revision answered (FTR.HMR.DISC-0001 design §3.5). */
+export function revisionRequests(t: TFunction, reqs: NonNullable<Revision["requests"]>): string {
+  const text = reqs.find((q) => q.instructions)?.instructions;
+  const ids = reqs.flatMap((q) => q.questions ?? []);
+  return [
+    text ? `${t("disc.instruction")}: «${text}»` : "",
+    ids.length > 0 ? t("disc.q.revAnswers", { ids: ids.join(", ") }) : "",
+    [...new Set(reqs.map((q) => q.author ?? ""))].join(", "),
+  ].filter(Boolean).join(" · ");
+}
+
 function RevisionsModal({ is, onClose }: { is: IssueCard; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const revs = useRevisions(is.key, true);
@@ -504,9 +526,7 @@ function RevisionsModal({ is, onClose }: { is: IssueCard; onClose: () => void })
           <summary className="row small">
             <b>#{r.revision}</b> {r.isAgent ? <AgentMark /> : null} <span className="t2">{r.isAgent ? "" : `${t("disc.manual")} · ${r.actor ?? ""}`}</span>
             {/* FTR.HMR.DISC-0001 design §3.5: the instructions the revision answers */}
-            {(r.requests?.length ?? 0) > 0 && (
-              <span className="t2">{t("disc.instruction")}: «{r.requests![0].instructions}» · {[...new Set(r.requests!.map((q) => q.author ?? ""))].join(", ")}</span>
-            )}
+            {(r.requests?.length ?? 0) > 0 && <span className="t2">{revisionRequests(t, r.requests!)}</span>}
             <span className="muted">{dateTime(r.createdAt, i18n.language)}</span>
           </summary>
           {r.changeSummary && <Markdown text={r.changeSummary} />}

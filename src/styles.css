@@ -1842,3 +1842,109 @@ button.avatar-btn[aria-expanded="true"] > span {
 .simwarn {
   color: var(--amber);
 }
+
+/* FTR.HMR.DISC-0001 design §3.6c: the open questions of the researcher */
+.qblockh {
+  display: flex;
+  align-items: baseline;
+}
+.qround {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+.qcard {
+  border: 1px solid var(--border);
+  border-radius: var(--r-m);
+  background: var(--surface);
+  padding: 12px 14px;
+  margin-top: 10px;
+  transition: box-shadow 0.3s;
+}
+.qcard.lit {
+  box-shadow: 0 0 0 2px var(--violet);
+}
+.qhead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+.qbody {
+  margin: 6px 0 8px;
+  white-space: pre-wrap;
+}
+.qrec {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border-radius: var(--r-s);
+  background: var(--violet-soft);
+  color: var(--violet-text);
+  font-size: 13px;
+}
+.qwhy {
+  margin: 4px 0 0;
+}
+.qchips {
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+.qown {
+  width: 100%;
+  margin-top: 8px;
+  border-color: var(--violet);
+}
+.qfoot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.qgrow {
+  flex: 1;
+}
+.qsent {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+@media (max-width: 900px) {
+  .qfoot .qsend {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* FTR.HMR.DISC-0001 design §3.3: the brief in the card of the instruction */
+.briefans {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.briefans li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.briefans .lbl,
+.briefl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}

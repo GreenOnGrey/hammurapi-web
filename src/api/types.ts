@@ -421,11 +421,32 @@ export interface IssueTopic {
   title: string;
 }
 
+/** An open question of the researcher to the experts (FTR.HMR.DISC-0001 R26, tech §5.6). */
+export interface DiscoveryQuestion {
+  id: string;
+  round: number;
+  title: string;
+  body: string;
+  options: string[];
+  recommended: string;
+  why: string;
+}
+
+/** An answer in an instruction (R27, R28): an expert on the page, the user in the chat or the agent from memory, confirmed. */
+export interface DiscoveryAnswer {
+  questionId: string;
+  question: string;
+  answer: string;
+  source: "expert" | "user" | "memory";
+}
+
 export interface DiscoveryRequest {
   id: string;
   issueKey: string;
   author: string | null;
   instructions: string;
+  answers?: DiscoveryAnswer[];
+  context?: string | null;
   state: "queued" | "running" | "done" | "failed";
   position: number | null;
   revision: number | null;
@@ -476,6 +497,9 @@ export interface DiscoveryView {
   changeSummary?: string | null;
   /** The revision of the researcher going on (FTR.HMR.DISC-0001 design §3.5). */
   running?: { requestAuthors: string[]; queued: number } | null;
+  /** The open questions of the round and the latest round (FTR.HMR.DISC-0001 R26, tech §3.3). */
+  questions?: DiscoveryQuestion[];
+  questionRound?: number;
 }
 
 export interface Revision {
@@ -486,7 +510,7 @@ export interface Revision {
   createdAt: string;
   changeSummary?: string | null;
   /** The instructions the revision answers (FTR.HMR.DISC-0001 design §3.5). */
-  requests?: { id: string; author: string | null; instructions: string }[];
+  requests?: { id: string; author: string | null; instructions: string; questions?: string[] }[];
 }
 
 export interface ServiceDTO {

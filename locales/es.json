@@ -800,7 +800,9 @@
     "invalid_measure": "El método de medición tiene un error.",
     "queue_full": "Ya hay {max} mensajes en la cola: espere las respuestas o cancele algunos",
     "message_started": "El agente ya está respondiendo a este mensaje",
-    "not_running": "La respuesta ya ha terminado"
+    "not_running": "La respuesta ya ha terminado",
+    "unknown_question": "La pregunta ya no está abierta: recargue la página",
+    "invalid_answer": "Revise las respuestas"
   },
   "stages": {
     "title": "Etapas",
@@ -1430,7 +1432,15 @@
       "running": "En curso",
       "done": "Hecho",
       "failed": "Falló",
-      "details": "Detalles"
+      "details": "Detalles",
+      "answers": "Respuestas",
+      "context": "Contexto",
+      "also": "Además",
+      "source": {
+        "expert": "experto",
+        "user": "experto en el chat",
+        "memory": "de la memoria · confirmado"
+      }
     },
     "revision": "revisión {n}",
     "openRevision": "Abrir la revisión {n}",
@@ -1506,6 +1516,22 @@
       "line": "{count, plural, one {# elemento} other {# elementos}}: {keys}",
       "dups": "{count, plural, one {posible duplicado} other {posibles duplicados}}: {keys}",
       "duplicate": "posible duplicado"
+    },
+    "q": {
+      "title": "Preguntas abiertas",
+      "round": "ronda {n}",
+      "none": "No hay preguntas",
+      "recommended": "Recomendación:",
+      "accept": "Aceptar la recomendación",
+      "own": "Respuesta propia",
+      "ownPlaceholder": "Su respuesta",
+      "options": "Opciones:",
+      "answered": "Respondidas {n} de {total}",
+      "later": "Las no respondidas pasan a la siguiente ronda",
+      "send": "Enviar respuestas",
+      "answer": "Respuesta: {text}",
+      "revAnswers": "Respuestas: {ids}",
+      "acceptOpen": "{count, plural, one {Queda # pregunta abierta} other {Quedan # preguntas abiertas}}"
     }
   }
 }

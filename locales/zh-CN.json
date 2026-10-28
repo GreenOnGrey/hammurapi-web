@@ -800,7 +800,9 @@
     "invalid_measure": "衡量方式有误。",
     "queue_full": "队列中已有 {max} 条消息——请等待回答或取消部分消息",
     "message_started": "代理已在回答这条消息",
-    "not_running": "回答已经结束"
+    "not_running": "回答已经结束",
+    "unknown_question": "该问题已不再开放：请刷新页面",
+    "invalid_answer": "请检查回答"
   },
   "stages": {
     "title": "阶段",
@@ -1430,7 +1432,15 @@
       "running": "进行中",
       "done": "完成",
       "failed": "失败",
-      "details": "详情"
+      "details": "详情",
+      "answers": "回答",
+      "context": "背景",
+      "also": "另外",
+      "source": {
+        "expert": "专家",
+        "user": "专家（聊天中）",
+        "memory": "来自记忆 · 已确认"
+      }
     },
     "revision": "修订 {n}",
     "openRevision": "打开修订 {n}",
@@ -1506,6 +1516,22 @@
       "line": "{count} 项：{keys}",
       "dups": "可能重复：{keys}",
       "duplicate": "可能重复"
+    },
+    "q": {
+      "title": "开放问题",
+      "round": "第 {n} 轮",
+      "none": "没有问题",
+      "recommended": "建议：",
+      "accept": "接受建议",
+      "own": "自己的回答",
+      "ownPlaceholder": "您的回答",
+      "options": "选项：",
+      "answered": "已回答 {n}/{total}",
+      "later": "未回答的问题将进入下一轮",
+      "send": "发送回答",
+      "answer": "回答：{text}",
+      "revAnswers": "回答：{ids}",
+      "acceptOpen": "{count, plural, other {还有 # 个开放问题}}"
     }
   }
 }

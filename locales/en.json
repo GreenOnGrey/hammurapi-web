@@ -800,7 +800,9 @@
     "invalid_measure": "The way to measure has an error.",
     "queue_full": "{max, plural, one {The queue already has # message} other {The queue already has # messages}} — wait for the answers or cancel some",
     "message_started": "The agent is already answering this message",
-    "not_running": "The answer has already ended"
+    "not_running": "The answer has already ended",
+    "unknown_question": "The question is no longer open: reload the page",
+    "invalid_answer": "Check the answers"
   },
   "stages": {
     "title": "Stages",
@@ -1430,7 +1432,15 @@
       "running": "Running",
       "done": "Done",
       "failed": "Failed",
-      "details": "Details"
+      "details": "Details",
+      "answers": "Answers",
+      "context": "Context",
+      "also": "Also",
+      "source": {
+        "expert": "expert",
+        "user": "expert in the chat",
+        "memory": "from memory · confirmed"
+      }
     },
     "revision": "revision {n}",
     "openRevision": "Open revision {n}",
@@ -1506,6 +1516,22 @@
       "line": "{count, plural, one {# item} other {# items}}: {keys}",
       "dups": "{count, plural, one {possible duplicate} other {possible duplicates}}: {keys}",
       "duplicate": "possible duplicate"
+    },
+    "q": {
+      "title": "Open questions",
+      "round": "round {n}",
+      "none": "No questions",
+      "recommended": "Recommendation:",
+      "accept": "Accept the recommendation",
+      "own": "Own answer",
+      "ownPlaceholder": "Your answer",
+      "options": "Options:",
+      "answered": "Answered {n} of {total}",
+      "later": "Unanswered ones go to the next round",
+      "send": "Send answers",
+      "answer": "Answer: {text}",
+      "revAnswers": "Answers: {ids}",
+      "acceptOpen": "{count, plural, one {# open question remains} other {# open questions remain}}"
     }
   }
 }

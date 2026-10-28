@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Icon, Markdown } from "@green-on-grey/ui-kit";
 import { useDiscoveryRequest } from "../api/queries";
-import type { DiscoveryNoticePayload, NabuMessage } from "../api/types";
+import type { DiscoveryNoticePayload, DiscoveryRequest, NabuMessage } from "../api/types";
 
 // FTR.HMR.DISC-0001 design §3.3: the instruction of the personal agent to the
 // researcher is a card under the answer, its state changes in place; the
@@ -57,27 +57,47 @@ export function RevisionTaskCard({ requestId }: { requestId: string }) {
   const req = useDiscoveryRequest(requestId);
   const [full, setFull] = useState(false);
   const r = req.data;
-  const long = (r?.instructions.split("\n").length ?? 0) > CLAMP_LINES || (r?.instructions.length ?? 0) > 420;
+  // the context and the instruction of a brief fold alike (design §3.3)
+  const text = [r?.context ?? "", r?.instructions ?? ""].join("\n");
+  const long = text.split("\n").length > CLAMP_LINES || text.length > 420;
+  const clamp = long && !full ? " clamp" : "";
   return (
     <div className="taskcard" role="group" aria-label={t("disc.task.title")}>
       <div className="th"><Icon name="spark" size={14} />{t("disc.task.title")}</div>
-      {r && <div className={`tx${long && !full ? " clamp" : ""}`}>{r.instructions}</div>}
+      {/* FTR.HMR.DISC-0001 R28, design §3.3: the answers of the brief with where they come from */}
+      {(r?.answers?.length ?? 0) > 0 && (
+        <ul className="briefans">
+          <li className="lbl">{t("disc.task.answers")}</li>
+          {r!.answers!.map((a) => (
+            <li key={a.questionId}><span className="fid">{a.questionId}</span><span>{a.answer}</span>
+              <span className={`st ${a.source === "memory" ? "handed" : "approved"}`}>{t(`disc.task.source.${a.source}`)}</span></li>
+          ))}
+        </ul>
+      )}
+      {r?.context && <><div className="briefl">{t("disc.task.context")}</div><div className={`tx${clamp}`}>{r.context}</div></>}
+      {r?.instructions && (r.answers?.length || r.context) ? <div className="briefl">{t("disc.task.also")}</div> : null}
+      {r?.instructions && <div className={`tx${clamp}`}>{r.instructions}</div>}
       {long && <button type="button" className="linkbtn" onClick={() => setFull((v) => !v)}>{t(full ? "disc.task.less" : "disc.task.more")}</button>}
       <div className="tf">
         {req.isLoading && <span className="st draft">…</span>}
-        {r?.state === "queued" && <><span className="st draft">{t("disc.task.queued")}</span><span>{t("disc.task.afterCurrent")}</span></>}
-        {r?.state === "running" && <span className="st disc"><span className="ring tiny" aria-hidden="true" />{t("disc.task.running")}</span>}
-        {r?.state === "done" && (
-          <><span className="st approved">{t("disc.task.done")}</span>
-            <Link to={`/issues/${r.issueKey}`}>{t("disc.revision", { n: r.revision })}</Link></>
-        )}
-        {r?.state === "failed" && (
-          <><span className="st blocked">{t("disc.task.failed")}</span>
-            <Link to={`/issues/${r.issueKey}`}>{t("disc.task.details")}</Link></>
-        )}
+        {r && <RequestStateBadge state={r.state} />}
+        {r?.state === "queued" && <span>{t("disc.task.afterCurrent")}</span>}
+        {r?.state === "done" && <Link to={`/issues/${r.issueKey}`}>{t("disc.revision", { n: r.revision })}</Link>}
+        {r?.state === "failed" && <Link to={`/issues/${r.issueKey}`}>{t("disc.task.details")}</Link>}
       </div>
     </div>
   );
+}
+
+/** The state of an instruction: queued, running, done or failed (design §3.3). */
+export function RequestStateBadge({ state }: { state: DiscoveryRequest["state"] }) {
+  const { t } = useTranslation();
+  switch (state) {
+    case "queued": return <span className="st draft">{t("disc.task.queued")}</span>;
+    case "running": return <span className="st disc"><span className="ring tiny" aria-hidden="true" />{t("disc.task.running")}</span>;
+    case "done": return <span className="st approved">{t("disc.task.done")}</span>;
+    case "failed": return <span className="st blocked">{t("disc.task.failed")}</span>;
+  }
 }
 
 export function DiscoveryResultCard({ text, payload }: { text: string; payload: DiscoveryNoticePayload }) {
