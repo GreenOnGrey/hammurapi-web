@@ -343,7 +343,10 @@ button.avatar-btn[aria-expanded="true"] > span {
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
+/* the basis lets the text take a row of its own on a narrow screen instead
+   of squeezing to a word a line beside the buttons */
 .actionbar .ab-grow {
+  flex: 1 1 220px;
   font-size: 13px;
   color: var(--text-2);
 }
