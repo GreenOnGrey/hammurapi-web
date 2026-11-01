@@ -34,6 +34,9 @@ export const SCREENS: Screen[] = [
   { name: "spec-chat-collapsed", path: "/spec/FTR.NAB.CMN-0005/product", only: "desktop", act: click("Свернуть чат") },
   { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
   { name: "admin", path: "/admin" },
+  // FTR.HMR.CMN-0007 design §3.6: the connection and the binding; Nabu does not answer
+  { name: "admin-nabu", path: "/admin/nabu" },
+  { name: "admin-nabu-down", path: "/admin/nabu", cookies: { "mock-nabu": "down" } },
   { name: "agent-menu", path: "/", only: "desktop", act: click("Настройки агента") },
   { name: "profile-menu", path: "/", act: click("Профиль") },
   // before FTR.NAB.CMN-0005 the button had no name on a phone, so it is found by its place

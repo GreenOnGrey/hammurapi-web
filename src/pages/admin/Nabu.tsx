@@ -55,24 +55,24 @@ export function NabuAdmin() {
       )}
 
       <div className="card" style={{ marginTop: 16 }}>
-        <h2 className="sec">{t("admin.nabu.connection")}</h2>
-        <div>
-          <div className="line"><span>{t("admin.nabu.url")}</span><span className="mono">{v.url}</span></div>
-          <div className="line"><span>{t("admin.nabu.client")}</span><span className="mono">{v.client}</span></div>
-          <div className="line">
-            <span>{t("admin.nabu.status")}</span>
+        <h3 className="sec">{t("admin.nabu.connection")}</h3>
+        <dl className="nabu-conn">
+          <dt>{t("admin.nabu.url")}</dt><dd className="mono">{v.url}</dd>
+          <dt>{t("admin.nabu.client")}</dt><dd className="mono">{v.client}</dd>
+          <dt>{t("admin.nabu.status")}</dt>
+          <dd>
             {v.connected
-              ? <span className="nowrap"><span className="sdot g" />{t("admin.nabu.connected")}</span>
-              : <span className="nowrap" title={v.error}><span className="sdot r" />{t("admin.nabu.unreachable")}</span>}
-          </div>
-        </div>
+              ? <><span className="sdot g" />{t("admin.nabu.connected")}</>
+              : <span title={v.error}><span className="sdot r" />{t("admin.nabu.unreachable")}</span>}
+          </dd>
+        </dl>
       </div>
 
       <div className="card" style={{ marginTop: 16 }}>
-        <h2 className="sec">{t("admin.nabu.scenarios")}</h2>
-        <p className="small muted">{t("admin.nabu.scenariosHint")}</p>
-        <p className="small muted">{t("admin.nabu.codeHint")}</p>
-        <table className="t">
+        <h3 className="sec">{t("admin.nabu.scenarios")}</h3>
+        <p className="small muted nabu-hint">{t("admin.nabu.scenariosHint")}</p>
+        <p className="small muted nabu-hint">{t("admin.nabu.codeHint")}</p>
+        <table className="t nabu-scenarios">
           <thead><tr><th>{t("admin.nabu.scenario")}</th><th>{t("admin.nabu.agent")}</th></tr></thead>
           <tbody>
             {(v.scenarioRows ?? []).map((row) => (

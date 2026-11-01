@@ -1953,6 +1953,50 @@ button.avatar-btn[aria-expanded="true"] > span {
 }
 
 /* FTR.HMR.CMN-0007 design §3.6: a scenario that will not run */
+.nabu-conn {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 24px;
+  margin: 0;
+  font-size: 14px;
+}
+.nabu-conn dt {
+  color: var(--muted);
+}
+.nabu-conn dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.nabu-hint {
+  margin: 0 0 6px;
+}
+.nabu-scenarios {
+  margin-top: 12px;
+}
+table.nabu-scenarios td {
+  vertical-align: middle;
+}
+@media (max-width: 600px) {
+  table.nabu-scenarios thead {
+    display: none;
+  }
+  table.nabu-scenarios,
+  table.nabu-scenarios tbody,
+  table.nabu-scenarios tr,
+  table.nabu-scenarios td {
+    display: block;
+    width: 100%;
+  }
+  table.nabu-scenarios td:first-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+    white-space: normal;
+    font-weight: 600;
+  }
+  table.nabu-scenarios select {
+    width: 100%;
+  }
+}
 .scenario-warn {
   display: flex;
   align-items: center;

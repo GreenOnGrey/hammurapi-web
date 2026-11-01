@@ -64,6 +64,14 @@ const discovery = { content: "## 1. Проблема\n\nКнопки в двух
       { stage: "release", expertise: "product", personHours: 4 }, { stage: "release", expertise: "tech", personHours: 8 }],
     days: 45, waitDays: 12, confidence: "low", basis: { features: [], judgement: true } },
   estimateTotals: { agentUsd: 400, agentTokens: 4000000, personHours: 98, days: 45, confidence: "low" }, running: null };
+// FTR.HMR.CMN-0007 design §3.6: mock-nabu=down — Nabu does not answer
+const nabuAdmin = (state) => ({ url: "https://nabu-api.example.com", client: "hammurapi", connected: state !== "down",
+  ...(state === "down" ? { error: "nabu is unavailable", lastOkAt: T("09:30") } : {}),
+  agents: state === "down" ? [] : [{ name: "hammurapi-codegen", description: "", workspace: "nabu", workspaceProfile: "code", proxies: ["packages"] },
+    { name: "hammurapi-issue-analysis", description: "", workspace: "none" }],
+  scenarios: { issue_analysis: "hammurapi-issue-analysis", codegen: "hammurapi-codegen", review_update: "hammurapi-issue-analysis" },
+  scenarioRows: [["issue_analysis", false], ["gate_generation", false], ["conformance_check", false], ["codegen", true], ["review_update", true], ["rollback_revert", true]]
+    .map(([name, code]) => ({ name, code })) });
 const nabuAgent = { name: "Набу", tone: "business", model: { name: "sonnet-5", connection: "Anthropic" } };
 const nabuConversations = [{ id: "main", kind: "main", title: null, lastMessageAt: T("14:03"), archivedAt: null, createdAt: T("09:00", "01") },
   { id: "t1", kind: "topic", title: "Релиз 1.4", lastMessageAt: T("10:00"), archivedAt: null, createdAt: T("09:00", "05") }];
@@ -115,6 +123,7 @@ function api(url, c) {
   if (/^\/api\/v1\/issues\/[^/]+$/.test(p)) return issueCard;
   if (/^\/api\/v1\/issues\/[^/]+\/discovery$/.test(p)) return discovery;
   if (p === "/api/v1/agent") return nabuAgent;
+  if (p === "/admin/api/v1/nabu") return nabuAdmin(c("mock-nabu"));
   if (p === "/api/v1/spec/tree") return specTree;
   let m = /^\/api\/v1\/spec\/documents\/([^/]+)\/([^/]+)$/.exec(p);
   if (m) return specDoc(decodeURIComponent(m[1]), m[2]);
