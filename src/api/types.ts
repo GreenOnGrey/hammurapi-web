@@ -30,8 +30,8 @@ export interface PublicConfig {
   provider: "github" | "gitlab";
   /** Sign-in provider (FTR.HMR.CMN-0006 R1): the git provider, GitHub with an organization, or OIDC. */
   login?: { kind: "git" | "github" | "oidc"; label: string; org?: string; linksGit?: boolean };
-  /** The agent (R4, R9): Nabu, the built-in operator until the transfer, or none. */
-  agent?: { enabled: boolean; provider?: "nabu" | "builtin" };
+  /** The site of Nabu (FTR.HMR.CMN-0007 R11): a code task links to its agent there; the agent is always Nabu (R1). */
+  nabuWebUrl?: string;
   uploadMaxBytes: number;
   uploadAllowedTypes: string[];
   importMaxBytes: number;
@@ -255,21 +255,6 @@ export interface Attachment extends AttachmentRef {
 }
 
 export type ContextType = "issue" | "feature" | "release";
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "agent";
-  mode: ChatMode;
-  context: { type: ContextType; key: string; area: Area | null } | null;
-  content: string;
-  isVoice: boolean;
-  attachments: AttachmentRef[];
-  /** FTR.HMR.CMN-0004: the model of an answer, the error class of a failed message, the repeated message. */
-  model?: string | null;
-  errorClass?: string | null;
-  retryOf?: string | null;
-  createdAt: string;
-}
 
 export interface AdminUser {
   id: string;
@@ -542,6 +527,9 @@ export interface TaskDTO {
   createdAt: string;
   startedAt: string | null;
   finishedAt: string | null;
+  /** FTR.HMR.CMN-0007 R11: the class of the error and the run of Nabu. */
+  errorClass?: string | null;
+  nabuRunId?: string | null;
 }
 
 export interface PRDTO {
@@ -907,13 +895,6 @@ export interface UsageReport {
   rows: { key: Record<string, string>; costUsd: number; tokensIn: number; tokensOut: number; cacheRead: number; runs: number }[];
 }
 
-export interface ChatSessionInfo {
-  model: string;
-  connectionName: string;
-  thinking: string;
-  configured: boolean;
-}
-
 // ─── Specification navigator and repository check (FTR.HMR.CMN-0005) ───
 
 export type SpecArea = "product" | "design" | "arch" | "tech" | "qa";
@@ -1114,14 +1095,21 @@ export interface NabuMessage {
   createdAt: string;
 }
 
+/** A row of the binding (FTR.HMR.CMN-0007 R14): code — the agent needs the sandbox of Nabu. */
+export interface NabuScenarioRow { name: string; code: boolean }
+
 export interface NabuSettingsView {
   connected: boolean;
   url: string;
   client: string;
-  agents: { name: string; description: string; workspace: string }[];
+  /** FTR.HMR.CMN-0007 tech §3.3: the sandbox of an agent, for the warnings of code scenarios. */
+  agents: { name: string; description: string; workspace: string; workspaceProfile?: string; proxies?: string[] }[];
   scenarios: Record<string, string>;
-  migrated: boolean;
+  /** The scenarios of the binding in order; the web keeps no list. */
+  scenarioRows: NabuScenarioRow[];
   error?: string;
+  /** FTR.HMR.CMN-0007 tech §6: the last answer of Nabu this instance got. */
+  lastOkAt?: string;
 }
 
 export interface UnlinkedUser {

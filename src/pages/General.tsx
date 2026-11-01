@@ -58,18 +58,6 @@ export function FocusPage() {
     <main className="main">
       <GeneralTabs />
       {focus.isLoading && <Loading />}
-      {focus.data?.agent && focus.data.agent.length > 0 && (
-        <section className="focusgroup" aria-label={t("focus.agent")}>
-          <div className="gh">
-            <Icon name="cpu" size={16} />
-            {t("focus.agent")}
-            <span className="count">{focus.data.agent.length}</span>
-          </div>
-          {focus.data.agent.map((it) => (
-            <AgentFocusRow key={`${it.kind}-${it.key}-${it.action}`} it={it} />
-          ))}
-        </section>
-      )}
       {focus.data?.spec && focus.data.spec.length > 0 && (
         <section className="focusgroup" aria-label={t("focus.spec")}>
           <div className="gh">
@@ -183,42 +171,6 @@ function SpecFocusRow({ it }: { it: FocusItem }) {
         {t(`focus.action.${it.action}`)}
       </span>
       <span className="ellipsis mono small">{it.title}</span>
-      <span className="small t2 ellipsis" title={hint}>
-        {hint}
-      </span>
-      <span className="small muted">
-        <Icon name="clock" size={14} />{" "}
-        {duration(it.waitingSince, i18n.language)}
-      </span>
-    </div>
-  );
-}
-
-function AgentFocusRow({ it }: { it: FocusItem }) {
-  const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
-  const href =
-    it.kind === "mcp_server"
-      ? adminPath("agent/mcp")
-      : adminPath("agent/connections");
-  const hint = it.hint
-    ? t(`llm.status.${it.hint}`, { defaultValue: it.hint })
-    : "";
-  return (
-    <div
-      className="irow"
-      role="link"
-      tabIndex={0}
-      onClick={() => navigate(href)}
-      onKeyDown={(e) => e.key === "Enter" && navigate(href)}
-    >
-      <span className="mono small">
-        {it.kind === "agent" ? t("focus.agent") : it.title}
-      </span>
-      <span className="st blocked">{t(`focus.action.${it.action}`)}</span>
-      <span className="ellipsis">
-        {it.kind === "agent" ? t("focus.agentHint") : it.title}
-      </span>
       <span className="small t2 ellipsis" title={hint}>
         {hint}
       </span>

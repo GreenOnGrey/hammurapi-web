@@ -48,7 +48,6 @@ export const keys = {
   agentSkills: ["admin", "agent", "skills"] as const,
   agentMCP: ["admin", "agent", "mcp"] as const,
   agentUsage: (period: string) => ["admin", "agent", "usage", period] as const,
-  chatSession: ["chat", "session"] as const,
   specTree: ["spec", "tree"] as const,
   specDoc: (key: string, area: string) => ["spec", "doc", key, area] as const,
   specFiles: (key: string, area: string) => ["spec", "files", key, area] as const,

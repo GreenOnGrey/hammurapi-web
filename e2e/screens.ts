@@ -16,15 +16,12 @@ const click = (name: string | RegExp) => async (page: Page) => {
   await page.getByRole("button", { name, exact: typeof name === "string" }).first().click();
 };
 const visitor = { "mock-auth": "0" };
-const nabu = { "mock-agent": "nabu" };
 
 export const SCREENS: Screen[] = [
   { name: "login-github", path: "/login", cookies: visitor },
   { name: "login-gitlab", path: "/login", cookies: { ...visitor, "mock-login": "gitlab" } },
   { name: "login-oidc-error", path: "/login?error=failed", cookies: { ...visitor, "mock-login": "oidc" } },
   { name: "focus", path: "/" },
-  { name: "focus-nabu", path: "/", cookies: nabu },
-  { name: "focus-noagent", path: "/", cookies: { "mock-agent": "none" } },
   { name: "overview", path: "/overview" },
   { name: "research", path: "/research" },
   { name: "issue", path: "/issues/ISS.NAB-0007" },
@@ -38,14 +35,12 @@ export const SCREENS: Screen[] = [
   { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
   { name: "admin", path: "/admin" },
   { name: "agent-menu", path: "/", only: "desktop", act: click("Настройки агента") },
-  { name: "agent-menu-nabu", path: "/", only: "desktop", cookies: nabu, act: click("Настройки агента") },
   { name: "profile-menu", path: "/", act: click("Профиль") },
   // before FTR.NAB.CMN-0005 the button had no name on a phone, so it is found by its place
   { name: "new-issue", path: "/", act: async (page) => { await page.locator(".topbar .btn.primary").click(); } },
   // on a phone the stages live behind the burger (design §7, change 1) and the chat opens over the screen
   { name: "stages", path: "/", only: "phone", act: async (page) => { const b = page.getByRole("button", { name: "Разделы", exact: true }); if (await b.count()) await b.click(); } },
   // FTR.NAB.CMN-0005 design §4: in the administration the burger holds its sections
-  { name: "admin-sections", path: "/admin", only: "phone", act: click("Разделы") },
-  { name: "chat-open", path: "/", only: "phone", act: click(/Хаммурапи/) },
-  { name: "chat-open-nabu", path: "/", only: "phone", cookies: nabu, act: click(/Набу/) },
+  { name: "admin-sections", path: "/admin", only: "phone", act: click("Администрирование") },
+  { name: "chat-open", path: "/", only: "phone", act: click(/Набу/) },
 ];

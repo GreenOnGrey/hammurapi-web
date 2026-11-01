@@ -10,24 +10,17 @@ import { ServicesAdmin } from "./Services";
 import { CycleAdmin } from "./Cycle";
 import { DeployAdmin } from "./Deploy";
 import { MetricSourcesAdmin } from "./MetricSources";
-import {
-  AgentConnectionsAdmin,
-  AgentMCPAdmin,
-  AgentModelsAdmin,
-  AgentSkillsAdmin,
-  AgentUsageAdmin,
-} from "./Agent";
+import { AgentUsageAdmin } from "./Usage";
 import { adminPath } from "./paths";
 import { NabuAdmin } from "./Nabu";
 import { AdminNav } from "./nav";
 
 /** Section access (product spec §17): users and settings — global admin;
- * domains — any admin; rules — area admins (global admin reads); the agent
- * (FTR.HMR.CMN-0004) — global admin. */
+ * domains — any admin; rules — area admins (global admin reads); Nabu and the
+ * usage of agents (FTR.HMR.CMN-0007 R3) — global admin. */
 export function AdminPage() {
   const { t } = useTranslation();
-  const { me, config, isAnyAdmin } = useSession();
-  const nabu = config.agent?.provider === "nabu";
+  const { me, isAnyAdmin } = useSession();
   if (!isAnyAdmin) {
     return (
       <main className="main">
@@ -56,20 +49,7 @@ export function AdminPage() {
           {global && <Route path="deploy" element={<DeployAdmin />} />}
           {global && <Route path="metrics" element={<MetricSourcesAdmin />} />}
           {global && <Route path="settings" element={<SettingsAdmin />} />}
-          {global && nabu && <Route path="nabu" element={<NabuAdmin />} />}
-          {global && (
-            <Route
-              path="agent/connections"
-              element={<AgentConnectionsAdmin />}
-            />
-          )}
-          {global && (
-            <Route path="agent/models" element={<AgentModelsAdmin />} />
-          )}
-          {global && (
-            <Route path="agent/skills" element={<AgentSkillsAdmin />} />
-          )}
-          {global && <Route path="agent/mcp" element={<AgentMCPAdmin />} />}
+          {global && <Route path="nabu" element={<NabuAdmin />} />}
           {global && <Route path="agent/usage" element={<AgentUsageAdmin />} />}
           {/* Unknown or unavailable section — the first available one (not ".": in a
               splat route it resolves to the current URL itself). */}

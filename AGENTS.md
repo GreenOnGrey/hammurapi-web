@@ -37,8 +37,8 @@ CI runs lint, tests, `deploy/sync-ref.sh --check` and actionlint.
 src/api/          client (fetch, CSRF, ApiError), types.ts (mirrors core JSON), queries.ts (query keys)
 src/app/          App (routes, SSE invalidation), Shell (top bar, stages), session
 src/pages/        pages; admin/ — Administration (paths.ts holds absolute section paths)
-src/chat/         chat panel: ChatPanel (built-in agent), NabuChat (personal agent in Nabu, nabu.* events),
-                  NoAgentPanel (Hammurapi without the agent; config.agent decides)
+src/chat/         chat panel: NabuChat — the personal agent of the user in Nabu (nabu.* events); Hammurapi has
+                  no agent of its own (FTR.HMR.CMN-0007)
 src/editor/       Milkdown editor (MarkdownEditor; readOnly for the navigator)
 src/lib/          sse, i18n, format, errors, llm
 locales/*.json    en (default and fallback), ru, de, es, zh-CN
@@ -87,10 +87,10 @@ The shared look — tokens, buttons, fields, tables, the top bar, sign-in, icons
 - **The kit knows nothing of tones**: `src/chat/tones.ts` gives the icon and the colour of the avatar of the agent.
 - **The version of the kit is exact** (no `^`); Dependabot proposes updates; `deploy/kit-lag.sh` stops a release that
   is more than one minor behind.
-- **Both chats are the `Chat` of the kit** — the same component as on the site of Nabu. A panel keeps its header,
-  the modes and the files; the data comes from an adapter: `src/chat/ownAdapter.ts` (the built-in agent, `agent.*`
-  events) and `src/chat/nabuAdapter.ts` (the agent of Nabu, `nabu.*` events). An adapter turns answers and events into
-  the types of the kit and gives the handlers; the component never calls the API. No handler — no control.
+- **The chat is the `Chat` of the kit** — the same component as on the site of Nabu. The panel keeps its header,
+  the modes and the files; the data comes from the adapter `src/chat/nabuAdapter.ts` (the agent of Nabu, `nabu.*`
+  events). It turns answers and events into the types of the kit and gives the handlers; the component never calls
+  the API. No handler — no control.
 
 ## Releases
 

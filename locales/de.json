@@ -539,94 +539,6 @@
     },
     "agent": {
       "title": "Agent",
-      "status": "Status",
-      "check": "Prüfen",
-      "checkOf": "Prüfung: {name}",
-      "enabled": "Aktiviert",
-      "scenarios": "Szenarien",
-      "allScenarios": "Alle Szenarien",
-      "connections": {
-        "title": "LLM-Verbindungen",
-        "hint": "Anbieter der Modelle des Agenten. Von einem Schlüssel sind nur die letzten Zeichen sichtbar.",
-        "name": "Name",
-        "models": "Modelle",
-        "key": "API-Schlüssel",
-        "baseUrl": "API-Adresse",
-        "add": "Neue Verbindung",
-        "empty": "Noch keine Verbindungen. Fügen Sie eine hinzu, damit der Agent arbeiten kann.",
-        "moreTypes": "Weitere Anbietertypen folgen später.",
-        "replaceKey": "Schlüssel ersetzen",
-        "replaceKeyOf": "Neuer Schlüssel für {name}",
-        "newKey": "Neuer API-Schlüssel",
-        "keyHint": "Der Schlüssel wird verschlüsselt gespeichert; der Status wird bei der nächsten Anfrage erneut geprüft.",
-        "confirmDelete": "Verbindung {name} löschen?",
-        "answered": "Antwort in {ms} ms",
-        "stopped": "Angehaltene Szenarien:",
-        "fix": {
-          "insufficient_balance": "Laden Sie das Guthaben in der Konsole des Anbieters auf; der Agent arbeitet ab der nächsten Anfrage weiter.",
-          "auth": "Der Anbieter hat den Schlüssel abgelehnt. Ersetzen Sie den Schlüssel der Verbindung."
-        }
-      },
-      "models": {
-        "title": "Modelle nach Szenario",
-        "hint": "Szenarien ohne eigenes Modell verwenden das Standardmodell.",
-        "default": "Standard",
-        "scenario": "Szenario",
-        "model": "Modell",
-        "thinking": "Reasoning",
-        "thinkingOff": "aus",
-        "inherit": "Standard: {model}",
-        "notSet": "nicht festgelegt",
-        "choose": "Modell wählen",
-        "noConnections": "Keine aktive Verbindung: Fügen Sie eine unter „LLM-Verbindungen“ hinzu.",
-        "saved": "Modelle gespeichert",
-        "allStages": "Alle Phasen"
-      },
-      "skills": {
-        "title": "Skills",
-        "hint": "Anleitungen, die der Agent bei Bedarf lädt. Skripte von Skills laufen nur in Aufgaben der Codegenerierung. Jede Änderung geht als Pull Request in das Regel-Repository.",
-        "skill": "Skill",
-        "add": "Neuer Skill",
-        "empty": "Noch keine Skills.",
-        "status": {
-          "active": "Aktiv",
-          "pending_add": "Wartet auf Freigabe",
-          "pending_change": "Änderung wartet auf Freigabe",
-          "pending_delete": "Wird gelöscht"
-        },
-        "approve": "Freigeben",
-        "withdraw": "Zurückziehen",
-        "approved": "Änderung freigegeben",
-        "withdrawn": "Änderung zurückgezogen",
-        "proposed": "Pull Request geöffnet",
-        "propose": "Pull Request öffnen",
-        "confirmDelete": "Löschen des Skills {name} vorschlagen?",
-        "zip": "Zip hochladen",
-        "text": "Aus Text erstellen",
-        "dropZip": "Zip-Archiv mit SKILL.md wählen (bis 5 MB)",
-        "scenariosHint": "Ohne gewählte Szenarien ist der Skill in allen Szenarien verfügbar.",
-        "prHint": "Der Skill wird aktiv, nachdem der Pull Request freigegeben und zusammengeführt wurde."
-      },
-      "mcp": {
-        "title": "MCP-Server",
-        "hint": "Externe Werkzeuge des Agenten. Der integrierte Server hammurapi ist immer verbunden.",
-        "server": "Server",
-        "exposure": "Sichtbarkeit",
-        "direct": "Immer sichtbar",
-        "deferred": "Per Suche",
-        "exposureHint": "Werkzeuge „per Suche“ findet der Agent bei Bedarf; sie belegen keinen Kontext.",
-        "add": "Neuer MCP-Server",
-        "headers": "Header",
-        "headerName": "Header",
-        "headerValue": "Wert",
-        "addHeader": "Header hinzufügen",
-        "scenariosHint": "Ohne gewählte Szenarien ist der Server in allen Szenarien verfügbar.",
-        "tools": "Werkzeuge: {count}",
-        "readOnly": "lesend",
-        "mutates": "ändert Daten",
-        "noTools": "Der Server meldet keine Werkzeuge.",
-        "confirmDelete": "MCP-Server {name} löschen?"
-      },
       "usage": {
         "title": "Nutzung",
         "period": "Zeitraum",
@@ -640,20 +552,14 @@
         "connection": "Verbindung",
         "in": "Eingabe",
         "out": "Ausgabe",
-        "empty": "Keine Nutzung in diesem Zeitraum."
-      },
-      "audit": {
-        "title": "Änderungen",
-        "empty": "Noch keine Änderungen.",
-        "system": "System",
-        "selfApproved": "selbst freigegeben"
+        "empty": "Keine Nutzung in diesem Zeitraum.",
+        "model": "Modell"
       }
     },
     "nabu": {
       "title": "Nabu",
       "intro": "Der Agent von Hammurapi lebt in Nabu: Der Chat ist der persönliche Agent des Benutzers, die Szenarien des Zyklus führen Service-Agenten von Nabu aus.",
       "connection": "Verbindung",
-      "notConfigured": "Nabu ist nicht konfiguriert: Setzen Sie NABU_URL, NABU_CLIENT_ID und NABU_CLIENT_SECRET bei der Bereitstellung.",
       "url": "Adresse",
       "client": "Client",
       "status": "Status",
@@ -663,16 +569,15 @@
       "scenariosHint": "Welcher Service-Agent von Nabu jedes Szenario ausführt. Die Liste zeigt die Agenten, die Nabu für Hammurapi freigibt.",
       "scenario": "Szenario",
       "agent": "Service-Agent",
-      "builtin": "— integrierter Agent —",
       "saved": "Zuordnung gespeichert",
-      "transfer": "Übertragung nach Nabu",
-      "transferHint": "Überträgt LLM-Verbindungen mit Schlüsseln, Modelle der Szenarien, MCP-Server und die Skill-Quelle nach Nabu und ordnet die Szenarien den erstellten Agenten zu. Geheimnisse gehen direkt zwischen den Diensten.",
-      "transferDone": "Die Einstellungen sind übertragen. Eine erneute Übertragung aktualisiert dieselben Objekte in Nabu.",
-      "transferButton": "Nach Nabu übertragen",
-      "transferAgain": "Erneut übertragen",
-      "transferConfirm": "Agenteneinstellungen nach Nabu übertragen? Lehnt Nabu ab, ändert sich in Hammurapi nichts.",
-      "report": "In Nabu angelegt",
-      "skipped": "{count, plural, one {# Element übersprungen} other {# Elemente übersprungen}}"
+      "notBound": "— nicht zugeordnet —",
+      "unbound": "Nicht zugeordnet: Aufgaben des Szenarios starten nicht",
+      "noSandbox": "Der Agent hat keine Nabu-Sandbox: Code-Aufgaben starten nicht",
+      "codeHint": "Ein Code-Agent braucht die Arbeitsumgebung „Nabu-Sandbox“, das Profil code und den Proxy „Paketregistrys“.",
+      "down": "Nabu antwortet nicht: Agentenaufgaben warten in der Warteschlange",
+      "lastOk": "Letzte erfolgreiche Antwort: {at}",
+      "neverOk": "Noch keine erfolgreiche Antwort",
+      "recheck": "Prüfen"
     }
   },
   "errors": {
@@ -786,7 +691,6 @@
     "invalid_interval": "Wählen Sie eines der angebotenen Intervalle.",
     "git_account_required": "Verknüpfen Sie Ihr Git-Konto, um diese Änderung zu speichern.",
     "git_account_taken": "Dieses Git-Konto ist bereits mit einem anderen Benutzer verknüpft.",
-    "agent_disabled": "Der Agent ist nicht verbunden: Diese Aktion ist nicht verfügbar.",
     "nabu_unavailable": "Der Agent ist vorübergehend nicht verfügbar",
     "nabu_agent_not_allowed": "Nabu erlaubt Hammurapi nicht, diesen Agenten zu verwenden.",
     "email_required": "Ihr Konto hat keine E-Mail-Adresse: Der Agent wird per E-Mail erreicht.",
@@ -997,8 +901,7 @@
     "move": "Verschieben",
     "history": "Verlauf",
     "analysis": "Analyse",
-    "editDiscovery": "Analyse ausfüllen",
-    "manualDiscovery": "Der Agent ist nicht verbunden: Füllen Sie Nutzen und Messung von Hand aus, um das Issue anzunehmen."
+    "editDiscovery": "Analyse ausfüllen"
   },
   "accept": {
     "title": "{key} annehmen",
@@ -1080,6 +983,16 @@
       "update_pr": "PR-Aktualisierung",
       "revert": "Revert-PR",
       "ci_setup": "CI-Schritt"
+    },
+    "runInNabu": "Läuft in Nabu",
+    "runLink": "Lauf",
+    "error": {
+      "sandbox_start": "Die Sandbox ist nicht gestartet: {text}",
+      "workspace_too_large": "Die Arbeitskopie ist zu groß: {text}",
+      "limit": "Der Agent hat sein Zeit- oder Token-Limit überschritten",
+      "no_changes": "Der Agent hat nichts geändert",
+      "git": "Fehler des Git-Anbieters: {text}",
+      "unbound": "Das Szenario ist keinem Nabu-Agenten zugeordnet"
     }
   },
   "ci": {
@@ -1402,10 +1315,6 @@
       "telegram": "Telegram",
       "client": "Hammurapi"
     }
-  },
-  "noAgent": {
-    "title": "Der Agent ist nicht verbunden",
-    "text": "Chat, Issue-Analyse und Generierung sind verfügbar, sobald Hammurapi mit Nabu verbunden ist. Wenden Sie sich an Ihren Administrator."
   },
   "disc": {
     "topic": {

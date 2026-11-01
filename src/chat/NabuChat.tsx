@@ -167,29 +167,3 @@ function NabuAgentMenu({ agent, onClose }: { agent: NabuAgent; onClose: () => vo
   );
 }
 
-/** Instead of the chat when Hammurapi works without the agent (R9, design §6). */
-export function NoAgentPanel() {
-  const { t } = useTranslation();
-  const chat = useChatContext();
-  return (
-    <aside id={CHAT_PANEL_ID} className={`chat${chat.open ? " open" : ""}`} aria-label={t("chat.title")}>
-      <div className="chat-h">
-        <div className="who">
-          <b>{t("noAgent.title")}</b>
-          <span className="chat-h-grow" />
-          <CollapseButton />
-          <button className="iconbtn chat-close" onClick={() => chat.setOpen(false)} aria-label={t("common.close")}>
-            <Icon name="x" />
-          </button>
-        </div>
-      </div>
-      <div className="msgs">
-        <div className="noagent">
-          <Icon name="cpu" size={22} />
-          <div style={{ marginTop: 6 }}><b>{t("noAgent.title")}</b></div>
-          <div className="small muted" style={{ marginTop: 4 }}>{t("noAgent.text")}</div>
-        </div>
-      </div>
-    </aside>
-  );
-}

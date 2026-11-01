@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Avatar, Icon, TopBar, type LinkComponent } from "@green-on-grey/ui-kit";
-import { ChatPanel } from "../chat/ChatPanel";
-import { NabuChatPanel, NoAgentPanel, useNabuAgent } from "../chat/NabuChat";
+import { NabuChatPanel, useNabuAgent } from "../chat/NabuChat";
 import { ChatRail } from "../chat/ChatRail";
 import { GitLinkDialog } from "./GitLink";
 import { NewIssueModal } from "../pages/NewIssue";
@@ -46,10 +45,9 @@ const adminNav = (close: () => void) => <AdminNav onPick={close} />;
 // (design §7, change 1); the search and "New issue" are the actions of Hammurapi.
 export function Shell() {
   const { t } = useTranslation();
-  const { me, profile, config, isAnyAdmin } = useSession();
+  const { me, isAnyAdmin } = useSession();
   // FTR.HMR.CMN-0006: the chat of the agent in Nabu, the built-in agent until
   // the transfer, or no agent at all (R9).
-  const agentKind = !config.agent ? "builtin" : !config.agent.enabled ? "none" : (config.agent.provider ?? "builtin");
   const chat = useChatContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,8 +92,9 @@ export function Shell() {
       {/* FTR.HMR.SPEC-0001 R8: folded, the panel stays mounted and hidden; the rail takes its column */}
       <div className={`hbody${chat.collapsed ? " chat-collapsed" : ""}`}>
         <Outlet />
-        {agentKind === "nabu" ? <NabuChatPanel /> : agentKind === "none" ? <NoAgentPanel /> : <ChatPanel />}
-        {chat.collapsed && <ChatRail kind={agentKind === "nabu" ? "nabu" : agentKind === "none" ? "none" : "builtin"} />}
+        {/* the agent is the personal agent of the user in Nabu (FTR.HMR.CMN-0007 R1) */}
+        <NabuChatPanel />
+        {chat.collapsed && <ChatRail kind="nabu" />}
       </div>
       {!chat.open && (
         <button
@@ -103,7 +102,7 @@ export function Shell() {
           onClick={() => chat.setOpen(true)}
         >
           <Icon name="msg" />
-          {agentKind === "nabu" ? <NabuName /> : agentKind === "none" ? t("noAgent.title") : profile.agentName}
+          <NabuName />
         </button>
       )}
       <GitLinkDialog />

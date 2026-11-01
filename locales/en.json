@@ -539,94 +539,6 @@
     },
     "agent": {
       "title": "Agent",
-      "status": "Status",
-      "check": "Check",
-      "checkOf": "Check of {name}",
-      "enabled": "Enabled",
-      "scenarios": "Scenarios",
-      "allScenarios": "All scenarios",
-      "connections": {
-        "title": "LLM connections",
-        "hint": "Providers of the agent's models. Only the last characters of a key are shown.",
-        "name": "Name",
-        "models": "Models",
-        "key": "API key",
-        "baseUrl": "API address",
-        "add": "New connection",
-        "empty": "No connections yet. Add one to let the agent work.",
-        "moreTypes": "Other provider types will come later.",
-        "replaceKey": "Replace key",
-        "replaceKeyOf": "New key for {name}",
-        "newKey": "New API key",
-        "keyHint": "The key is stored encrypted; the status is checked again with the next request.",
-        "confirmDelete": "Delete the connection {name}?",
-        "answered": "answered in {ms} ms",
-        "stopped": "Stopped scenarios:",
-        "fix": {
-          "insufficient_balance": "Top up the balance in the provider's console; the agent resumes with the next request.",
-          "auth": "The provider rejected the key. Replace the key of the connection."
-        }
-      },
-      "models": {
-        "title": "Models by scenario",
-        "hint": "Scenarios without their own model use the default model.",
-        "default": "Default",
-        "scenario": "Scenario",
-        "model": "Model",
-        "thinking": "Reasoning",
-        "thinkingOff": "off",
-        "inherit": "Default: {model}",
-        "notSet": "not set",
-        "choose": "Choose a model",
-        "noConnections": "No enabled connection: add one in “LLM connections”.",
-        "saved": "Models saved",
-        "allStages": "All stages"
-      },
-      "skills": {
-        "title": "Skills",
-        "hint": "Instructions the agent loads when needed. Scripts of skills run only in code generation tasks. Every change goes through a pull request to the rules repository.",
-        "skill": "Skill",
-        "add": "New skill",
-        "empty": "No skills yet.",
-        "status": {
-          "active": "Active",
-          "pending_add": "Awaiting approval",
-          "pending_change": "Change awaiting approval",
-          "pending_delete": "Will be deleted"
-        },
-        "approve": "Approve",
-        "withdraw": "Withdraw",
-        "approved": "Change approved",
-        "withdrawn": "Change withdrawn",
-        "proposed": "Pull request opened",
-        "propose": "Open pull request",
-        "confirmDelete": "Propose to delete the skill {name}?",
-        "zip": "Upload zip",
-        "text": "Create from text",
-        "dropZip": "Choose a zip archive with SKILL.md (up to 5 MB)",
-        "scenariosHint": "No scenario selected: the skill is available in all scenarios.",
-        "prHint": "The skill becomes active after the pull request is approved and merged."
-      },
-      "mcp": {
-        "title": "MCP servers",
-        "hint": "External tools for the agent. The built-in hammurapi server is always connected.",
-        "server": "Server",
-        "exposure": "Visibility",
-        "direct": "Always visible",
-        "deferred": "On search",
-        "exposureHint": "Tools “on search” are found by the agent when needed and do not take up the context.",
-        "add": "New MCP server",
-        "headers": "Headers",
-        "headerName": "Header",
-        "headerValue": "Value",
-        "addHeader": "Add header",
-        "scenariosHint": "No scenario selected: the server is available in all scenarios.",
-        "tools": "tools: {count}",
-        "readOnly": "read",
-        "mutates": "changes data",
-        "noTools": "The server reports no tools.",
-        "confirmDelete": "Delete the MCP server {name}?"
-      },
       "usage": {
         "title": "Usage",
         "period": "Period",
@@ -640,20 +552,14 @@
         "connection": "Connection",
         "in": "Input",
         "out": "Output",
-        "empty": "No usage in this period."
-      },
-      "audit": {
-        "title": "Changes",
-        "empty": "No changes yet.",
-        "system": "system",
-        "selfApproved": "self-approved"
+        "empty": "No usage in this period.",
+        "model": "Model"
       }
     },
     "nabu": {
       "title": "Nabu",
       "intro": "Hammurapi's agent lives in Nabu: the chat is the user's personal agent, and the scenarios of the cycle are performed by service agents of Nabu.",
       "connection": "Connection",
-      "notConfigured": "Nabu is not configured: set NABU_URL, NABU_CLIENT_ID and NABU_CLIENT_SECRET at deployment.",
       "url": "Address",
       "client": "Client",
       "status": "Status",
@@ -663,16 +569,15 @@
       "scenariosHint": "Which service agent of Nabu performs each scenario. The list shows the agents Nabu allows Hammurapi to use.",
       "scenario": "Scenario",
       "agent": "Service agent",
-      "builtin": "— built-in agent —",
       "saved": "Binding saved",
-      "transfer": "Transfer to Nabu",
-      "transferHint": "Moves the LLM connections with keys, the models of scenarios, MCP servers and the skills source to Nabu and binds the scenarios to the created agents. Secrets go directly between the services.",
-      "transferDone": "The settings are transferred. A repeated transfer updates the same objects in Nabu.",
-      "transferButton": "Transfer to Nabu",
-      "transferAgain": "Transfer again",
-      "transferConfirm": "Transfer the agent settings to Nabu? Nothing changes in Hammurapi if Nabu refuses.",
-      "report": "Created in Nabu",
-      "skipped": "{count, plural, one {# item skipped} other {# items skipped}}"
+      "notBound": "— not bound —",
+      "unbound": "Not bound: the scenario’s tasks do not start",
+      "noSandbox": "The agent has no Nabu sandbox: code tasks will not start",
+      "codeHint": "A code agent needs the “Nabu sandbox” workspace, the code profile and the “Package registries” proxy.",
+      "down": "Nabu does not answer: agent tasks wait in the queue",
+      "lastOk": "Last successful answer: {at}",
+      "neverOk": "No successful answer yet",
+      "recheck": "Check"
     }
   },
   "errors": {
@@ -786,7 +691,6 @@
     "invalid_interval": "Choose one of the offered periods.",
     "git_account_required": "Link your git account to save this change.",
     "git_account_taken": "This git account is already linked to another user.",
-    "agent_disabled": "The agent is not connected: this action is unavailable.",
     "nabu_unavailable": "The agent is temporarily unavailable",
     "nabu_agent_not_allowed": "Nabu does not allow Hammurapi to use this agent.",
     "email_required": "Your account has no email: the agent is reached by email.",
@@ -997,8 +901,7 @@
     "move": "Move",
     "history": "History",
     "analysis": "Analysis",
-    "editDiscovery": "Fill in the analysis",
-    "manualDiscovery": "The agent is not connected: fill in the value and how it will be measured by hand to accept the issue."
+    "editDiscovery": "Fill in the analysis"
   },
   "accept": {
     "title": "Accept {key}",
@@ -1080,6 +983,16 @@
       "update_pr": "PR update",
       "revert": "revert PR",
       "ci_setup": "CI step"
+    },
+    "runInNabu": "Runs in Nabu",
+    "runLink": "Run",
+    "error": {
+      "sandbox_start": "The sandbox did not start: {text}",
+      "workspace_too_large": "The working copy is too large: {text}",
+      "limit": "The agent exceeded its time or token limit",
+      "no_changes": "The agent made no changes",
+      "git": "Git provider error: {text}",
+      "unbound": "The scenario is not bound to a Nabu agent"
     }
   },
   "ci": {
@@ -1402,10 +1315,6 @@
       "telegram": "Telegram",
       "client": "Hammurapi"
     }
-  },
-  "noAgent": {
-    "title": "The agent is not connected",
-    "text": "Chat, issue analysis and generation become available once Hammurapi is connected to Nabu. Contact your administrator."
   },
   "disc": {
     "topic": {

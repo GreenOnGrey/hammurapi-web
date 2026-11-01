@@ -61,9 +61,7 @@ function IssueView({ is }: { is: IssueCard }) {
   const qc = useQueryClient();
   const toast = useToast();
   const disc = useDiscovery(is.key);
-  const { config } = useSession();
   // FTR.HMR.CMN-0006 R9: without the agent the expert fills Discovery by hand.
-  const noAgent = config.agent?.enabled === false;
   const [dialog, setDialog] = useState<Dialog>(null);
   const act = useMutation({
     mutationFn: (path: string) => api.post(`/api/v1/issues/${is.key}${path}`),
@@ -85,8 +83,7 @@ function IssueView({ is }: { is: IssueCard }) {
   };
   const revising = running && !!d?.revision; // the researcher revises an existing document
   // FTR.HMR.DISC-0001 R27: experts answer the questions while Discovery can change
-  const canAnswer = expert && !noAgent && (running || is.status === "verification");
-  const nabu = config.agent?.provider === "nabu";
+  const canAnswer = expert && (running || is.status === "verification");
   return (
     <main className="main">
       <div className="crumbs">
@@ -104,7 +101,7 @@ function IssueView({ is }: { is: IssueCard }) {
         {(is.tokensIn + is.tokensOut) > 0 && <span className="muted">{t("common.tokens", { n: (is.tokensIn + is.tokensOut).toLocaleString(i18n.language) })}</span>}
         {/* FTR.HMR.DISC-0001 R17: the cost of the work in the header */}
         <EstimateChip d={d} onOpen={() => { setEstOpen(true); document.getElementById("estimate")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} />
-        {!noAgent && running && !d?.estimateTotals && <span className="muted">{t("disc.est.preparing")}</span>}
+        {running && !d?.estimateTotals && <span className="muted">{t("disc.est.preparing")}</span>}
       </div>
 
       {is.rolledBackRelease && (
@@ -126,22 +123,21 @@ function IssueView({ is }: { is: IssueCard }) {
 
       <div className="row" style={{ margin: "18px 0 8px" }}>
         <h2 className="sec" style={{ margin: 0 }}>{t("issue.analysis")}</h2>
-        {!noAgent && <AgentMark />}
+        <AgentMark />
         {d?.revision && <button className="btn ghost sm" onClick={() => setDialog("history")}>{t("issue.revision", { n: d.revision })}</button>}
         <span className="grow" />
-        {is.permissions.verify && (noAgent || !running || blocked) && (
+        {is.permissions.verify && (!running || blocked) && (
           <button className="btn sm" onClick={() => setDialog("edit")}><Icon name="wrench" size={14} />{t("issue.editDiscovery")}</button>
         )}
-        {!noAgent && is.permissions.discover && (blocked || !running) && (
+        {is.permissions.discover && (blocked || !running) && (
           <button className="btn sm" disabled={act.isPending} onClick={() => act.mutate("/discover")}><Icon name="refresh" size={14} />{t("issue.rediscover")}</button>
         )}
       </div>
-      {noAgent && !d?.complete && <div className="banner info"><Icon name="cpu" /><span className="grow">{t("issue.manualDiscovery")}</span></div>}
-      {!noAgent && running && !d?.content && <DiscoveryRunning d={d} />}
+      {running && !d?.content && <DiscoveryRunning d={d} />}
       {blocked && <BlockedBanner title={t("issue.discoveryBlocked")} reason={d?.workflow?.lastError} />}
       {revising && !blocked && <RevisionBanner d={d} />}
       {d?.content && <DiscoveryDoc d={d} issueKey={is.key} canAnswer={canAnswer}
-        estimate={<EstimateBlock is={is} d={d} open={estOpen} setOpen={setEstOpen} canEdit={expert && (noAgent || !running || blocked)} />} />}
+        estimate={<EstimateBlock is={is} d={d} open={estOpen} setOpen={setEstOpen} canEdit={expert && (!running || blocked)} />} />}
 
       {(is.permissions.verify || (expert && revising && !blocked)) && (
         <div className="actionbar sticky">
@@ -152,7 +148,7 @@ function IssueView({ is }: { is: IssueCard }) {
           <button className="btn sm" disabled={revising} onClick={() => setDialog("move")}>{t("issue.move")}</button>
           <button className="btn sm" disabled={revising} onClick={() => setDialog("merge")}>{t("issue.merge")}</button>
           <button className="btn sm danger" disabled={revising} onClick={() => setDialog("reject")}>{t("issue.reject")}</button>
-          {nabu && !noAgent && !revising && <button className="btn sm" onClick={reviseInChat}><Icon name="msg" size={14} />{t("disc.sendBack")}</button>}
+          {!revising && <button className="btn sm" onClick={reviseInChat}><Icon name="msg" size={14} />{t("disc.sendBack")}</button>}
           <button className="btn primary sm" disabled={!d?.complete || revising} title={d?.complete ? undefined : t("issue.acceptDisabled")} onClick={() => setDialog("accept")}>
             <Icon name="check" size={15} />{t("issue.accept")}
           </button>

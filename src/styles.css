@@ -1951,3 +1951,12 @@ button.avatar-btn[aria-expanded="true"] > span {
   letter-spacing: 0.04em;
   margin-top: 6px;
 }
+
+/* FTR.HMR.CMN-0007 design §3.6: a scenario that will not run */
+.scenario-warn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--amber);
+}

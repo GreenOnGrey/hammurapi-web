@@ -3,7 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import { invalidateFeature, useImplementation } from "../../api/queries";
-import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl } from "../../api/types";
+import type { TFunction } from "i18next";
+import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl, TaskDTO } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { useSession } from "../../app/session";
 import { AutonomyModal } from "./Autonomy";
@@ -53,7 +54,7 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   const qc = useQueryClient();
   const toast = useToast();
   const latest = s.tasks[0];
-  const { owns } = useSession();
+  const { owns, me, config } = useSession();
   const [autonomy, setAutonomy] = useState(false);
   const retry = useMutation({
     mutationFn: (id: string) => api.post(`/api/v1/features/${f.uniqueId}/codegen/tasks/${id}/retry`),
@@ -78,7 +79,10 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
           <span className={`st ${latest.status === "failed" ? "blocked" : latest.status === "succeeded" ? "approved" : "disc"}`}>{t(`task.status.${latest.status}`)}</span>
           <span className="t2">{t(`task.type.${latest.type}`)}</span>
           {latest.status === "running" && <><span className="ring" /><span className="t2">{latest.progress ?? t("task.working")}</span></>}
-          {latest.error && <span className="err-text" style={{ margin: 0 }}>{latest.error}</span>}
+          {latest.error && <span className="err-text" style={{ margin: 0 }}>{taskError(t, latest)}</span>}
+          {/* FTR.HMR.CMN-0007 R11, design §3.8: where the task ran */}
+          {latest.nabuRunId && <span className="t2">{t("task.runInNabu")}
+            {me.globalAdmin && config.nabuWebUrl && <> · <a href={`${config.nabuWebUrl}/admin/service-agents`} target="_blank" rel="noreferrer">{t("task.runLink")} ↗</a></>}</span>}
           {(latest.tokensIn + latest.tokensOut) > 0 && <span className="muted">{t("common.tokens", { n: (latest.tokensIn + latest.tokensOut).toLocaleString(i18n.language) })}</span>}
           {(latest.status === "failed" || latest.status === "cancelled") && (
             <button className="btn sm" disabled={retry.isPending} onClick={() => retry.mutate(latest.id)}>{t("task.retry")}</button>
@@ -136,4 +140,10 @@ export function Matrix({ rows }: { rows: RequirementRow[] }) {
       </tbody>
     </table>
   );
+}
+
+/** The text of a failed code task: by its class when known (FTR.HMR.CMN-0007 R11). */
+export function taskError(t: TFunction, task: Pick<TaskDTO, "error" | "errorClass">): string {
+  if (!task.errorClass) return task.error ?? "";
+  return t(`task.error.${task.errorClass}`, { defaultValue: task.error ?? "", text: task.error ?? "" });
 }
