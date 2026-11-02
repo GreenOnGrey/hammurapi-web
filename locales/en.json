@@ -1506,7 +1506,6 @@
       "configure": "Configure"
     },
     "skipped": "Skipped",
-    "skippedShort": "skipped",
     "skippedHint": "An expert decided this gate is not needed. It can be brought back through the chat.",
     "readOnly": "Read-only while the writer works",
     "waitsFor": "{area} has to be approved first",

@@ -1506,7 +1506,6 @@
       "configure": "Configurar"
     },
     "skipped": "Omitida",
-    "skippedShort": "omitida",
     "skippedHint": "Un experto decidió que esta puerta no hace falta. Se puede recuperar desde el chat.",
     "readOnly": "Solo lectura mientras trabaja el redactor",
     "waitsFor": "Primero hay que aprobar: {area}",

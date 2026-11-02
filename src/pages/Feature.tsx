@@ -331,7 +331,6 @@ function GateTabs({ f, current }: { f: FeatureCard; current?: Area }) {
             {!reachable || skipped ? null : <i className={`dot ${state}`} aria-hidden="true" />}
             {a !== "product" && (a === "tech" || a === "qa") && <span className="ag"><AgentMark /></span>}
             {open > 0 && <span className="cnt">{open}</span>}
-            {skipped && <span className="st none skp">{t("writer.skippedShort")}</span>}
           </>
         );
         const cls = `g${a === current ? " on" : ""}${skipped ? " skip" : ""}${reachable ? "" : " fut"}`;

@@ -2130,7 +2130,6 @@ table.nabu-scenarios td {
   background: var(--amber-soft);
   color: var(--amber);
 }
-.gtabs .skp { order: 3; }
 
 /* design §3.2a: on a narrow panel the chosen gate keeps its caption, the others are icons, no scrolling */
 @container (max-width: 640px) {
@@ -2143,7 +2142,7 @@ table.nabu-scenarios td {
     box-sizing: border-box;
   }
   .gtabs .gico { display: flex; flex: none; }
-  .gtabs .g .lb, .gtabs .g .ag, .gtabs .g .skp { display: none; }
+  .gtabs .g .lb, .gtabs .g .ag { display: none; }
   .gtabs .g.fut, .gtabs .g.skip { opacity: .55; }
   .gtabs .g.skip::after {
     content: "";

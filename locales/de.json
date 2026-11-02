@@ -1506,7 +1506,6 @@
       "configure": "Konfigurieren"
     },
     "skipped": "Übersprungen",
-    "skippedShort": "übersprungen",
     "skippedHint": "Ein Experte hat entschieden, dass dieses Gate nicht nötig ist. Es lässt sich über den Chat zurückholen.",
     "readOnly": "Schreibgeschützt, solange der Autor arbeitet",
     "waitsFor": "Zuerst muss genehmigt werden: {area}",

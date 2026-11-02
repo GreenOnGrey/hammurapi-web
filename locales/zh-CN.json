@@ -1506,7 +1506,6 @@
       "configure": "配置"
     },
     "skipped": "已跳过",
-    "skippedShort": "已跳过",
     "skippedHint": "专家决定不需要此关卡。可以通过聊天恢复。",
     "readOnly": "运行期间只读",
     "waitsFor": "需要先批准：{area}",
