@@ -207,7 +207,8 @@
     "generated": "此关卡由智能体编写。在聊天中评论，智能体会重新生成。",
     "askAgentButton": "请智能体处理",
     "askAgent": "请结合我的意见重新生成 {area} 关卡：",
-    "unnumbered": "{count, plural, other {# 条需求没有 ID。}}"
+    "unnumbered": "{count, plural, other {# 条需求没有 ID。}}",
+    "unnumberedHint": "请在每条开头写上编号：R1、R2。"
   },
   "history": {
     "title": "历史：{area}",

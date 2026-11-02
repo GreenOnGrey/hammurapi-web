@@ -196,7 +196,7 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
       {doc.data && doc.data.unnumberedRequirements.length > 0 && !doc.data.generated && (
         <div className="banner warn" role="note">
           <Icon name="alert" />
-          <span>{t("editor.unnumbered", { count: doc.data.unnumberedRequirements.length })} <code>**R1.**</code></span>
+          <span>{t("editor.unnumbered", { count: doc.data.unnumberedRequirements.length })} {t("editor.unnumberedHint")}</span>
         </div>
       )}
       {doc.data && doc.data.warnings.length > 0 && (
