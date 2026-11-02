@@ -159,7 +159,8 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
       </div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
         <h1 className="ftitle" style={{ flex: 1 }}>{f.title}</h1>
-        <PhaseBadge phase={f.phase} />
+        {/* centered on the first line of the title, whatever its length */}
+        <div style={{ display: "flex", alignItems: "center", height: 36 }}><PhaseBadge phase={f.phase} /></div>
         {(f.permissions.delete || f.permissions.setFlag) && (
           <div style={{ position: "relative" }} ref={menuRef}>
             <button className="iconbtn" aria-label={t("feature.actions")} aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
