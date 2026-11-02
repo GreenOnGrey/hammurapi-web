@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, NavLink, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api/client";
 import { invalidateFeature, keys, useFeature } from "../api/queries";
 import { AREAS, type Area, type CodegenPlan, type FeatureCard, type Gate, type HistoryItem, type List } from "../api/types";
-import { useChatContext } from "../app/session";
+import { useChatContext, useSession } from "../app/session";
+import { adminPath } from "./admin/paths";
 import { DocumentPane } from "../editor/DocumentPane";
 import { errorText } from "../lib/errors";
 import { dateTime, relativeTime, shortSha } from "../lib/format";
 import { Avatar, Empty, Icon, Loading, Modal, useOutside, useToast } from "@green-on-grey/ui-kit";
 import { StatusBadge } from "../components/ui";
-import { AgentMark, KeyList, Lane, PhaseBadge, type LaneItem } from "../components/cycle";
+import { AgentMark, KeyList, PhaseBadge } from "../components/cycle";
 import { ImplementationTab } from "./feature/Implementation";
 import { ValidationTab } from "./feature/Validation";
 import { ActivityTab } from "./feature/Activity";
 import { BlockedBanner } from "../components/BlockedBanner";
+import { SpecQuestions } from "./feature/SpecQuestions";
+import { useQuestionLinks } from "./IssueQuestions";
 
 const TABS = ["spec", "implementation", "validation", "history"] as const;
 type Tab = (typeof TABS)[number];
@@ -33,9 +36,11 @@ export function FeaturePage() {
   const { setSubject } = chat;
   const fid = f?.uniqueId;
   const ftitle = f?.title;
+  // FTR.HMR.DEV-0001 R16: on the tab of the specification, in its phase, the chat is pinned to the topic of the feature
+  const pinned = tab === "spec" && f?.phase === "spec";
   useEffect(() => {
-    if (fid && ftitle !== undefined) setSubject({ type: "feature", key: fid, title: ftitle }, tab === "spec" ? area ?? null : null);
-  }, [fid, ftitle, area, tab, setSubject]);
+    if (fid && ftitle !== undefined) setSubject({ type: "feature", key: fid, title: ftitle, pinned }, tab === "spec" ? area ?? null : null);
+  }, [fid, ftitle, area, tab, pinned, setSubject]);
 
   if (feature.isLoading) return <main className="main"><Loading /></main>;
   if (feature.error instanceof ApiError && feature.error.status === 410) return <DeletedFeature error={feature.error} />;
@@ -48,6 +53,8 @@ export function FeaturePage() {
       </main>
     );
   }
+  // FTR.HMR.DEV-0001 R27: a link to a stage the feature has not reached opens the current one
+  if (tab !== "history" && stageIndex(tab) > reachedStage(f)) return <Navigate to={stageLink(f.uniqueId, STAGES[reachedStage(f)].tab)} replace />;
   return <FeatureView f={f} tab={tab} area={area} />;
 }
 
@@ -66,30 +73,54 @@ function DeletedFeature({ error }: { error: ApiError }) {
   );
 }
 
-/** Path of a feature (design spec §1): Specification, Code generation, Validation, Release. */
-export function featureLane(f: FeatureCard, t: (k: string) => string): LaneItem[] {
-  const order = ["spec", "codegen", "validation", "in_release"];
-  const idx = f.phase === "released" ? 4 : f.phase === "rolled_back" ? 3 : order.indexOf(f.phase);
-  return order.map((p, i) => ({
-    key: p,
-    label: t(`path.${p}`),
-    sub: `${i + 1}`,
-    state: f.phase === "rolled_back" && i === 3 ? "failed" : i < idx ? "done" : i === idx ? "now" : "later",
-  }));
+// FTR.HMR.DEV-0001 R26, R27: one strip of the stages of a feature; a stage shows
+// its state and opens its screen. Release is the next stage of the cycle, not of this page.
+export const STAGES = [
+  { phase: "spec", tab: "spec", label: "path.spec" },
+  { phase: "codegen", tab: "implementation", label: "path.codegen" },
+  { phase: "validation", tab: "validation", label: "path.validation" },
+] as const;
+
+const stageIndex = (tab: Tab) => STAGES.findIndex((s) => s.tab === tab);
+const stageLink = (id: string, tab: Tab) => (tab === "spec" ? `/features/${id}` : `/features/${id}/${tab}`);
+
+/** The stage a feature is on; past the last one every stage is passed. */
+export function reachedStage(f: Pick<FeatureCard, "phase">): number {
+  const i = STAGES.findIndex((s) => s.phase === f.phase);
+  return i >= 0 ? i : STAGES.length - 1;
+}
+
+/** Whether every stage is passed: the status is in the badge of the header. */
+export const allStagesPassed = (f: Pick<FeatureCard, "phase">) => !STAGES.some((s) => s.phase === f.phase);
+
+function FeatureStages({ f, tab }: { f: FeatureCard; tab: Tab }) {
+  const { t } = useTranslation();
+  const now = allStagesPassed(f) ? STAGES.length : reachedStage(f);
+  return (
+    <nav className="stages" aria-label={t("feature.stages")}>
+      {STAGES.map((s, i) => {
+        const state = i < now ? "done" : i === now ? "now" : "later";
+        const inner = <><span className="c">{i < now ? <Icon name="check" size={13} /> : i + 1}</span><span className="nm">{t(s.label)}</span></>;
+        const cls = `sg ${state}${s.tab === tab ? " open" : ""}`;
+        return state === "later"
+          ? <div key={s.phase} className={cls} aria-disabled="true" title={t("feature.stageLater")}>{inner}</div>
+          : <NavLink key={s.phase} to={stageLink(f.uniqueId, s.tab)} end={s.tab === "spec"} className={() => cls} aria-current={s.tab === tab ? "step" : undefined}>{inner}</NavLink>;
+      })}
+    </nav>
+  );
 }
 
 type Dialog =
   | { kind: "history"; area: Area }
-  | { kind: "deleteGate"; area: Area }
   | { kind: "deleteFeature" }
   | { kind: "codegen" }
   | { kind: "unnumbered"; area: Area; list: string[] }
   | { kind: "flag" }
+  | { kind: "openQuestions"; area: Area; list: { id: string; title: string }[] }
   | null;
 
 function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }) {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
   const chat = useChatContext();
@@ -107,14 +138,15 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         setDialog({ kind: "unnumbered", area, list: (e.details.requirements as string[]) ?? [] });
         return;
       }
+      if (e instanceof ApiError && e.code === "open_questions" && area) { // FTR.HMR.DEV-0001 R14
+        setDialog({ kind: "openQuestions", area, list: (e.details.questions as { id: string; title: string }[]) ?? [] });
+        return;
+      }
       toast({ kind: "error", title: errorText(t, e) });
     },
   });
-  const addGate = (a: Area) =>
-    act.mutate({ path: "/gates", body: { area: a } }, { onSuccess: () => navigate(`/features/${f.uniqueId}/spec/${a}`) });
-
-  const tabLink = (x: Tab) => (x === "spec" ? `/features/${f.uniqueId}` : `/features/${f.uniqueId}/${x}`);
-  const generating = f.workflow && f.workflow.kind === "gate_generation" && !["done", "cancelled", "failed"].includes(f.workflow.state);
+  const submit = (a: Area, body?: Record<string, unknown>) =>
+    act.mutate({ path: `/gates/${a}/submit`, body }, { onSuccess: () => toast({ kind: "ok", title: t("feature.submitted") }) });
 
   return (
     <main className="main">
@@ -157,15 +189,11 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         {f.flagKey && <span className="mono small"><Icon name="flag" size={12} /> {f.flagKey}</span>}
         {f.parent && <span>{t("feature.fixOf")} <Link to={`/features/${f.parent}`}>{f.parent}</Link></span>}
         <span className="muted">{t("feature.createdBy", { name: f.createdBy, when: relativeTime(f.createdAt, i18n.language) })}</span>
+        {/* FTR.HMR.DEV-0001 R29: the history is not a stage */}
+        <NavLink to={`/features/${f.uniqueId}/history`} className={`btn ghost sm metahist${tab === "history" ? " on" : ""}`}><Icon name="clock" size={14} />{t("feature.tabs.history")}</NavLink>
       </div>
 
-      <Lane items={featureLane(f, t)} />
-
-      <div className="tabs" role="tablist">
-        {TABS.map((x) => (
-          <NavLink key={x} to={tabLink(x)} end={x === "spec"} className={() => (tab === x ? "on" : "")}>{t(`feature.tabs.${x}`)}</NavLink>
-        ))}
-      </div>
+      <FeatureStages f={f} tab={tab} />
 
       {tab === "implementation" && <ImplementationTab f={f} />}
       {tab === "validation" && <ValidationTab f={f} />}
@@ -179,15 +207,6 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
               <Link className="btn sm" to={`/spec/${f.uniqueId}/product`}>{t("feature.openInNavigator")}</Link>
             </div>
           )}
-          {generating && <div className="banner info"><span className="ring" /><span className="grow">{t("feature.generating")}</span></div>}
-          {f.workflow?.kind === "gate_generation" && f.workflow.state === "blocked" && (
-            <BlockedBanner title={t("feature.generationFailed")} reason={f.workflow.lastError}>
-              {f.permissions.regenerate && <button className="btn sm" onClick={() => act.mutate({ path: "/gates/tech/regenerate" })}>{t("feature.regenerate")}</button>}
-            </BlockedBanner>
-          )}
-
-          <GateStrip f={f} current={area} onDialog={setDialog} onAdd={addGate} busy={act.isPending} />
-
           {specPhase && f.permissions.codegen && (
             <div className="banner ok">
               <Icon name="code" />
@@ -196,22 +215,15 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
             </div>
           )}
 
-          {gate && (
-            <ActionBar f={f} gate={gate}
-              onSubmit={() => act.mutate({ path: `/gates/${gate.area}/submit` }, { onSuccess: () => toast({ kind: "ok", title: t("feature.submitted") }) })}
-              onApprove={() => act.mutate({ path: `/gates/${gate.area}/approve` }, { onSuccess: () => toast({ kind: "ok", title: t("feature.approved") }) })}
-              onRegenerate={() => act.mutate({ path: `/gates/${gate.area}/regenerate` }, { onSuccess: () => toast({ kind: "ok", title: t("feature.regenerating") }) })}
-              onHistory={() => setDialog({ kind: "history", area: gate.area })}
-              busy={act.isPending} />
-          )}
-          {area && gate ? <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} /> : (
-            <Empty icon="files" title={t("feature.noGate")} />
-          )}
+          <SpecPanel f={f} area={area} gate={gate} busy={act.isPending} onDialog={setDialog}
+            onSubmit={() => gate && submit(gate.area)}
+            onApprove={() => gate && act.mutate({ path: `/gates/${gate.area}/approve` }, { onSuccess: () => toast({ kind: "ok", title: t("feature.approved") }) })}
+            onAdvance={() => act.mutate({ path: "/spec/advance" })}
+            onRetry={() => act.mutate({ path: "/spec/retry" })} />
         </>
       )}
 
       {dialog?.kind === "history" && <HistoryModal f={f} area={dialog.area} onClose={() => setDialog(null)} />}
-      {dialog?.kind === "deleteGate" && <DeleteGateModal f={f} area={dialog.area} onClose={() => setDialog(null)} />}
       {dialog?.kind === "deleteFeature" && <DeleteFeatureModal f={f} onClose={() => setDialog(null)} />}
       {dialog?.kind === "codegen" && <CodegenModal f={f} onClose={() => setDialog(null)} />}
       {dialog?.kind === "flag" && <FlagModal f={f} onClose={() => setDialog(null)} />}
@@ -225,7 +237,7 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
             <button className="btn primary" onClick={() => {
               const a = dialog.area;
               setDialog(null);
-              act.mutate({ path: `/gates/${a}/submit`, body: { force: true } }, { onSuccess: () => toast({ kind: "ok", title: t("feature.submitted") }) });
+              submit(a, { force: true });
             }}>{t("unnumbered.submitAnyway")}</button>
           </>
         }>
@@ -233,84 +245,120 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
           <ul className="small">{dialog.list.map((x) => <li key={x}>{x}</li>)}</ul>
         </Modal>
       )}
+      {dialog?.kind === "openQuestions" && (
+        <Modal title={t("writer.open.title")} onClose={() => setDialog(null)} footer={
+          <>
+            <button className="btn ghost" onClick={() => setDialog(null)}>{t("writer.open.answer")}</button>
+            <button className="btn primary" onClick={() => {
+              const a = dialog.area;
+              setDialog(null);
+              // the check of the requirements has passed or was forced by the previous dialog (design §3.5)
+              submit(a, { force: true, forceQuestions: true });
+            }}>{t("writer.open.submit")}</button>
+          </>
+        }>
+          <ul className="small">{dialog.list.map((x) => <li key={x.id}><span className="fid">{x.id}</span> {x.title}</li>)}</ul>
+          <p className="t2 small">{t("writer.open.text")}</p>
+        </Modal>
+      )}
     </main>
   );
 }
 
-// ─── Gate strip ────────────────────────────────────────────────────
+// ─── The panel of the specifications ─────────────────────────────
 
-function GateStrip({ f, current, onDialog, onAdd, busy }: {
-  f: FeatureCard; current?: Area; onDialog: (d: Dialog) => void; onAdd: (a: Area) => void; busy: boolean;
+/** Icons of the gates: on a narrow panel only the chosen gate keeps its caption (FTR.HMR.DEV-0001 design §3.2a). */
+export const GATE_ICONS: Record<Area, "bulb" | "grid" | "server" | "code" | "flask"> = { product: "bulb", design: "grid", arch: "server", tech: "code", qa: "flask" };
+
+function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvance, onRetry }: {
+  f: FeatureCard; area?: Area; gate?: Gate; busy: boolean; onDialog: (d: Dialog) => void;
+  onSubmit: () => void; onApprove: () => void; onAdvance: () => void; onRetry: () => void;
 }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [menuFor, setMenuFor] = useState<Area | null>(null);
-  const ref = useOutside<HTMLOListElement>(menuFor !== null, () => setMenuFor(null));
-  const byArea = new Map(f.gates.map((g) => [g.area, g]));
-  let n = 0;
+  const run = f.writerRun;
+  const blocked = f.workflow?.kind === "gate_generation" && f.workflow.state === "blocked";
+  // FTR.HMR.DEV-0001 R32: the reason the core sets when the scenario has no service agent
+  const noAgent = blocked && f.workflow?.lastError === "no_service_agent";
+  const { me } = useSession();
+  const skipped = !!area && f.skippedAreas.includes(area);
+  const { highlighted, onClick } = useQuestionLinks();
   return (
-    <ol className="gates" ref={ref} aria-label={t("feature.gates")}>
-      {AREAS.map((a) => {
-        const g = byArea.get(a);
-        if (!g) {
-          if (f.pendingGates.includes(a)) {
-            n++;
-            return (
-              <li key={a} className="final off">
-                <div className="n">{n} · <AgentMark /></div>
-                <div className="a">{t(`areas.${a}`)}</div>
-                <span className="small muted">{t("feature.generatedLater")}</span>
-              </li>
-            );
-          }
-          if (!f.permissions.addGate.includes(a)) return null;
-          return (
-            <li key={a} className="add">
-              <button className="btn ghost sm" style={{ width: "100%", height: "100%" }} disabled={busy} onClick={() => onAdd(a)}>
-                <Icon name="plus" size={14} />{t(`areas.${a}`)}
-              </button>
-            </li>
-          );
-        }
-        n++;
-        return (
-          <li key={a} className={`pick${current === a ? " cur" : ""}`} onClick={() => navigate(`/features/${f.uniqueId}/spec/${a}`)}
-            aria-current={current === a ? "step" : undefined}>
-            <div className="n">{n}{g.generated && <> · <AgentMark /></>}</div>
-            <div className="a">{t(`areas.${a}`)}</div>
-            <StatusBadge status={g.status} approvalRequired={f.approvalRequired} />
-            <button className="iconbtn more" aria-label={t("feature.gateActions", { area: t(`areas.${a}`) })}
-              onClick={(e) => { e.stopPropagation(); setMenuFor(menuFor === a ? null : a); }}>
-              <Icon name="dots" size={15} />
-            </button>
-            {menuFor === a && (
-              <div className="pop" style={{ top: 36, right: 0 }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => { setMenuFor(null); onDialog({ kind: "history", area: a }); }}>{t("feature.history")}</button>
-                <Link to={`/features/${f.uniqueId}/spec/${a}/diff`} onClick={() => setMenuFor(null)}>{t("feature.changes")}</Link>
-                {f.permissions.deleteGate.includes(a) && (
-                  <button className="danger" onClick={() => { setMenuFor(null); onDialog({ kind: "deleteGate", area: a }); }}>
-                    <Icon name="trash" size={16} />{t("feature.deleteSpec")}
-                  </button>
-                )}
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ol>
+    <section className="specpanel" aria-label={t("feature.specifications")} onClick={onClick}>
+      <div className="ttl">{t("feature.specifications")}</div>
+      <GateTabs f={f} current={area} />
+      {run && (
+        <div className="banner run">
+          <span className="ring" />
+          <span className="grow">{t(run.waitingLock ? "writer.run.waiting" : run.mode === "impact" ? "writer.run.checking" : "writer.run.working")}</span>
+        </div>
+      )}
+      {blocked && (
+        <BlockedBanner title={t(noAgent ? "writer.run.noAgent" : "writer.run.failed")} reason={noAgent ? t(me.globalAdmin ? "writer.run.noAgentAdmin" : "writer.run.noAgentHint") : f.workflow?.lastError}>
+          {noAgent && me.globalAdmin && <Link className="btn sm" to={adminPath("nabu")}>{t("writer.run.configure")}</Link>}
+          {f.permissions.retry && <button className="btn sm" disabled={busy} onClick={onRetry}>{t("writer.run.retry")}</button>}
+        </BlockedBanner>
+      )}
+      {skipped && <div className="actionbar"><span className="st none">{t("writer.skipped")}</span><span className="grow ab-grow">{t("writer.skippedHint")}</span></div>}
+      {gate && <ActionBar f={f} gate={gate} busy={busy} onSubmit={onSubmit} onApprove={onApprove} onAdvance={onAdvance} onHistory={() => onDialog({ kind: "history", area: gate.area })} />}
+      {area && f.phase === "spec" && <SpecQuestions featureKey={f.uniqueId} area={area} highlighted={highlighted} />}
+      {area && gate ? <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} /> : !skipped && (f.openQuestions[area as Area] ?? 0) === 0 && (
+        <Empty icon="files" title={t("feature.noGate")} />
+      )}
+    </section>
   );
 }
 
-// ─── Action bar ────────────────────────────────────────────────────
+/** The gates of the feature, a level under the stages (FTR.HMR.DEV-0001 R28). */
+function GateTabs({ f, current }: { f: FeatureCard; current?: Area }) {
+  const { t } = useTranslation();
+  const byArea = new Map(f.gates.map((g) => [g.area, g]));
+  return (
+    <div className="gtabs" role="tablist" aria-label={t("feature.specifications")}>
+      {AREAS.map((a) => {
+        const g = byArea.get(a);
+        const skipped = f.skippedAreas.includes(a);
+        const open = f.openQuestions[a] ?? 0;
+        const running = f.writerRun?.state === "generating" && f.writerRun.areas.includes(a);
+        const reachable = !!g || skipped || open > 0 || running;
+        const state = running ? "running" : skipped ? "skipped" : g ? (f.approvalRequired ? g.status : "none") : "later";
+        const stateText = t(`writer.gate.${state}`);
+        const name = t(`areas.${a}`);
+        const label = open > 0 ? t("writer.gate.label", { name, state: stateText, count: open }) : `${name}, ${stateText}`;
+        const inner = (
+          <>
+            <span className="gico"><Icon name={GATE_ICONS[a]} size={20} /></span>
+            <span className="lb">{name}</span>
+            {!reachable || skipped ? null : <i className={`dot ${state}`} aria-hidden="true" />}
+            {a !== "product" && (a === "tech" || a === "qa") && <span className="ag"><AgentMark /></span>}
+            {open > 0 && <span className="cnt">{open}</span>}
+            {skipped && <span className="st none skp">{t("writer.skippedShort")}</span>}
+          </>
+        );
+        const cls = `g${a === current ? " on" : ""}${skipped ? " skip" : ""}${reachable ? "" : " fut"}`;
+        return reachable
+          ? <NavLink key={a} role="tab" aria-selected={a === current} aria-label={label} title={name} className={() => cls} to={`/features/${f.uniqueId}/spec/${a}`}>{inner}</NavLink>
+          : <span key={a} role="tab" aria-disabled="true" aria-selected="false" aria-label={label} title={t("writer.gate.laterHint")} className={cls}>{inner}</span>;
+      })}
+    </div>
+  );
+}
 
-function ActionBar({ f, gate, onSubmit, onApprove, onRegenerate, onHistory, busy }: {
-  f: FeatureCard; gate: Gate; onSubmit: () => void; onApprove: () => void; onRegenerate: () => void; onHistory: () => void; busy: boolean;
+// ─── Action bar ───────────────────────────────────────────────
+
+function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }: {
+  f: FeatureCard; gate: Gate; onSubmit: () => void; onApprove: () => void; onAdvance: () => void; onHistory: () => void; busy: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const canSubmit = f.permissions.submit.includes(gate.area);
   const canApprove = f.permissions.approve.includes(gate.area);
+  const running = !!f.writerRun?.areas.includes(gate.area);
+  // FTR.HMR.DEV-0001 R21: the order of approval stays strict: the reason is seen before a click
+  const before = AREAS.slice(0, AREAS.indexOf(gate.area)).find((a) => f.gates.some((g) => g.area === a && g.status !== "approved"));
+  const waits = canApprove && !!before;
   let text: React.ReactNode;
-  if (!f.approvalRequired) text = t("feature.bar.noApproval");
+  if (running) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.readOnly")}</span>;
+  else if (waits) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.waitsFor", { area: t(`areas.${before}`) })}</span>;
+  else if (!f.approvalRequired) text = t("feature.bar.noApproval");
   else if (gate.status === "in_review") text = t("feature.bar.inReview", { when: gate.submittedAt ? relativeTime(gate.submittedAt, i18n.language) : "" });
   else if (gate.status === "approved") text = t("feature.bar.approved", { name: gate.approvedBy ?? "", when: gate.approvedAt ? relativeTime(gate.approvedAt, i18n.language) : "" });
   else if (gate.approvedCommit) text = t("feature.bar.draftAfterApproval");
@@ -321,9 +369,9 @@ function ActionBar({ f, gate, onSubmit, onApprove, onRegenerate, onHistory, busy
       <span className="grow ab-grow">{text}</span>
       <Link className="btn sm" to={`/features/${f.uniqueId}/spec/${gate.area}/diff`}>{t("feature.viewChanges")}</Link>
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
-      {gate.generated && f.permissions.regenerate && <button className="btn sm" disabled={busy} onClick={onRegenerate}><Icon name="refresh" size={14} />{t("feature.regenerate")}</button>}
-      {canSubmit && <button className="btn primary sm" disabled={busy} onClick={onSubmit}>{t("feature.submit")}</button>}
-      {canApprove && <button className="btn ok sm" disabled={busy} onClick={onApprove}><Icon name="check" size={15} />{t("feature.approve")}</button>}
+      {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun} onClick={onAdvance}>{t("writer.advance")}</button>}
+      {canSubmit && <button className="btn primary sm abmain" disabled={busy} onClick={onSubmit}>{t("feature.submit")}</button>}
+      {canApprove && <button className="btn ok sm" disabled={busy || waits} onClick={onApprove}><Icon name="check" size={15} />{t("feature.approve")}</button>}
     </div>
   );
 }
@@ -414,32 +462,6 @@ function HistoryModal({ f, area, onClose }: { f: FeatureCard; area: Area; onClos
           </div>
         ))}
       </div>
-    </Modal>
-  );
-}
-
-function DeleteGateModal({ f, area, onClose }: { f: FeatureCard; area: Area; onClose: () => void }) {
-  const { t } = useTranslation();
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const del = useMutation({
-    mutationFn: () => api.del(`/api/v1/features/${f.uniqueId}/gates/${area}`),
-    onSuccess: () => {
-      invalidateFeature(qc, f.uniqueId);
-      qc.invalidateQueries({ queryKey: keys.approvals });
-      onClose();
-      navigate(`/features/${f.uniqueId}`);
-    },
-  });
-  return (
-    <Modal title={t("deleteGate.title", { area: t(`areas.${area}`) })} onClose={onClose} footer={
-      <>
-        <button className="btn ghost" onClick={onClose}>{t("common.cancel")}</button>
-        <button className="btn danger-fill" disabled={del.isPending} onClick={() => del.mutate()}>{t("deleteGate.confirm")}</button>
-      </>
-    }>
-      <p className="t2" style={{ margin: 0 }}>{t("deleteGate.text", { folder: `${area}/`, id: f.uniqueId })}</p>
-      {del.error && <div className="err-text">{errorText(t, del.error)}</div>}
     </Modal>
   );
 }

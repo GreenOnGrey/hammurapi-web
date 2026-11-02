@@ -19,6 +19,7 @@ export function parseLLMReason(text: string | null | undefined): { errorClass: s
 
 /** The blocked reason in the user's language when it is an LLM error. */
 export function blockedReason(t: TFunction, text: string | null | undefined): string {
+  if (text === "no_service_agent") return t("writer.run.noAgent"); // FTR.HMR.DEV-0001 R32
   const r = parseLLMReason(text);
   return r ? llmErrorText(t, r.errorClass, r.connection) : text ?? "";
 }

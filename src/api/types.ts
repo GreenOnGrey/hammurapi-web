@@ -146,9 +146,9 @@ export interface Permissions {
   edit: Area[];
   submit: Area[];
   approve: Area[];
-  deleteGate: Area[];
-  addGate: Area[];
-  regenerate: boolean;
+  advance: boolean;
+  request: boolean;
+  retry: boolean;
   codegen: boolean;
   delete: boolean;
   setFlag: boolean;
@@ -188,6 +188,20 @@ export interface FeatureCard {
   createdBy: string;
   createdAt: string;
   permissions: Permissions;
+  /** FTR.HMR.DEV-0001: the stages of the specification and the writer. */
+  specFlow: "writer" | "legacy";
+  specStage: "product" | "design" | "arch" | "generated" | null;
+  skippedAreas: Area[];
+  writerRun: WriterRun | null;
+  openQuestions: Partial<Record<Area, number>>;
+}
+
+/** The run of the writer in progress. */
+export interface WriterRun {
+  mode: "write" | "impact" | "generate";
+  state: "queued" | "generating";
+  areas: Area[];
+  waitingLock: boolean;
 }
 
 export interface GateDocument {
@@ -445,6 +459,54 @@ export interface DiscoveryNoticePayload {
   kind: "discovery.revision" | "discovery.failed";
   issueKey: string;
   revision: number;
+  requestIds: string[];
+  coAuthors: string[];
+  error?: string;
+}
+
+/** A question of the writer for the current user (FTR.HMR.DEV-0001 tech §2.2). */
+export interface SpecQuestion extends DiscoveryQuestion {
+  audience: "product" | "technical";
+  touches?: Area[];
+  skipArea?: Area;
+  canAnswer: boolean;
+  forOthers: boolean;
+}
+
+export interface SpecGateQuestions {
+  area: Area;
+  round: number;
+  roundsLeft: number;
+  questions: SpecQuestion[];
+}
+
+/** An instruction to the writer. */
+export interface SpecRequest {
+  id: string;
+  featureKey: string;
+  author: string | null;
+  areas: Area[];
+  skipAreas: Area[];
+  restoreAreas: Area[];
+  instructions: string;
+  context?: string | null;
+  answers?: (DiscoveryAnswer & { area?: Area })[];
+  state: "queued" | "running" | "done" | "failed";
+  position: number | null;
+  /** Waits for «Retry» of a stopped run. */
+  blocked: boolean;
+  commits: Partial<Record<Area, string>>;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+/** The payload of a notice of the writer in a topic. */
+export interface SpecNoticePayload {
+  kind: "spec.revision" | "spec.failed" | "spec.conflict";
+  featureKey: string;
+  areas: Area[];
+  otherAreas: Area[];
   requestIds: string[];
   coAuthors: string[];
   error?: string;

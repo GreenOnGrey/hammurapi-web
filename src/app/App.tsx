@@ -116,7 +116,20 @@ function Authenticated() {
         qc.invalidateQueries({ queryKey: keys.discoveryRequest(d.id) });
         qc.invalidateQueries({ queryKey: keys.discovery(d.issueKey) });
       }),
-      onEvent("feature.updated", () => invalidateCycle(qc)),
+      // FTR.HMR.DEV-0001: the instructions and the questions of the writer
+      onEvent("spec.request.updated", (d: { id: string; featureKey: string }) => {
+        qc.invalidateQueries({ queryKey: keys.specRequest(d.id) });
+        qc.invalidateQueries({ queryKey: keys.feature(d.featureKey) });
+      }),
+      onEvent("spec.questions.updated", (d: { uniqueId: string }) => {
+        qc.invalidateQueries({ queryKey: keys.specQuestions(d.uniqueId) });
+        qc.invalidateQueries({ queryKey: keys.feature(d.uniqueId) });
+      }),
+      onEvent("feature.updated", (d: { uniqueId?: string; phase?: string }) => {
+        invalidateCycle(qc);
+        // FTR.HMR.DEV-0001 R20: the specification ended — the topics are archived, a return starts a draft
+        if (d.uniqueId && d.phase) qc.invalidateQueries({ queryKey: keys.topic(d.uniqueId) });
+      }),
       onEvent("task.progress", () =>
         qc.invalidateQueries({ queryKey: ["implementation"] }),
       ),

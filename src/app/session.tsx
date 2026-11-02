@@ -79,6 +79,8 @@ export interface ChatSubject {
   type: ContextType;
   key: string;
   title: string;
+  /** The chat is pinned to the topic of the subject (FTR.HMR.DEV-0001 R16). */
+  pinned?: boolean;
 }
 
 export interface ChatContextValue {

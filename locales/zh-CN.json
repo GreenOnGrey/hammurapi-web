@@ -115,7 +115,6 @@
     "deletedText": "由 {name} 于 {at} 删除。其规范、分支和 PR/MR 已不可用。",
     "actions": "功能操作",
     "deleteFeature": "删除功能",
-    "deleteSpec": "删除规范",
     "createdBy": "{name} 创建于 {when}",
     "pr": "PR/MR #{n}",
     "fixOf": "修复自",
@@ -162,16 +161,14 @@
     },
     "readOnlyCodegen": "代码生成期间规格为只读。",
     "rolledBack": "该方案的发布已回滚：方案不会重新打开，工作通过任务继续。",
-    "generating": "智能体正在生成 tech 和 qa…",
-    "generationFailed": "tech/qa 生成已停止：",
-    "regenerate": "重新生成",
-    "regenerating": "已开始重新生成",
-    "generatedLater": "审批后生成",
     "readyForCodegen": "所有关卡已就绪。",
     "readyForCodegenHint": "智能体可以在服务中准备变更。",
     "startCodegen": "开始生成代码",
     "indexedHint": "从仓库索引为已实现：没有关卡；修改请通过修复功能进行。",
-    "openInNavigator": "在规范中打开"
+    "openInNavigator": "在规范中打开",
+    "stages": "阶段",
+    "stageLater": "此阶段尚未开始",
+    "specifications": "规格说明"
   },
   "editor": {
     "toolbar": "格式",
@@ -186,8 +183,6 @@
       "quote": "引用",
       "table": "表格"
     },
-    "draftByRules": "按规则起草",
-    "draftPrompt": "请按照该领域的规则为 {id} 起草“{area}”规范。",
     "state": {
       "idle": "",
       "dirty": "有未保存的更改",
@@ -212,7 +207,7 @@
     "generated": "此关卡由智能体编写。在聊天中评论，智能体会重新生成。",
     "askAgentButton": "请智能体处理",
     "askAgent": "请结合我的意见重新生成 {area} 关卡：",
-    "unnumbered": "{count, plural, other {# 条需求没有 ID（**R1.**）。}}"
+    "unnumbered": "{count, plural, other {# 条需求没有 ID。}}"
   },
   "history": {
     "title": "历史：{area}",
@@ -225,7 +220,9 @@
       "submitted": "提交审批",
       "approved": "审批通过",
       "reset": "修改导致审批重置",
-      "deleted": "删除"
+      "deleted": "删除",
+      "generated": "由代理撰写",
+      "checked": "已检查，无需更改"
     },
     "gateTitle": "历史：{area}"
   },
@@ -700,13 +697,22 @@
     "channel_unavailable": "代理对您的账户不可用。",
     "invalid_sort": "未知的列表排序。",
     "invalid_estimate": "估算有误。",
-    "request_not_found": "未找到该指示。",
+    "request_not_found": "未找到指令。",
     "invalid_measure": "衡量方式有误。",
     "queue_full": "队列中已有 {max} 条消息——请等待回答或取消部分消息",
     "message_started": "代理已在回答这条消息",
     "not_running": "回答已经结束",
     "unknown_question": "该问题已不再开放：请刷新页面",
-    "invalid_answer": "请检查回答"
+    "invalid_answer": "请检查回答",
+    "spec_run_active": "撰写代理正在编写此文档，请在其完成后重试。",
+    "open_questions": "此关卡有未决问题。",
+    "question_other_expert": "此问题面向其他专家。",
+    "approval_enabled": "在此领域，下一阶段在审批后开始。",
+    "not_blocked": "撰写代理未停止。",
+    "no_next_stage": "规格说明没有下一阶段。",
+    "writer_blocked": "撰写代理已停止，请先重试。",
+    "gate_not_written": "此阶段的文档尚未写好：请回答撰写代理的问题或重试。",
+    "gate_generated": "此关卡由代理撰写：请在聊天中提出修改。"
   },
   "stages": {
     "title": "阶段",
@@ -1441,6 +1447,80 @@
       "answer": "回答：{text}",
       "revAnswers": "回答：{ids}",
       "acceptOpen": "{count, plural, other {还有 # 个开放问题}}"
+    }
+  },
+  "writer": {
+    "topic": {
+      "pinned": "打开此方案的规格说明时，聊天固定在此方案上",
+      "title": "讨论规格说明 {key}"
+    },
+    "suggest": {
+      "answer": "回答问题",
+      "explain": "解释这些建议",
+      "why": "为什么这样决定？",
+      "addTo": "补充：{area}",
+      "changeEarlier": "修改之前的规格说明",
+      "changeThis": "要改什么：{area}？",
+      "coverage": "需求是如何覆盖的？",
+      "whatIn": "这个关卡会包含什么？",
+      "restore": "恢复这个关卡"
+    },
+    "task": {
+      "title": "给撰写代理的指令",
+      "open": "打开规格说明",
+      "afterRetry": "等待重试撰写代理"
+    },
+    "result": {
+      "changes": "查看更改",
+      "open": "打开该部分"
+    },
+    "q": {
+      "title": "未决问题 · {area}",
+      "round": "第 {n} 轮 · 剩余轮次：{left}",
+      "touches": "回答可能改变：{list}",
+      "audience": {
+        "product": "请产品专家回答",
+        "technical": "请技术专家回答"
+      },
+      "answeredBy": {
+        "product": "由产品专家回答",
+        "technical": "由技术专家回答"
+      },
+      "allow": "回答可能改变：{list}。允许"
+    },
+    "open": {
+      "title": "还有未决问题",
+      "text": "这些问题将写入文档的未决问题部分。审批人会在页面上看到它们。",
+      "answer": "去回答",
+      "submit": "直接提交"
+    },
+    "run": {
+      "working": "撰写代理正在编写文档。新指令将随下一次运行处理。",
+      "waiting": "撰写代理将在编辑结束后开始。",
+      "checking": "撰写代理正在检查更改之下的关卡。",
+      "failed": "撰写代理已停止：",
+      "retry": "重试",
+      "noAgent": "未指定服务代理",
+      "noAgentAdmin": "请为规格说明场景指定代理。",
+      "noAgentHint": "请联系管理员。",
+      "configure": "配置"
+    },
+    "skipped": "已跳过",
+    "skippedShort": "已跳过",
+    "skippedHint": "专家决定不需要此关卡。可以通过聊天恢复。",
+    "readOnly": "运行期间只读",
+    "waitsFor": "需要先批准：{area}",
+    "advance": "下一阶段",
+    "gate": {
+      "draft": "草稿",
+      "in_review": "审批中",
+      "approved": "已批准",
+      "none": "无需审批",
+      "running": "正在运行",
+      "skipped": "已跳过",
+      "later": "未开始",
+      "laterHint": "在上一阶段之后开始",
+      "label": "{name}，{state}，{count, plural, other {# 个问题}}"
     }
   }
 }

@@ -6,10 +6,10 @@ import { AgentButton, AgentSettingsMenu, Chat, ChatLayout, ConversationList, typ
 import { ApiError, api } from "../api/client";
 import type { NabuAgent, NabuTone } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
-import { useIssue, useIssueTopic } from "../api/queries";
-import type { IssueStatus } from "../api/types";
+import { useFeature, useFeatureTopic, useIssue, useIssueTopic } from "../api/queries";
+import type { Area, IssueStatus } from "../api/types";
 import { errorText } from "../lib/errors";
-import { nabuKeys, useNabuAgent, useNabuConversation, useNabuConversations } from "./nabuAdapter";
+import { nabuKeys, useNabuAgent, useNabuConversation, useNabuConversations, type TopicRef } from "./nabuAdapter";
 import { CHAT_PANEL_ID, CollapseButton } from "./ChatRail";
 
 // FTR.HMR.CMN-0006 R5, R6: the chat is a window to the personal agent of the
@@ -37,7 +37,12 @@ export function NabuChatPanel() {
   const [listOpen, setListOpen] = useState(false);
   // FTR.HMR.DISC-0001 R4: on the page of an issue the chat is pinned to its topic
   const issueKey = chat.subject?.type === "issue" ? chat.subject.key : null;
-  const topic = useIssueTopic(issueKey ?? "", issueKey !== null);
+  // FTR.HMR.DEV-0001 R16: on the Specification tab of a feature the chat is pinned to the topic of the feature
+  const featureKey = chat.subject?.type === "feature" && chat.subject.pinned ? chat.subject.key : null;
+  const issueTopic = useIssueTopic(issueKey ?? "", issueKey !== null);
+  const featureTopic = useFeatureTopic(featureKey ?? "", featureKey !== null);
+  const topic = featureKey ? featureTopic : issueTopic;
+  const pinned: TopicRef | null = issueKey ? { kind: "issue", key: issueKey } : featureKey ? { kind: "feature", key: featureKey } : null;
   const a = agent.data;
   const unavailable = agent.error instanceof ApiError && agent.error.status >= 500;
   // FTR.NAB.CMN-0002 R15, R18: the channel is closed for the user in Nabu or the account is archived there
@@ -55,7 +60,7 @@ export function NabuChatPanel() {
           </div>
           {/* the conversations lie over the messages, as on a phone in Nabu (FTR.NAB.CMN-0005 design §6.2);
               the topic of an issue has no list (FTR.HMR.DISC-0001 design §3.1) */}
-          {issueKey ? <span style={{ marginLeft: "auto" }} /> : (
+          {pinned ? <span style={{ marginLeft: "auto" }} /> : (
             <button className={`iconbtn${listOpen ? " on" : ""}`} style={{ marginLeft: "auto" }} onClick={() => setListOpen((v) => !v)}
               aria-label={t("nabu.conversation")} aria-expanded={listOpen}>
               <Icon name="msg2" />
@@ -67,8 +72,8 @@ export function NabuChatPanel() {
           </button>
         </div>
         {agentMenu && a && <NabuAgentMenu agent={a} onClose={closeAgentMenu} />}
-        <div className={`ctx${issueKey ? " topic" : ""}`} title={issueKey ? t("disc.topic.pinned") : undefined}>
-          {issueKey && <Icon name="lock" size={13} />}
+        <div className={`ctx${pinned ? " topic" : ""}`} title={issueKey ? t("disc.topic.pinned") : featureKey ? t("writer.topic.pinned") : undefined}>
+          {pinned && <Icon name="lock" size={13} />}
           {chat.subject ? (
             <><span className="fid">{chat.subject.key}</span> {chat.area ? t(`areas.${chat.area}`) : chat.subject.title}</>
           ) : t("nabu.noContext")}
@@ -76,10 +81,10 @@ export function NabuChatPanel() {
         {(offline || unavailable) && !closed && <div className="llmerr amber small" role="status">{t("errors.nabu_unavailable")}</div>}
         {closed && <div className="llmerr amber small" role="status">{t("errors.channel_unavailable")}</div>}
       </div>
-      {issueKey ? (
+      {pinned ? (
         <ChatLayout narrow>
           {topic.data ? (
-            <Conversation key={topic.data.conversationId ?? `draft:${issueKey}`} convId={topic.data.conversationId} issueKey={issueKey}
+            <Conversation key={topic.data.conversationId ?? `draft:${pinned.key}`} convId={topic.data.conversationId} topic={pinned}
               agentName={a?.name ?? "Nabu"} />
           ) : topic.error ? <div className="msgs"><div className="err-text">{errorText(t, topic.error)}</div></div> : null}
         </ChatLayout>
@@ -95,20 +100,59 @@ export function NabuChatPanel() {
   );
 }
 
-function Conversation({ convId, issueKey, agentName }: { convId: string | null; issueKey?: string; agentName: string }) {
+function Conversation({ convId, topic, agentName }: { convId: string | null; topic?: TopicRef; agentName: string }) {
   const { t } = useTranslation();
-  const chat = useNabuConversation(convId, issueKey);
+  const chat = useNabuConversation(convId, topic);
   const { isExpertOf } = useSession();
+  const issueKey = topic?.kind === "issue" ? topic.key : undefined;
+  const featureKey = topic?.kind === "feature" ? topic.key : undefined;
   const issue = useIssue(issueKey ?? "", !!issueKey);
   const is = issueKey ? issue.data : undefined;
+  const pick = (text: string) => void chat.onSend(text, [], false).catch(() => undefined);
   // FTR.HMR.DISC-0001 design §3.2: the draft of the topic is the empty conversation of Hammurapi (ui-kit `empty`);
   // an expert of an issue in verification is asked what to revise (R5)
-  const draft: ReactNode = issueKey && convId === null
-    ? <TopicDraft issueKey={issueKey} status={is?.status} expert={!!is && isExpertOf(is.domain)}
-        onPick={(text) => void chat.onSend(text, [], false).catch(() => undefined)} />
+  const draft: ReactNode = convId !== null ? undefined
+    : issueKey ? <TopicDraft issueKey={issueKey} status={is?.status} expert={!!is && isExpertOf(is.domain)} onPick={pick} />
+    : featureKey ? <FeatureTopicDraft featureKey={featureKey} onPick={pick} />
     : undefined;
   const placeholder = is?.status === "verification" && isExpertOf(is.domain) ? t("disc.composer") : undefined;
   return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} empty={draft} placeholder={placeholder} />;
+}
+
+/** The suggestions of the draft by the open gate and the role (FTR.HMR.DEV-0001 design §3.3). */
+export function specTopicSuggestions(area: Area | null, state: "questions" | "written" | "later" | "skipped", expert: boolean): string[] {
+  if (state === "later") return ["whatIn"];
+  if (state === "skipped") return expert ? ["whatIn", "restore"] : ["whatIn"];
+  if (state === "questions") return expert ? ["answer", "explain", "why"] : ["explain", "why"];
+  if (area === "tech" || area === "qa") return expert ? ["changeThis", "coverage", "why"] : ["coverage", "why"];
+  return expert ? ["addTo", "changeEarlier", "why"] : ["why"];
+}
+
+/** The draft of the topic of a feature: nothing exists in Nabu until the first message (R15). */
+function FeatureTopicDraft({ featureKey, onPick }: { featureKey: string; onPick: (text: string) => void }) {
+  const { t } = useTranslation();
+  const ctx = useChatContext();
+  const { isExpertOf } = useSession();
+  const f = useFeature(featureKey).data;
+  const area = ctx.area;
+  const state = !f || !area ? "later"
+    : f.skippedAreas.includes(area) ? "skipped"
+    : (f.openQuestions[area] ?? 0) > 0 ? "questions"
+    : f.gates.some((g) => g.area === area) ? "written" : "later";
+  const name = area ? t(`areas.${area}`) : "";
+  return (
+    <div className="empty topicdraft">
+      <div className="ic"><Icon name="msg" /></div>
+      <b>{t("writer.topic.title", { key: featureKey })}</b>
+      {t("disc.topic.draftHint")}
+      <div className="sugg">
+        {specTopicSuggestions(area, state, !!f && isExpertOf(f.domain)).map((s) => {
+          const text = t(`writer.suggest.${s}`, { area: name });
+          return <button key={s} type="button" className="chip sugchip" onClick={() => onPick(text)}>{text}</button>;
+        })}
+      </div>
+    </div>
+  );
 }
 
 /** The suggestions of the draft by the status of the issue and the role (FTR.HMR.DISC-0001 design §3.2). */

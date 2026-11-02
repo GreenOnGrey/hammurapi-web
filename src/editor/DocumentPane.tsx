@@ -196,7 +196,7 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
       {doc.data && doc.data.unnumberedRequirements.length > 0 && !doc.data.generated && (
         <div className="banner warn" role="note">
           <Icon name="alert" />
-          <span>{t("editor.unnumbered", { count: doc.data.unnumberedRequirements.length })}</span>
+          <span>{t("editor.unnumbered", { count: doc.data.unnumberedRequirements.length })} <code>**R1.**</code></span>
         </div>
       )}
       {doc.data && doc.data.warnings.length > 0 && (
@@ -216,11 +216,6 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
           {tool("ordered", "1. ≡", t("editor.tools.ordered"))}
           {tool("quote", "❝", t("editor.tools.quote"))}
           {tool("table", "▦", t("editor.tools.table"))}
-          <span className="sep" />
-          <button type="button" style={{ color: "var(--violet-text)" }}
-            onClick={() => chat.send(t("editor.draftPrompt", { area: t(`areas.${area}`), id: feature.uniqueId }))}>
-            ✦ {t("editor.draftByRules")}
-          </button>
           <span className="save-state" aria-live="polite">{t(`editor.state.${state}`)}</span>
         </div>
       )}

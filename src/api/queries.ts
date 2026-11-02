@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -19,6 +19,8 @@ export const keys = {
   discovery: (key: string) => ["discovery", key] as const,
   topic: (key: string) => ["issue-topic", key] as const,
   discoveryRequest: (id: string) => ["discovery-request", id] as const,
+  specRequest: (id: string) => ["spec-request", id] as const,
+  specQuestions: (key: string) => ["spec-questions", key] as const,
   features: (f?: object) => (f ? (["features", f] as const) : (["features"] as const)),
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
@@ -101,6 +103,17 @@ export const useIssueTopic = (key: string, enabled: boolean) =>
   useQuery({ queryKey: keys.topic(key), queryFn: () => api.get<IssueTopic>(`/api/v1/issues/${key}/topic`), enabled, retry: 1 });
 
 /** An instruction to the researcher with its state (FTR.HMR.DISC-0001 tech §3.2). */
+/** The topic of the user for the feature (FTR.HMR.DEV-0001 R15); null — the draft. */
+export const useFeatureTopic = (key: string, enabled: boolean) =>
+  useQuery({ queryKey: keys.topic(key), queryFn: () => api.get<IssueTopic>(`/api/v1/features/${key}/topic`), enabled, retry: 1 });
+
+/** The open questions of the writer by gate (FTR.HMR.DEV-0001 R10). */
+export const useSpecQuestions = (key: string) =>
+  useQuery({ queryKey: keys.specQuestions(key), queryFn: () => api.get<{ items: SpecGateQuestions[] }>(`/api/v1/features/${key}/spec/questions`) });
+
+export const useSpecRequest = (id: string) =>
+  useQuery({ queryKey: keys.specRequest(id), queryFn: () => api.get<SpecRequest>(`/api/v1/spec-requests/${id}`) });
+
 export const useDiscoveryRequest = (id: string) =>
   useQuery({ queryKey: keys.discoveryRequest(id), queryFn: () => api.get<DiscoveryRequest>(`/api/v1/discovery-requests/${id}`), staleTime: 30_000 });
 

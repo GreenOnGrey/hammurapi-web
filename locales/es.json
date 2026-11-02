@@ -115,7 +115,6 @@
     "deletedText": "Eliminada por {name} el {at}. Sus especificaciones, rama y PR/MR ya no están disponibles.",
     "actions": "Acciones de la funcionalidad",
     "deleteFeature": "Eliminar funcionalidad",
-    "deleteSpec": "Eliminar especificación",
     "createdBy": "Creada por {name} {when}",
     "pr": "PR/MR #{n}",
     "fixOf": "Corrección de",
@@ -162,16 +161,14 @@
     },
     "readOnlyCodegen": "Las especificaciones son de solo lectura durante la generación de código.",
     "rolledBack": "El release se revirtió: la funcionalidad no se reabre, el trabajo continúa desde la tarea.",
-    "generating": "El agente está generando tech y qa…",
-    "generationFailed": "La generación de tech/qa se detuvo:",
-    "regenerate": "Regenerar",
-    "regenerating": "Regeneración iniciada",
-    "generatedLater": "tras la aprobación",
     "readyForCodegen": "Todas las puertas están listas.",
     "readyForCodegenHint": "El agente puede preparar los cambios en los servicios.",
     "startCodegen": "Iniciar generación de código",
     "indexedHint": "Indexada desde el repositorio como implementada: sin gates; los cambios se hacen con una corrección.",
-    "openInNavigator": "Abrir en Especificación"
+    "openInNavigator": "Abrir en Especificación",
+    "stages": "Etapas",
+    "stageLater": "Esta etapa aún no ha comenzado",
+    "specifications": "Especificaciones"
   },
   "editor": {
     "toolbar": "Formato",
@@ -186,8 +183,6 @@
       "quote": "Cita",
       "table": "Tabla"
     },
-    "draftByRules": "Borrador según las reglas",
-    "draftPrompt": "Prepara un borrador de la especificación «{area}» para {id} según las reglas de esta área.",
     "state": {
       "idle": "",
       "dirty": "Cambios sin guardar",
@@ -212,7 +207,7 @@
     "generated": "El agente escribe esta puerta. Comente en el chat y la regenerará.",
     "askAgentButton": "Pedir al agente",
     "askAgent": "Regenera la puerta {area} teniendo en cuenta mi comentario: ",
-    "unnumbered": "{count, plural, one {# requisito sin ID (**R1.**).} other {# requisitos sin ID (**R1.**).}}"
+    "unnumbered": "{count, plural, one {# requisito sin ID.} other {# requisitos sin ID.}}"
   },
   "history": {
     "title": "Historial: {area}",
@@ -225,7 +220,9 @@
       "submitted": "enviado a aprobación",
       "approved": "aprobado",
       "reset": "aprobación anulada por una edición",
-      "deleted": "eliminado"
+      "deleted": "eliminado",
+      "generated": "escrito por el agente",
+      "checked": "revisado, sin cambios"
     },
     "gateTitle": "Historial: {area}"
   },
@@ -700,13 +697,22 @@
     "channel_unavailable": "El agente no está disponible para su cuenta.",
     "invalid_sort": "Orden de la lista desconocido.",
     "invalid_estimate": "La estimación tiene un error.",
-    "request_not_found": "No se encontró el encargo.",
+    "request_not_found": "Encargo no encontrado.",
     "invalid_measure": "El método de medición tiene un error.",
     "queue_full": "Ya hay {max} mensajes en la cola: espere las respuestas o cancele algunos",
     "message_started": "El agente ya está respondiendo a este mensaje",
     "not_running": "La respuesta ya ha terminado",
     "unknown_question": "La pregunta ya no está abierta: recargue la página",
-    "invalid_answer": "Revise las respuestas"
+    "invalid_answer": "Revise las respuestas",
+    "spec_run_active": "El redactor trabaja en este documento. Inténtalo de nuevo cuando termine.",
+    "open_questions": "La puerta tiene preguntas abiertas.",
+    "question_other_expert": "Esta pregunta es para otros expertos.",
+    "approval_enabled": "En este dominio la siguiente etapa empieza tras la aprobación.",
+    "not_blocked": "El redactor no está detenido.",
+    "no_next_stage": "La especificación no tiene siguiente etapa.",
+    "writer_blocked": "El redactor se detuvo. Reintenta primero.",
+    "gate_not_written": "El documento de esta etapa aún no existe: responde la pregunta del redactor o reintenta.",
+    "gate_generated": "Esta puerta la escribe el agente: pide el cambio en el chat."
   },
   "stages": {
     "title": "Etapas",
@@ -1441,6 +1447,80 @@
       "answer": "Respuesta: {text}",
       "revAnswers": "Respuestas: {ids}",
       "acceptOpen": "{count, plural, one {Queda # pregunta abierta} other {Quedan # preguntas abiertas}}"
+    }
+  },
+  "writer": {
+    "topic": {
+      "pinned": "El chat sigue en esta solución mientras su especificación esté abierta",
+      "title": "Discusión de la especificación {key}"
+    },
+    "suggest": {
+      "answer": "Responder las preguntas",
+      "explain": "Explica las recomendaciones",
+      "why": "¿Por qué esta decisión?",
+      "addTo": "Completar: {area}",
+      "changeEarlier": "Cambiar una especificación anterior",
+      "changeThis": "¿Qué cambiar: {area}?",
+      "coverage": "¿Cómo se cubren los requisitos?",
+      "whatIn": "¿Qué tendrá esta puerta?",
+      "restore": "Recuperar la puerta"
+    },
+    "task": {
+      "title": "Encargo al redactor",
+      "open": "Abrir la especificación",
+      "afterRetry": "espera a que se reintente el redactor"
+    },
+    "result": {
+      "changes": "Ver los cambios",
+      "open": "Abrir la sección"
+    },
+    "q": {
+      "title": "Preguntas abiertas · {area}",
+      "round": "ronda {n} · rondas restantes: {left}",
+      "touches": "La respuesta puede cambiar: {list}",
+      "audience": {
+        "product": "para expertos de producto",
+        "technical": "para expertos técnicos"
+      },
+      "answeredBy": {
+        "product": "Responden los expertos de producto",
+        "technical": "Responden los expertos técnicos"
+      },
+      "allow": "La respuesta puede cambiar: {list}. Permitir"
+    },
+    "open": {
+      "title": "Quedan preguntas abiertas",
+      "text": "Las preguntas irán a la sección de preguntas abiertas del documento. Quien aprueba las verá en la página.",
+      "answer": "Responder",
+      "submit": "Enviar tal cual"
+    },
+    "run": {
+      "working": "El redactor trabaja en el documento. Los nuevos encargos irán en la siguiente ejecución.",
+      "waiting": "El redactor empezará cuando termine la edición.",
+      "checking": "El redactor revisa las puertas por debajo del cambio.",
+      "failed": "El redactor se detuvo:",
+      "retry": "Reintentar",
+      "noAgent": "No hay agente de servicio asignado",
+      "noAgentAdmin": "Asigna un agente al escenario de especificaciones.",
+      "noAgentHint": "Contacta con el administrador.",
+      "configure": "Configurar"
+    },
+    "skipped": "Omitida",
+    "skippedShort": "omitida",
+    "skippedHint": "Un experto decidió que esta puerta no hace falta. Se puede recuperar desde el chat.",
+    "readOnly": "Solo lectura mientras trabaja el redactor",
+    "waitsFor": "Primero hay que aprobar: {area}",
+    "advance": "Siguiente etapa",
+    "gate": {
+      "draft": "borrador",
+      "in_review": "en revisión",
+      "approved": "aprobada",
+      "none": "sin aprobación",
+      "running": "el redactor trabaja",
+      "skipped": "omitida",
+      "later": "sin empezar",
+      "laterHint": "Empieza tras la etapa anterior",
+      "label": "{name}, {state}, {count, plural, one {# pregunta} other {# preguntas}}"
     }
   }
 }

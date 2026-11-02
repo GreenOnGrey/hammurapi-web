@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Icon, useToast } from "@green-on-grey/ui-kit";
@@ -18,6 +18,8 @@ export type Choice = { choice: "recommended" } | { choice: "option"; option: num
 /** The answers not sent yet and the instruction they went with. */
 export interface Draft {
   answers: Record<string, Choice>;
+  /** Questions of the writer whose answer may change the other gates they name (FTR.HMR.DEV-0001 R21). */
+  allow?: Record<string, boolean>;
   sent?: { requestId: string; ids: string[] };
 }
 
@@ -35,7 +37,7 @@ export function loadDraft(issueKey: string, revision: number): Draft {
   return { answers: {} };
 }
 
-function saveDraft(issueKey: string, revision: number, d: Draft) {
+export function saveDraft(issueKey: string, revision: number, d: Draft) {
   try {
     localStorage.setItem(draftKey(issueKey, revision), JSON.stringify(d));
   } catch {
@@ -172,20 +174,32 @@ export function QuestionsBlock({ issueKey, d, canAnswer, highlighted }: { issueK
 
 const chipClass = (on: boolean) => `chip qchip${on ? " on" : ""}`;
 
-function QuestionCard({ q, c, editable, highlighted, sentId, onChoose }: {
+/** A question: also of the writer (FTR.HMR.DEV-0001 design §3.4), with whom it is for and what it may change;
+ * choicesOnly leaves only the options: the server decides what they do (R6). */
+export function QuestionCard({ q, c, editable, highlighted, sentId, onChoose, badge, note, choicesOnly, sentBadge }: {
   q: DiscoveryQuestion; c?: Choice; editable: boolean; highlighted: boolean; sentId?: string; onChoose: (c?: Choice) => void;
+  badge?: ReactNode; note?: ReactNode; choicesOnly?: boolean; sentBadge?: (requestId: string) => ReactNode;
 }) {
   const { t } = useTranslation();
   const toggle = (next: Choice) => onChoose(c && sameChoice(c, next) ? undefined : next);
   const answer = c && choiceText(q, c);
   return (
     <article id={`q-${q.id}`} className={`qcard${highlighted ? " lit" : ""}`}>
-      <div className="qhead"><span className="fid">{q.id}</span><b>{q.title}</b></div>
+      <div className="qhead"><span className="fid">{q.id}</span><b>{q.title}</b>{badge}</div>
       {q.body && <div className="qbody small t2">{q.body}</div>}
       {!editable && q.options.length > 0 && <div className="small t2">{t("disc.q.options")} {q.options.join(" · ")}</div>}
       <div className="qrec"><Icon name="spark" size={14} /><span><b>{t("disc.q.recommended")}</b> {q.recommended}</span></div>
       {q.why && <div className="qwhy small muted">{q.why}</div>}
-      {editable && (
+      {note}
+      {editable && choicesOnly && (
+        <div className="chips qchips" role="group" aria-label={q.title}>
+          {q.options.map((o, i) => {
+            const pressed = c?.choice === "option" && c.option === i;
+            return <button key={o} type="button" className={chipClass(pressed)} aria-pressed={pressed} onClick={() => toggle({ choice: "option", option: i })}>{o}</button>;
+          })}
+        </div>
+      )}
+      {editable && !choicesOnly && (
         <div className="chips qchips" role="group" aria-label={q.title}>
           <button type="button" className={chipClass(c?.choice === "recommended")} aria-pressed={c?.choice === "recommended"} onClick={() => toggle({ choice: "recommended" })}>
             <Icon name="check" size={14} />{t("disc.q.accept")}
@@ -202,19 +216,23 @@ function QuestionCard({ q, c, editable, highlighted, sentId, onChoose }: {
         <textarea className="inp qown" rows={2} autoFocus aria-label={t("disc.q.own")} placeholder={t("disc.q.ownPlaceholder")} value={c.text}
           onChange={(e) => onChoose({ choice: "own", text: e.target.value })} />
       )}
-      {sentId && answer && <SentAnswer requestId={sentId} answer={answer} />}
+      {sentId && answer && <SentAnswer requestId={sentId} answer={answer} badge={sentBadge} />}
     </article>
   );
 }
 
 /** A sent answer with the state of its instruction, as in the card of the instruction (design §3.3). */
-function SentAnswer({ requestId, answer }: { requestId: string; answer: string }) {
+function SentAnswer({ requestId, answer, badge }: { requestId: string; answer: string; badge?: (requestId: string) => ReactNode }) {
   const { t } = useTranslation();
-  const r = useDiscoveryRequest(requestId).data;
   return (
     <div className="qsent small">
       <span className="t2">{t("disc.q.answer", { text: answer })}</span>
-      {r && <RequestStateBadge state={r.state} />}
+      {badge ? badge(requestId) : <DiscoveryRequestBadge requestId={requestId} />}
     </div>
   );
+}
+
+function DiscoveryRequestBadge({ requestId }: { requestId: string }) {
+  const r = useDiscoveryRequest(requestId).data;
+  return r ? <RequestStateBadge state={r.state} /> : null;
 }

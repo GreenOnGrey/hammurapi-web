@@ -115,7 +115,6 @@
     "deletedText": "Gelöscht von {name} am {at}. Spezifikationen, Branch und PR/MR sind nicht mehr verfügbar.",
     "actions": "Feature-Aktionen",
     "deleteFeature": "Feature löschen",
-    "deleteSpec": "Spezifikation löschen",
     "createdBy": "Erstellt von {name} {when}",
     "pr": "PR/MR #{n}",
     "fixOf": "Korrektur von",
@@ -162,16 +161,14 @@
     },
     "readOnlyCodegen": "Während der Code-Generierung sind Spezifikationen schreibgeschützt.",
     "rolledBack": "Das Release wurde zurückgerollt: Das Feature wird nicht wieder geöffnet, die Arbeit geht über die Aufgabe weiter.",
-    "generating": "Der Agent erstellt tech und qa…",
-    "generationFailed": "Erstellung von tech/qa angehalten:",
-    "regenerate": "Neu erstellen",
-    "regenerating": "Neuerstellung gestartet",
-    "generatedLater": "nach der Freigabe",
     "readyForCodegen": "Alle Gates sind bereit.",
     "readyForCodegenHint": "Der Agent kann Änderungen in den Services vorbereiten.",
     "startCodegen": "Code-Generierung starten",
     "indexedHint": "Aus dem Repository als umgesetzt indiziert: ohne Gates; Änderungen über ein Fix-Feature.",
-    "openInNavigator": "In der Spezifikation öffnen"
+    "openInNavigator": "In der Spezifikation öffnen",
+    "stages": "Phasen",
+    "stageLater": "Diese Phase hat noch nicht begonnen",
+    "specifications": "Spezifikationen"
   },
   "editor": {
     "toolbar": "Formatierung",
@@ -186,8 +183,6 @@
       "quote": "Zitat",
       "table": "Tabelle"
     },
-    "draftByRules": "Entwurf nach Regeln",
-    "draftPrompt": "Erstelle einen Entwurf der Spezifikation „{area}“ für {id} nach den Regeln dieses Bereichs.",
     "state": {
       "idle": "",
       "dirty": "Ungespeicherte Änderungen",
@@ -212,7 +207,7 @@
     "generated": "Dieses Gate schreibt der Agent. Kommentieren Sie im Chat, der Agent erstellt es neu.",
     "askAgentButton": "Agent fragen",
     "askAgent": "Erstelle das Gate {area} unter Berücksichtigung meines Kommentars neu: ",
-    "unnumbered": "{count, plural, one {# Anforderung ohne ID (**R1.**).} other {# Anforderungen ohne ID (**R1.**).}}"
+    "unnumbered": "{count, plural, one {# Anforderung ohne ID.} other {# Anforderungen ohne ID.}}"
   },
   "history": {
     "title": "Verlauf: {area}",
@@ -225,7 +220,9 @@
       "submitted": "zur Freigabe eingereicht",
       "approved": "freigegeben",
       "reset": "Freigabe durch Änderung zurückgesetzt",
-      "deleted": "gelöscht"
+      "deleted": "gelöscht",
+      "generated": "vom Agenten geschrieben",
+      "checked": "geprüft, keine Änderungen"
     },
     "gateTitle": "Verlauf: {area}"
   },
@@ -700,13 +697,22 @@
     "channel_unavailable": "Der Agent ist für Ihr Konto nicht verfügbar.",
     "invalid_sort": "Unbekannte Sortierung der Liste.",
     "invalid_estimate": "Die Schätzung enthält einen Fehler.",
-    "request_not_found": "Der Auftrag wurde nicht gefunden.",
+    "request_not_found": "Auftrag nicht gefunden.",
     "invalid_measure": "Die Messmethode enthält einen Fehler.",
     "queue_full": "In der Warteschlange sind bereits {max} Nachrichten — warten Sie auf die Antworten oder brechen Sie einige ab",
     "message_started": "Der Agent beantwortet diese Nachricht bereits",
     "not_running": "Die Antwort ist bereits beendet",
     "unknown_question": "Die Frage ist nicht mehr offen: Seite neu laden",
-    "invalid_answer": "Antworten prüfen"
+    "invalid_answer": "Antworten prüfen",
+    "spec_run_active": "Der Autor arbeitet an diesem Dokument. Versuchen Sie es erneut, wenn er fertig ist.",
+    "open_questions": "Das Gate hat offene Fragen.",
+    "question_other_expert": "Diese Frage richtet sich an andere Experten.",
+    "approval_enabled": "In dieser Domäne beginnt die nächste Phase nach der Genehmigung.",
+    "not_blocked": "Der Autor ist nicht angehalten.",
+    "no_next_stage": "Die Spezifikation hat keine nächste Phase.",
+    "writer_blocked": "Der Autor hat angehalten. Wiederholen Sie zuerst den Lauf.",
+    "gate_not_written": "Das Dokument dieser Phase fehlt noch: Beantworten Sie die Frage des Autors oder wiederholen Sie den Lauf.",
+    "gate_generated": "Dieses Gate schreibt der Agent: Bitten Sie im Chat um eine Änderung."
   },
   "stages": {
     "title": "Phasen",
@@ -1441,6 +1447,80 @@
       "answer": "Antwort: {text}",
       "revAnswers": "Antworten: {ids}",
       "acceptOpen": "{count, plural, one {# offene Frage bleibt} other {# offene Fragen bleiben}}"
+    }
+  },
+  "writer": {
+    "topic": {
+      "pinned": "Der Chat bleibt bei dieser Lösung, solange ihre Spezifikation geöffnet ist",
+      "title": "Diskussion der Spezifikation {key}"
+    },
+    "suggest": {
+      "answer": "Fragen beantworten",
+      "explain": "Empfehlungen erklären",
+      "why": "Warum diese Entscheidung?",
+      "addTo": "Ergänzen: {area}",
+      "changeEarlier": "Eine frühere Spezifikation ändern",
+      "changeThis": "Was ändern: {area}?",
+      "coverage": "Wie sind die Anforderungen abgedeckt?",
+      "whatIn": "Was wird dieses Gate enthalten?",
+      "restore": "Gate zurückholen"
+    },
+    "task": {
+      "title": "Auftrag an den Autor",
+      "open": "Spezifikation öffnen",
+      "afterRetry": "wartet auf die Wiederholung des Laufs"
+    },
+    "result": {
+      "changes": "Änderungen ansehen",
+      "open": "Abschnitt öffnen"
+    },
+    "q": {
+      "title": "Offene Fragen · {area}",
+      "round": "Runde {n} · verbleibende Runden: {left}",
+      "touches": "Die Antwort kann ändern: {list}",
+      "audience": {
+        "product": "an Produktexperten",
+        "technical": "an technische Experten"
+      },
+      "answeredBy": {
+        "product": "Produktexperten antworten",
+        "technical": "Technische Experten antworten"
+      },
+      "allow": "Die Antwort kann ändern: {list}. Erlauben"
+    },
+    "open": {
+      "title": "Es sind offene Fragen übrig",
+      "text": "Die Fragen kommen in den Abschnitt der offenen Fragen des Dokuments. Der Genehmigende sieht sie auf der Seite.",
+      "answer": "Beantworten",
+      "submit": "So einreichen"
+    },
+    "run": {
+      "working": "Der Autor arbeitet am Dokument. Neue Aufträge gehen mit dem nächsten Lauf.",
+      "waiting": "Der Autor beginnt nach dem Ende der Bearbeitung.",
+      "checking": "Der Autor prüft die Gates unter der Änderung.",
+      "failed": "Der Autor hat angehalten:",
+      "retry": "Wiederholen",
+      "noAgent": "Kein Service-Agent zugewiesen",
+      "noAgentAdmin": "Weisen Sie dem Szenario der Spezifikationen einen Agenten zu.",
+      "noAgentHint": "Wenden Sie sich an den Administrator.",
+      "configure": "Konfigurieren"
+    },
+    "skipped": "Übersprungen",
+    "skippedShort": "übersprungen",
+    "skippedHint": "Ein Experte hat entschieden, dass dieses Gate nicht nötig ist. Es lässt sich über den Chat zurückholen.",
+    "readOnly": "Schreibgeschützt, solange der Autor arbeitet",
+    "waitsFor": "Zuerst muss genehmigt werden: {area}",
+    "advance": "Nächste Phase",
+    "gate": {
+      "draft": "Entwurf",
+      "in_review": "in Prüfung",
+      "approved": "genehmigt",
+      "none": "ohne Genehmigung",
+      "running": "der Autor arbeitet",
+      "skipped": "übersprungen",
+      "later": "nicht begonnen",
+      "laterHint": "Beginnt nach der vorherigen Phase",
+      "label": "{name}, {state}, {count, plural, one {# Frage} other {# Fragen}}"
     }
   }
 }

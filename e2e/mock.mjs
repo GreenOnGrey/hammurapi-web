@@ -109,8 +109,38 @@ const specFiles = (key, area) => area !== "design" ? [] : [
 ];
 const MOCKUP = "<!doctype html><body style=\"margin:0;font:16px sans-serif;background:#eeedf3\"><div style=\"padding:24px 32px;background:#6d4aff;color:#fff\">Макеты</div><div style=\"display:grid;grid-template-columns:220px 1fr 300px;gap:16px;padding:24px\"><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div></div></body>";
 
+// FTR.HMR.DEV-0001: a feature with the writer. mock-feature: questions (default), return, noapproval, generated, skipped.
+const featureGate = (area, status, generated = false) => ({ area, status, generated, headCommit: "c0", approvedCommit: status === "approved" ? "c0" : null,
+  approvedBy: status === "approved" ? "Анна Петрова" : null, approvedAt: status === "approved" ? "2026-10-20T10:00:00Z" : null, submittedAt: status === "in_review" ? "2026-10-21T10:00:00Z" : null, deleted: false });
+function feature(state) {
+  const base = { uniqueId: "FTR.FMS.CAR-0005", domain: "FMS", system: "CAR", title: "Скидка за ранний возврат авто", phase: "spec", approvalRequired: true, isProblem: false, imported: false,
+    branch: "ftr", pr: { number: 41, url: "http://pr" }, parent: null, fixes: [], issues: ["ISS.FMS-0007"], services: [], release: null, metric: null, flagKey: null, pendingGates: ["tech", "qa"], lock: null,
+    workflow: null, tokensIn: 0, tokensOut: 0, createdBy: "Анна Петрова", createdAt: "2026-10-20T10:00:00Z", specFlow: "writer", specStage: "product", skippedAreas: [], writerRun: null, openQuestions: {},
+    permissions: { edit: ["product"], submit: ["product"], approve: [], delete: true, setFlag: true, codegen: false, advance: false, request: true, retry: false, deleteGate: [], addGate: [], regenerate: false } };
+  if (state === "return") return { ...base, specStage: "arch", gates: [featureGate("product", "draft"), featureGate("design", "approved"), featureGate("arch", "in_review")], openQuestions: { arch: 1 },
+    permissions: { ...base.permissions, edit: ["product", "design", "arch"], submit: ["product"], approve: ["arch"] } };
+  if (state === "noapproval") return { ...base, approvalRequired: false, gates: [featureGate("product", "draft")], permissions: { ...base.permissions, submit: [], advance: true } };
+  if (state === "generated") return { ...base, specStage: "generated", pendingGates: [], gates: [featureGate("product", "approved"), featureGate("arch", "approved"), featureGate("tech", "draft", true), featureGate("qa", "draft", true)],
+    skippedAreas: ["design"], permissions: { ...base.permissions, edit: ["product", "arch"], submit: ["tech", "qa"] } };
+  if (state === "running") return { ...base, gates: [featureGate("product", "draft")], writerRun: { mode: "write", state: "generating", areas: ["product"], waitingLock: false }, permissions: { ...base.permissions, edit: [], submit: [] } };
+  return { ...base, gates: [featureGate("product", "draft")], openQuestions: { product: 2 } };
+}
+const specQuestion = (id, title, extra = {}) => ({ id, round: 1, title, body: "Discovery решает, что скидка есть, но не определяет этот порог.", options: ["За 1 час"], recommended: "за 2 часа до конца аренды",
+  why: "Так видно эффект в пиковые часы.", audience: "product", canAnswer: true, ...extra });
+function specQuestions(state) {
+  if (state === "return") return { items: [{ area: "arch", round: 1, roundsLeft: 4, questions: [specQuestion("Q2", "Срок хранения журнала аудита", { audience: "product", touches: ["product"], canAnswer: false })] }] };
+  if (state && state !== "questions") return { items: [] };
+  return { items: [{ area: "product", round: 1, roundsLeft: 4, questions: [specQuestion("Q1", "Порог досрочного возврата"), specQuestion("Q2", "Скидка при продлении")] }] };
+}
+const featureDoc = { content: "# Продуктовая спецификация: Скидка за ранний возврат авто\n\n**R1.** Клиент, вернувший авто за 2 часа до конца аренды, получает скидку на следующую аренду (допущение, см. Q1).\n",
+  sha: "s", fix: false, generated: false, warnings: [], unnumberedRequirements: [], lock: null, readOnly: false, files: [] };
+
 function api(url, c) {
   const p = url.pathname;
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/topic") return { conversationId: null, title: "FTR.FMS.CAR-0005 — Скидка за ранний возврат авто" };
+  if (/^\/api\/v1\/features\/FTR\.FMS\.CAR-0005\/gates\/\w+\/document$/.test(p)) return featureDoc;
   if (p === "/api/v1/config") return config(c("mock-login"));
   if (p === "/api/v1/auth/me") return me(c("mock-theme") ?? "light");
   if (p === "/api/v1/profile") return profile(c("mock-theme") ?? "light");

@@ -33,6 +33,12 @@ export const SCREENS: Screen[] = [
   { name: "spec-tree", path: "/spec", only: "phone" },
   { name: "spec-chat-collapsed", path: "/spec/FTR.NAB.CMN-0005/product", only: "desktop", act: click("Свернуть чат") },
   { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
+  // FTR.HMR.DEV-0001 design §4: the stages, the panel of the specifications, the questions of the writer, the gates as icons
+  { name: "feature-spec", path: "/features/FTR.FMS.CAR-0005" },
+  { name: "feature-writer-running", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "running" } },
+  { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },
+  { name: "feature-no-approval", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "noapproval" } },
+  { name: "feature-generated", path: "/features/FTR.FMS.CAR-0005/spec/tech", cookies: { "mock-feature": "generated" } },
   { name: "admin", path: "/admin" },
   // FTR.HMR.CMN-0007 design §3.6: the connection and the binding; Nabu does not answer
   { name: "admin-nabu", path: "/admin/nabu" },

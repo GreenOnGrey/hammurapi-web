@@ -15,6 +15,7 @@ import { useEvent } from "../lib/sse";
 import { keys } from "../api/queries";
 import type { IssueTopic } from "../api/types";
 import { noticeContent, revisionContent } from "./discoveryCards";
+import { specNoticeContent, specRevisionContent } from "./specCards";
 
 // The adapter of the window to the agent of Nabu (FTR.HMR.CMN-0006 R5, R6;
 // FTR.NAB.CMN-0005 R12, tech §5): the requests through Hammurapi, the nabu.*
@@ -52,7 +53,7 @@ export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentW
   if (m.role === "notice") {
     // FTR.NAB.CHAT-0002: a notice of a product, not words of the agent; FTR.HMR.DISC-0001: the card of the result
     const name = m.clientName ?? m.channel.replace(/^client:/, "");
-    return { ...base, role: "assistant", variant: "notice", mark: { icon: "plug", text: name.replace(/^./, (c) => c.toUpperCase()) }, content: noticeContent(m) };
+    return { ...base, role: "assistant", variant: "notice", mark: { icon: "plug", text: name.replace(/^./, (c) => c.toUpperCase()) }, content: specNoticeContent(m) ?? noticeContent(m) };
   }
   if (m.role === "user") {
     return {
@@ -65,7 +66,7 @@ export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentW
     ...base, role: "assistant",
     steps: (m.toolSteps ?? []).map((s) => ({ id: s.id, text: nabuStepText(s), title: s.summary, status: s.status, subagents: s.subagents })),
     // FTR.HMR.DISC-0001 design §3.3: the instruction to the researcher is a card under the answer
-    content: revisionContent(m),
+    content: specRevisionContent(m) ?? revisionContent(m),
     error: m.errorClass ? { text: llmErrorText(t, m.errorClass, t("llm.theConnection")), transient: transientLLMError(m.errorClass) } : undefined,
   };
 }
@@ -111,10 +112,16 @@ export function useNabuConversations() {
   return { rows, offline, create };
 }
 
+/** The subject of a topic of the chat. */
+export interface TopicRef {
+  kind: "issue" | "feature";
+  key: string;
+}
+
 /** One conversation with the agent of Nabu: what the `Chat` of the kit needs, apart from the look.
- * With issueKey it is the topic of the issue (FTR.HMR.DISC-0001 R2): convId null is
- * the draft, and messages go through the issue, which creates the topic with the first one. */
-export function useNabuConversation(convId: string | null, issueKey?: string): Pick<ChatProps,
+ * With a topic it is the topic of an issue (FTR.HMR.DISC-0001 R2) or of a feature (FTR.HMR.DEV-0001 R15):
+ * convId null is the draft, and messages go through the subject, which creates the topic with the first one. */
+export function useNabuConversation(convId: string | null, topic?: TopicRef): Pick<ChatProps,
   "messages" | "loading" | "historyError" | "hasOlder" | "loadingOlder" | "busy" | "upload" | "onSend" | "onLoadOlder" | "onRetry" | "onUpload" | "onTranscribe"
   | "allowQueue" | "onCancelQueued" | "onStop"> {
   const { t } = useTranslation();
@@ -127,7 +134,7 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
   const fail = (e: unknown, text?: string) => toast({ kind: "error", title: errorText(t, e), text });
 
   const history = useInfiniteQuery({
-    queryKey: nabuKeys.messages(convId ?? `draft:${issueKey}`),
+    queryKey: nabuKeys.messages(convId ?? `draft:${topic?.key}`),
     enabled: convId !== null,
     initialPageParam: "",
     queryFn: ({ pageParam }) =>
@@ -208,12 +215,14 @@ export function useNabuConversation(convId: string | null, issueKey?: string): P
     // every message carries the screen the user looks at (FTR.HMR.CMN-0006 R6)
     const context = chat.subject ? { type: chat.subject.type, key: chat.subject.key, area: chat.area ?? undefined } : undefined;
     try {
-      if (issueKey) {
-        // the server adds the context of the issue and creates the topic with the first message
-        const res = await api.post<{ conversationId: string; message: NabuMessage }>(`/api/v1/issues/${issueKey}/topic/messages`, { text, attachmentIds });
+      if (topic) {
+        // the server adds the context of the subject and creates the topic with the first message
+        const base = topic.kind === "issue" ? `/api/v1/issues/${topic.key}` : `/api/v1/features/${topic.key}`;
+        const res = await api.post<{ conversationId: string; message: NabuMessage }>(`${base}/topic/messages`,
+          topic.kind === "issue" ? { text, attachmentIds } : { text, attachmentIds, area: chat.area ?? undefined });
         if (res.message) put({ ...res.message, conversationId: res.conversationId });
         if (res.conversationId !== convId) {
-          qc.setQueryData<IssueTopic>(keys.topic(issueKey), (old) => ({ title: old?.title ?? "", conversationId: res.conversationId }));
+          qc.setQueryData<IssueTopic>(keys.topic(topic.key), (old) => ({ title: old?.title ?? "", conversationId: res.conversationId }));
           qc.invalidateQueries({ queryKey: nabuKeys.conversations });
         }
         return;

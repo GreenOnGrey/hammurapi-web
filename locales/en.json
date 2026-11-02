@@ -115,7 +115,6 @@
     "deletedText": "Deleted by {name} on {at}. Its specifications, branch and PR/MR are no longer available.",
     "actions": "Feature actions",
     "deleteFeature": "Delete feature",
-    "deleteSpec": "Delete specification",
     "createdBy": "Created by {name} {when}",
     "pr": "PR/MR #{n}",
     "fixOf": "Fix of",
@@ -162,16 +161,14 @@
     },
     "readOnlyCodegen": "Specifications are read-only while code is generated.",
     "rolledBack": "The release of this feature was rolled back: it is not reopened, work continues through the issue.",
-    "generating": "The agent is generating tech and qa…",
-    "generationFailed": "Generation of tech/qa stopped:",
-    "regenerate": "Regenerate",
-    "regenerating": "Regeneration started",
-    "generatedLater": "generated after approval",
     "readyForCodegen": "All gates are ready.",
     "readyForCodegenHint": "The agent can prepare changes in the services.",
     "startCodegen": "Start code generation",
     "indexedHint": "Indexed from the repository as implemented: it has no gates; change it with a fix feature.",
-    "openInNavigator": "Open in Specification"
+    "openInNavigator": "Open in Specification",
+    "stages": "Stages",
+    "stageLater": "This stage has not started yet",
+    "specifications": "Specifications"
   },
   "editor": {
     "toolbar": "Formatting",
@@ -186,8 +183,6 @@
       "quote": "Quote",
       "table": "Table"
     },
-    "draftByRules": "Draft by the rules",
-    "draftPrompt": "Prepare a draft of the {area} specification for {id} according to the rules of this area.",
     "state": {
       "idle": "",
       "dirty": "Unsaved changes",
@@ -212,7 +207,7 @@
     "generated": "The agent writes this gate. Comment in the chat and the agent regenerates it.",
     "askAgentButton": "Ask the agent",
     "askAgent": "Regenerate the {area} gate taking my comment into account: ",
-    "unnumbered": "{count, plural, one {# requirement has no ID (**R1.**).} other {# requirements have no ID (**R1.**).}}"
+    "unnumbered": "{count, plural, one {# requirement has no ID.} other {# requirements have no ID.}}"
   },
   "history": {
     "title": "History: {area}",
@@ -225,7 +220,9 @@
       "submitted": "submitted for approval",
       "approved": "approved",
       "reset": "approval reset by an edit",
-      "deleted": "deleted"
+      "deleted": "deleted",
+      "generated": "written by the agent",
+      "checked": "checked, nothing to change"
     },
     "gateTitle": "History: {area}"
   },
@@ -700,13 +697,22 @@
     "channel_unavailable": "The agent is not available for your account.",
     "invalid_sort": "Unknown sort of the list.",
     "invalid_estimate": "The estimate has an error.",
-    "request_not_found": "The instruction is not found.",
+    "request_not_found": "Instruction not found.",
     "invalid_measure": "The way to measure has an error.",
     "queue_full": "{max, plural, one {The queue already has # message} other {The queue already has # messages}} — wait for the answers or cancel some",
     "message_started": "The agent is already answering this message",
     "not_running": "The answer has already ended",
     "unknown_question": "The question is no longer open: reload the page",
-    "invalid_answer": "Check the answers"
+    "invalid_answer": "Check the answers",
+    "spec_run_active": "The writer is working on this document. Try again when it finishes.",
+    "open_questions": "The gate has open questions.",
+    "question_other_expert": "This question is for other experts.",
+    "approval_enabled": "In this domain the next stage starts when the gate is approved.",
+    "not_blocked": "The writer is not stopped.",
+    "no_next_stage": "The specification has no next stage.",
+    "writer_blocked": "The writer stopped. Retry it first.",
+    "gate_not_written": "The gate of this stage is not written yet: answer the question of the writer or retry.",
+    "gate_generated": "The agent writes this gate: ask for a change in the chat."
   },
   "stages": {
     "title": "Stages",
@@ -1441,6 +1447,80 @@
       "answer": "Answer: {text}",
       "revAnswers": "Answers: {ids}",
       "acceptOpen": "{count, plural, one {# open question remains} other {# open questions remain}}"
+    }
+  },
+  "writer": {
+    "topic": {
+      "pinned": "The chat stays on this feature while its specification is open",
+      "title": "Discussion of the specification {key}"
+    },
+    "suggest": {
+      "answer": "Answer the questions",
+      "explain": "Explain the recommendations",
+      "why": "Why this decision?",
+      "addTo": "Add to {area}",
+      "changeEarlier": "Change an earlier specification",
+      "changeThis": "What to change in {area}?",
+      "coverage": "How are the requirements covered?",
+      "whatIn": "What will be in this gate?",
+      "restore": "Bring the gate back"
+    },
+    "task": {
+      "title": "Instruction to the writer",
+      "open": "Open the specification",
+      "afterRetry": "waits for the writer to be retried"
+    },
+    "result": {
+      "changes": "See the changes",
+      "open": "Open the section"
+    },
+    "q": {
+      "title": "Open questions · {area}",
+      "round": "round {n} · rounds left: {left}",
+      "touches": "The answer may change: {list}",
+      "audience": {
+        "product": "for product experts",
+        "technical": "for technical experts"
+      },
+      "answeredBy": {
+        "product": "Product experts answer",
+        "technical": "Technical experts answer"
+      },
+      "allow": "The answer may change {list}: allow it"
+    },
+    "open": {
+      "title": "Open questions remain",
+      "text": "The questions go to the section of open questions of the document. The approver sees them on the page.",
+      "answer": "Answer",
+      "submit": "Submit as is"
+    },
+    "run": {
+      "working": "The writer is working on the document. New instructions go with the next run.",
+      "waiting": "The writer will start after the edit ends.",
+      "checking": "The writer is checking the gates below the change.",
+      "failed": "The writer stopped:",
+      "retry": "Retry",
+      "noAgent": "No service agent is assigned",
+      "noAgentAdmin": "Assign an agent to the scenario of specifications.",
+      "noAgentHint": "Ask the administrator to assign it.",
+      "configure": "Configure"
+    },
+    "skipped": "Skipped",
+    "skippedShort": "skipped",
+    "skippedHint": "An expert decided this gate is not needed. It can be brought back through the chat.",
+    "readOnly": "Read-only while the writer works",
+    "waitsFor": "{area} has to be approved first",
+    "advance": "Next stage",
+    "gate": {
+      "draft": "draft",
+      "in_review": "in review",
+      "approved": "approved",
+      "none": "no approval",
+      "running": "the writer is working",
+      "skipped": "skipped",
+      "later": "not started",
+      "laterHint": "Starts after the previous stage",
+      "label": "{name}, {state}, {count, plural, one {# question} other {# questions}}"
     }
   }
 }
