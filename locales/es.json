@@ -447,6 +447,8 @@
     },
     "services": {
       "noCheck": "sin comando de comprobación",
+      "settings": "Ajustes del servicio {key}",
+      "agent": "Agente",
       "title": "Servicios",
       "key": "Servicio",
       "system": "Sistema",

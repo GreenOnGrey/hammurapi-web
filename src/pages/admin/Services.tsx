@@ -2,22 +2,21 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
-import { keys, useDomains, useServices } from "../../api/queries";
+import { invalidateCycle, keys, useDomains, useServices } from "../../api/queries";
 import type { ServiceDTO } from "../../api/types";
 import { useSession } from "../../app/session";
 import { errorText } from "../../lib/errors";
 import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
-import { AutonomyModal } from "../feature/Autonomy";
+import { AgentFields, useAgentSettings } from "../feature/Autonomy";
 
 /** Services: the catalog from Backstage or the manual list (R10, R11). */
 export function ServicesAdmin() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
-  const { me, owns } = useSession();
+  const { me } = useSession();
   const services = useServices();
   const [edit, setEdit] = useState<ServiceDTO | "new" | null>(null);
-  const [autonomy, setAutonomy] = useState<ServiceDTO | null>(null);
   const [override, setOverride] = useState<ServiceDTO | null>(null);
   const del = useMutation({
     mutationFn: (key: string) => api.del(`/admin/api/v1/services/${key}`),
@@ -41,13 +40,13 @@ export function ServicesAdmin() {
                 <td className="mono small">{s.repo}</td>
                 <td className="small">{s.owners.join(", ") || <span className="muted">{s.ownerRef || "—"}</span>}</td>
                 <td>
-                  <button className="btn ghost sm" onClick={() => setAutonomy(s)}>{t(`autonomy.${s.autonomy}.name`)}</button>
+                  {t(`autonomy.${s.autonomy}.name`)}
                   {!s.check && <div className="small muted">{t("admin.services.noCheck")}</div>}
                 </td>
                 <td>
                   <div className="row" style={{ justifyContent: "flex-end" }}>
                     {me.globalAdmin && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
-                    {s.source === "manual" && <button className="btn ghost sm" onClick={() => setEdit(s)}>{t("admin.services.edit")}</button>}
+                    <button className="btn ghost sm" onClick={() => setEdit(s)}>{t("admin.services.edit")}</button>
                     {s.source === "manual" && <button className="btn ghost sm danger" disabled={del.isPending} onClick={() => del.mutate(s.key)}><Icon name="trash" size={14} /></button>}
                   </div>
                 </td>
@@ -59,15 +58,17 @@ export function ServicesAdmin() {
       {!managed && <button className="btn sm" style={{ marginTop: 12 }} onClick={() => setEdit("new")}><Icon name="plus" size={15} />{t("admin.services.add")}</button>}
       {managed && <p className="small muted">{t("admin.services.managed")}</p>}
       {edit && <ServiceModal s={edit === "new" ? null : edit} onClose={() => setEdit(null)} />}
-      {autonomy && <AutonomyModal service={autonomy} canSetAutonomy={owns(autonomy.key)} onClose={() => setAutonomy(null)} />}
       {override && <OverrideModal s={override} onClose={() => setOverride(null)} />}
     </>
   );
 }
 
+/** The settings of a service: its data, when it is not from the catalog, and its agent. */
 function ServiceModal({ s, onClose }: { s: ServiceDTO | null; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
+  const { owns } = useSession();
+  const agent = useAgentSettings(s);
   const domains = useDomains();
   const [key, setKey] = useState(s?.key ?? "");
   const [name, setName] = useState(s?.name ?? "");
@@ -75,36 +76,45 @@ function ServiceModal({ s, onClose }: { s: ServiceDTO | null; onClose: () => voi
   const [repo, setRepo] = useState(s?.repo ?? "");
   const [owner, setOwner] = useState(s?.ownerRef ?? "");
   const save = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const body = { key, name, system: system || null, repo, ownerRef: owner };
-      return s ? api.patch(`/admin/api/v1/services/${s.key}`, body) : api.post("/admin/api/v1/services", body);
+      if (!s) await api.post("/admin/api/v1/services", body);
+      else if (name !== s.name || system !== (s.system ?? "") || repo !== s.repo || owner !== (s.ownerRef ?? "")) await api.patch(`/admin/api/v1/services/${s.key}`, body);
+      await agent.persist();
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: keys.services }); onClose(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: keys.services }); invalidateCycle(qc); onClose(); },
   });
+  const editable = !s || s.source === "manual";
   const systems = domains.data?.flatMap((d) => d.systems.map((x) => `${d.key}/${x.key}`)) ?? [];
   return (
-    <Modal title={s ? t("admin.services.edit") : t("admin.services.add")} onClose={onClose} footer={
+    <Modal title={s ? t("admin.services.settings", { key: s.key }) : t("admin.services.add")} onClose={onClose} footer={
       <>
         <button className="btn ghost" onClick={onClose}>{t("common.cancel")}</button>
         <button className="btn primary" disabled={!key || !repo || save.isPending} onClick={() => save.mutate()}>{t("common.save")}</button>
       </>
     }>
-      <div className="two">
-        <div className="field"><label htmlFor="sv-key">{t("admin.services.key")}</label>
-          <input id="sv-key" className="inp mono" value={key} disabled={!!s} onChange={(e) => setKey(e.target.value.toLowerCase())} /></div>
-        <div className="field"><label htmlFor="sv-name">{t("admin.domains.name")}</label>
-          <input id="sv-name" className="inp" value={name} onChange={(e) => setName(e.target.value)} /></div>
-      </div>
-      <div className="field"><label htmlFor="sv-system">{t("admin.services.system")}</label>
-        <select id="sv-system" className="inp" value={system} onChange={(e) => setSystem(e.target.value)}>
-          <option value="">—</option>
-          {systems.map((x) => <option key={x} value={x}>{x}</option>)}
-        </select></div>
-      <div className="field"><label htmlFor="sv-repo">{t("admin.services.repo")}</label>
-        <input id="sv-repo" className="inp mono" value={repo} placeholder="team/booking" onChange={(e) => setRepo(e.target.value)} /></div>
-      <div className="field"><label htmlFor="sv-owner">{t("admin.services.ownerRef")}</label>
-        <input id="sv-owner" className="inp mono" value={owner} placeholder="user:anna | group:team-fleet" onChange={(e) => setOwner(e.target.value)} />
-        <div className="hint">{t("admin.services.ownerHint")}</div></div>
+      {editable && <>
+        <div className="two">
+          <div className="field"><label htmlFor="sv-key">{t("admin.services.key")}</label>
+            <input id="sv-key" className="inp mono" value={key} disabled={!!s} onChange={(e) => setKey(e.target.value.toLowerCase())} /></div>
+          <div className="field"><label htmlFor="sv-name">{t("admin.domains.name")}</label>
+            <input id="sv-name" className="inp" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        </div>
+        <div className="field"><label htmlFor="sv-system">{t("admin.services.system")}</label>
+          <select id="sv-system" className="inp" value={system} onChange={(e) => setSystem(e.target.value)}>
+            <option value="">—</option>
+            {systems.map((x) => <option key={x} value={x}>{x}</option>)}
+          </select></div>
+        <div className="field"><label htmlFor="sv-repo">{t("admin.services.repo")}</label>
+          <input id="sv-repo" className="inp mono" value={repo} placeholder="team/booking" onChange={(e) => setRepo(e.target.value)} /></div>
+        <div className="field"><label htmlFor="sv-owner">{t("admin.services.ownerRef")}</label>
+          <input id="sv-owner" className="inp mono" value={owner} placeholder="user:anna | group:team-fleet" onChange={(e) => setOwner(e.target.value)} />
+          <div className="hint">{t("admin.services.ownerHint")}</div></div>
+      </>}
+      {s && <>
+        {editable && <h3 className="group-h">{t("admin.services.agent")}</h3>}
+        <AgentFields settings={agent} canSetAutonomy={owns(s.key)} />
+      </>}
       {save.error && <div className="err-text">{errorText(t, save.error)}</div>}
     </Modal>
   );
