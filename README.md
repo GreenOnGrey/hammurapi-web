@@ -91,4 +91,4 @@ tests → image `ghcr.io/greenongrey/hammurapi-web` with SBOM, provenance and a 
 Trivy scan → deploy through the reusable workflow of `hammurapi` (web is deployed only after
 `hammurapi-core`). A manual run with a tag redeploys without a rebuild. Versions are pinned in
 `deploy/versions.env`; after changing `DEPLOY_WORKFLOW_REF` run `deploy/sync-ref.sh`. Setup:
-`hammurapi-infra/docs/hammurapi.md`.
+`installer/docs/hammurapi.md`.
