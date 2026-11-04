@@ -53,10 +53,10 @@ export function AutonomyModal({ service, canSetAutonomy = true, onClose }: {
       ))}
       <p className="small muted">{t("autonomy.noMerge")}</p>
       <div className="field"><label htmlFor="check-command">{t("autonomy.check")}</label>
-        <input id="check-command" className="mono" maxLength={2000} value={command} onChange={(e) => setCommand(e.target.value)} />
+        <input id="check-command" className="inp mono" maxLength={2000} value={command} onChange={(e) => setCommand(e.target.value)} />
         <div className="hint">{t("autonomy.checkHint")}</div></div>
       <div className="field"><label htmlFor="check-timeout">{t("autonomy.checkTimeout")}</label>
-        <input id="check-timeout" type="number" min={1} max={30} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} /></div>
+        <input id="check-timeout" className="inp" style={{ width: 120 }} type="number" min={1} max={30} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} /></div>
       {save.error && <div className="err-text">{errorText(t, save.error)}</div>}
     </Modal>
   );
