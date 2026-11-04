@@ -127,6 +127,8 @@ export interface FeatureSummary {
   issues: string[];
   createdAt: string;
   gates: Gate[];
+  /** Absent in the answer of a core older than this field. */
+  skippedAreas?: Area[];
 }
 
 export interface LockInfo {

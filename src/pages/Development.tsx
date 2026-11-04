@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useApprovals, useDomains, useFeatures } from "../api/queries";
-import { AREAS, type FeatureSummary } from "../api/types";
+import { AREAS, type Area, type FeaturePhase, type FeatureSummary } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { duration } from "../lib/format";
 import { Empty, Icon, Loading } from "@green-on-grey/ui-kit";
@@ -121,10 +121,46 @@ export function DevelopmentPage() {
   );
 }
 
+type StageState = "approved" | "in_review" | "draft" | "later";
+
+export interface FeatureStage {
+  key: Area | "codegen" | "validation";
+  state: StageState;
+}
+
+const AFTER_CODEGEN: FeaturePhase[] = ["validation", "in_release", "released", "rolled_back", "indexed"];
+const AFTER_VALIDATION: FeaturePhase[] = ["in_release", "released", "rolled_back", "indexed"];
+
+/**
+ * The path of a feature in a row: the gates, then code generation and validation.
+ * A gate row exists once its document is written, so without approval that is its
+ * readiness. A gate without a row waits only while the specification is open.
+ */
+export function featureStages(f: FeatureSummary): FeatureStage[] {
+  const byArea = new Map(f.gates.map((g) => [g.area, g]));
+  const skipped = f.skippedAreas ?? [];
+  const gates = AREAS.filter((a) => byArea.has(a) || (f.phase === "spec" && !skipped.includes(a))).map((key): FeatureStage => {
+    const gate = byArea.get(key);
+    if (!gate) return { key, state: "later" };
+    return { key, state: f.approvalRequired ? gate.status : "approved" };
+  });
+  const after = (key: "codegen" | "validation", now: FeaturePhase, done: FeaturePhase[]): FeatureStage => (
+    { key, state: done.includes(f.phase) ? "approved" : f.phase === now ? "in_review" : "later" }
+  );
+  return [...gates, after("codegen", "codegen", AFTER_CODEGEN), after("validation", "validation", AFTER_VALIDATION)];
+}
+
 function FeatureRow({ f }: { f: FeatureSummary }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const byArea = new Map(f.gates.map((g) => [g.area, g]));
+  const stages = featureStages(f);
+  const stageName = (s: FeatureStage) => s.key === "codegen" || s.key === "validation" ? t(`phase.${s.key}`) : t(`areas.${s.key}`);
+  const stateName = (s: FeatureStage) => {
+    if (s.state === "later") return t("development.stageLater");
+    if (s.key === "codegen" || s.key === "validation" || !f.approvalRequired) return t(s.state === "approved" ? "development.stageDone" : "development.stageNow");
+    return t(`status.${s.state}`);
+  };
+  const summary = stages.map((s) => `${stageName(s)}: ${stateName(s)}`).join("\n");
   return (
     <div className="frow" role="link" tabIndex={0} onClick={() => navigate(`/features/${f.uniqueId}`)}
       onKeyDown={(e) => e.key === "Enter" && navigate(`/features/${f.uniqueId}`)}>
@@ -137,8 +173,8 @@ function FeatureRow({ f }: { f: FeatureSummary }) {
         <KeyList keys={f.issues} />
       </span>
       <span><PhaseBadge phase={f.phase} /></span>
-      <span className="minigates" aria-hidden="true">
-        {AREAS.filter((a) => byArea.has(a)).map((a) => <i key={a} className={f.approvalRequired ? byArea.get(a)!.status : "draft"} />)}
+      <span className="minigates" role="img" aria-label={summary} title={summary}>
+        {stages.map((s) => <i key={s.key} className={`${s.state}${s.key === "codegen" ? " next" : ""}`} />)}
       </span>
     </div>
   );
