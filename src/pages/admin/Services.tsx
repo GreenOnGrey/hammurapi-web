@@ -44,10 +44,12 @@ export function ServicesAdmin() {
                   <button className="btn ghost sm" onClick={() => setAutonomy(s)}>{t(`autonomy.${s.autonomy}.name`)}</button>
                   {!s.check && <div className="small muted">{t("admin.services.noCheck")}</div>}
                 </td>
-                <td className="row" style={{ justifyContent: "flex-end" }}>
-                  {me.globalAdmin && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
-                  {s.source === "manual" && <button className="btn ghost sm" onClick={() => setEdit(s)}>{t("admin.services.edit")}</button>}
-                  {s.source === "manual" && <button className="btn ghost sm danger" disabled={del.isPending} onClick={() => del.mutate(s.key)}><Icon name="trash" size={14} /></button>}
+                <td>
+                  <div className="row" style={{ justifyContent: "flex-end" }}>
+                    {me.globalAdmin && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
+                    {s.source === "manual" && <button className="btn ghost sm" onClick={() => setEdit(s)}>{t("admin.services.edit")}</button>}
+                    {s.source === "manual" && <button className="btn ghost sm danger" disabled={del.isPending} onClick={() => del.mutate(s.key)}><Icon name="trash" size={14} /></button>}
+                  </div>
                 </td>
               </tr>
             ))}
