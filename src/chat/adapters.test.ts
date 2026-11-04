@@ -12,6 +12,16 @@ const nabu = (m: Partial<NabuMessage>): NabuMessage => ({
 
 // FTR.NAB.CMN-0005 qa CHAT-22: the window to the agent of Nabu.
 describe("the adapter of the agent of Nabu (CHAT-22)", () => {
+  // FTR.HMR.CMN-0007 FL-01, FL-02: the files of both sides, with what the kit chooses the preview by
+  it("keeps the files of the agent and of the user", () => {
+    const file = { id: "f1", fileName: "metrics.csv", mimeType: "text/csv", size: 2048 };
+    for (const role of ["assistant", "user"] as const) {
+      expect(toNabuChatMessage(t, nabu({ role, attachments: [file] }), null).attachments).toEqual([
+        { ...file, href: expect.stringContaining("/api/v1/chat/attachments/f1") },
+      ]);
+    }
+  });
+
   it("marks a message with the specification it is about, a plain one has no mark", () => {
     expect(nabuMark(t, nabu({ context: { type: "feature", key: "FTR.NAB.CMN-0005" } }))).toEqual({ icon: "files", text: "Specification, FTR.NAB.CMN-0005" });
     expect(nabuMark(t, nabu({}))).toBeUndefined();

@@ -52,4 +52,13 @@ export const SCREENS: Screen[] = [
   // FTR.NAB.CMN-0005 design §4: in the administration the burger holds its sections
   { name: "admin-sections", path: "/admin", only: "phone", act: click("Администрирование") },
   { name: "chat-open", path: "/", only: "phone", act: click(/Набу/) },
+  // FTR.HMR.CMN-0007 FL-03, FL-04: the file of the agent opens in the chat, a spreadsheet by the preview of Nabu
+  { name: "chat-file-table", path: "/", only: "desktop", act: async (page) => {
+    await page.getByRole("button", { name: "Открыть coverage.csv" }).click();
+    await page.getByRole("dialog").locator("table").waitFor();
+  } },
+  { name: "chat-file-sheet", path: "/", only: "desktop", act: async (page) => {
+    await page.getByRole("button", { name: "Открыть coverage.xlsx" }).click();
+    await page.getByRole("dialog").getByText("R17").waitFor();
+  } },
 ];

@@ -3,7 +3,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-quer
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useToast } from "@green-on-grey/ui-kit";
-import type { ChatConversation, ChatMark, ChatMessage, ChatProps } from "@green-on-grey/ui-kit/chat";
+import type { ChatAttachment, ChatConversation, ChatMark, ChatMessage, ChatProps } from "@green-on-grey/ui-kit/chat";
 import { apiUrl } from "../api/base";
 import { ApiError, api } from "../api/client";
 import type { List, NabuAgent, NabuAgentWait, NabuConversation, NabuMessage, NabuToolStep } from "../api/types";
@@ -15,6 +15,7 @@ import { useEvent } from "../lib/sse";
 import { keys } from "../api/queries";
 import type { IssueTopic } from "../api/types";
 import { noticeContent, revisionContent } from "./discoveryCards";
+import { loadOfficePreview } from "./preview";
 import { specNoticeContent, specRevisionContent } from "./specCards";
 
 // The adapter of the window to the agent of Nabu (FTR.HMR.CMN-0006 R5, R6;
@@ -47,6 +48,16 @@ export function nabuStepText(s: NabuToolStep): string {
   return s.server ? `${s.server}: ${rest}` : rest;
 }
 
+const attachmentPath = (id: string) => `/api/v1/chat/attachments/${id}`;
+
+/** The files of a message with their type and size: the kit chooses the preview by them (FTR.HMR.CMN-0007 R26). */
+function nabuAttachments(m: NabuMessage): ChatAttachment[] {
+  return (m.attachments ?? []).map((a) => ({ id: a.id, fileName: a.fileName, mimeType: a.mimeType, size: a.size, href: apiUrl(attachmentPath(a.id)) }));
+}
+
+const loadNabuAttachment = (a: ChatAttachment) => api.blob(attachmentPath(a.id));
+const loadNabuPreview = (a: ChatAttachment) => loadOfficePreview(a.id, a.fileName);
+
 /** A message of Nabu as the kit draws it. */
 export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentWait | null): ChatMessage {
   const base = { id: m.id, text: m.text, createdAt: m.createdAt, status: m.status, mark: nabuMark(t, m) };
@@ -58,12 +69,13 @@ export function toNabuChatMessage(t: TFunction, m: NabuMessage, wait: NabuAgentW
   if (m.role === "user") {
     return {
       ...base, role: "user", queued: m.queued,
-      attachments: (m.attachments ?? []).map((a) => ({ id: a.id, fileName: a.fileName, href: apiUrl(`/api/v1/chat/attachments/${a.id}`) })),
+      attachments: nabuAttachments(m),
       wait: wait?.messageId === m.id ? (wait.state === "queued" ? { state: "queued", position: wait.position ?? 0 } : { state: "starting" }) : undefined,
     };
   }
   return {
     ...base, role: "assistant",
+    attachments: nabuAttachments(m), // FTR.HMR.CMN-0007 R26: the files the agent sent
     steps: (m.toolSteps ?? []).map((s) => ({ id: s.id, text: nabuStepText(s), title: s.summary, status: s.status, subagents: s.subagents })),
     // FTR.HMR.DISC-0001 design §3.3: the instruction to the researcher is a card under the answer
     content: specRevisionContent(m) ?? revisionContent(m),
@@ -123,9 +135,10 @@ export interface TopicRef {
  * convId null is the draft, and messages go through the subject, which creates the topic with the first one. */
 export function useNabuConversation(convId: string | null, topic?: TopicRef): Pick<ChatProps,
   "messages" | "loading" | "historyError" | "hasOlder" | "loadingOlder" | "busy" | "upload" | "onSend" | "onLoadOlder" | "onRetry" | "onUpload" | "onTranscribe"
-  | "allowQueue" | "onCancelQueued" | "onStop"> {
+  | "allowQueue" | "onCancelQueued" | "onStop" | "loadAttachment" | "loadPreview"> {
   const { t } = useTranslation();
   const { config } = useSession();
+  const agent = useNabuAgent();
   const chat = useChatContext();
   const qc = useQueryClient();
   const toast = useToast();
@@ -254,6 +267,8 @@ export function useNabuConversation(convId: string | null, topic?: TopicRef): Pi
     hasOlder: history.hasNextPage,
     loadingOlder: history.isFetchingNextPage,
     upload: { maxBytes: config.uploadMaxBytes, accept: config.uploadAllowedTypes.join(",") },
+    loadAttachment: loadNabuAttachment,
+    loadPreview: agent.data?.previewOffice ? loadNabuPreview : undefined,
     onLoadOlder: () => void history.fetchNextPage(),
     onSend: (text, attachmentIds) => send(text, attachmentIds),
     async onRetry(messageId) {

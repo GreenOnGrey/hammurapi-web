@@ -72,13 +72,14 @@ const nabuAdmin = (state) => ({ url: "https://nabu-api.example.com", client: "ha
   scenarios: { issue_analysis: "hammurapi-issue-analysis", codegen: "hammurapi-codegen", review_update: "hammurapi-issue-analysis" },
   scenarioRows: [["issue_analysis", false], ["gate_generation", false], ["conformance_check", false], ["codegen", true], ["review_update", true], ["rollback_revert", true]]
     .map(([name, code]) => ({ name, code })) });
-const nabuAgent = { name: "Набу", tone: "business", model: { name: "sonnet-5", connection: "Anthropic" } };
+const nabuAgent = { previewOffice: true, name: "Набу", tone: "business", model: { name: "sonnet-5", connection: "Anthropic" } };
 const nabuConversations = [{ id: "main", kind: "main", title: null, lastMessageAt: T("14:03"), archivedAt: null, createdAt: T("09:00", "01") },
   { id: "t1", kind: "topic", title: "Релиз 1.4", lastMessageAt: T("10:00"), archivedAt: null, createdAt: T("09:00", "05") }];
 const nabuMsg = (id, role, text, extra = {}) => ({ id, conversationId: "main", role, text, channel: "client:hammurapi", status: "done", attachments: [], toolSteps: [], context: null, errorClass: null, errorText: null, createdAt: T("14:00"), ...extra });
 const nabuMessages = [
   nabuMsg("n1", "user", "Какие требования ещё не покрыты тестами?", { createdAt: T("14:02"), context: { type: "feature", key: "FTR.NAB.CMN-0005", area: "qa" } }),
   nabuMsg("n2", "assistant", "Без тестов остаются три требования:\n\n- **R17** — перечень изменений\n- **R23** — запрет переопределений", { createdAt: T("14:03"),
+    attachments: [{ id: "f1", fileName: "coverage.csv", mimeType: "text/csv", size: 2048 }, { id: "f2", fileName: "coverage.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 8192 }],
     toolSteps: [{ id: "s1", server: "hammurapi", tool: "spec_read", summary: "spec_read — FTR.NAB.CMN-0005", status: "done" }] }),
   nabuMsg("n3", "user", "Напомни завтра в 10 про ревью", { createdAt: T("14:10"), channel: "telegram" }),
   nabuMsg("n4", "assistant", "", { createdAt: T("14:10"), status: "failed", errorClass: "rate_limit" }),
@@ -192,6 +193,15 @@ http.createServer((req, res) => {
       return res.end(MOCKUP);
     }
     if (url.pathname === "/api/v1/auth/me" && cookie("mock-auth") === "0") { res.writeHead(401, { "content-type": "application/json" }); return res.end('{"error":{"code":"unauthenticated","message":"sign in"}}'); }
+    // FTR.HMR.CMN-0007 R26: the files of a message
+    if (url.pathname === "/api/v1/chat/attachments/f1") {
+      res.writeHead(200, { "content-type": "application/octet-stream" });
+      return res.end("Требование,Покрыто\nR17,нет\nR23,нет\n");
+    }
+    if (url.pathname === "/api/v1/chat/attachments/f2/preview") {
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ sheets: [{ name: "Покрытие", rows: 2, cols: 2, cells: [[{ v: "Требование" }, { v: "Покрыто" }], [{ v: "R17" }, { v: "нет" }]], merges: [], freeze: "" }] }));
+    }
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify(api(url, cookie)));
   }

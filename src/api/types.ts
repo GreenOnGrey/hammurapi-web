@@ -1106,6 +1106,20 @@ export interface NabuAgent {
   availableModels?: NabuModel[];
   /** The fill of the context of the main conversation. */
   context?: { tokens: number; window: number };
+  /** Documents and spreadsheets open in the preview (FTR.HMR.CMN-0007 R26). */
+  previewOffice?: boolean;
+}
+
+/** The sheets of a preview of a spreadsheet (FTR.NAB.CHAT-0003 tech §8.1). */
+export interface PreviewSheets {
+  sheets: {
+    name: string;
+    rows: number;
+    cols: number;
+    cells: { v?: string; n?: number; f?: string }[][];
+    merges: string[];
+    freeze: string;
+  }[];
 }
 
 export interface NabuConversation {
@@ -1149,7 +1163,7 @@ export interface NabuMessage {
   /** A user message waiting in the queue for its answer (FTR.NAB.CHAT-0004 R1). */
   queued?: boolean;
   replyTo?: string | null;
-  attachments: { id: string; fileName: string; mimeType: string }[];
+  attachments: { id: string; fileName: string; mimeType: string; size?: number }[];
   toolSteps: NabuToolStep[];
   context?: { type: string; key: string; area?: string } | null;
   errorClass: string | null;

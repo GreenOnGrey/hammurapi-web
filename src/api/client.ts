@@ -71,7 +71,25 @@ function safeJSON(text: string): unknown {
   }
 }
 
+/** A file of the API with the session of the user; an error comes as from `request`. */
+async function raw(path: string): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetch(apiUrl(path), { credentials: "include" });
+  } catch {
+    throw new ApiError(0, "network", "network error");
+  }
+  if (!res.ok) {
+    const text = await res.text();
+    const err = (text ? safeJSON(text) : undefined) as { error?: { code?: string; message?: string; details?: Record<string, unknown> } } | undefined;
+    throw new ApiError(res.status, err?.error?.code ?? `http_${res.status}`, err?.error?.message ?? res.statusText, err?.error?.details);
+  }
+  return res;
+}
+
 export const api = {
+  raw,
+  blob: async (path: string) => (await raw(path)).blob(),
   get: <T>(path: string) => request<T>("GET", path),
   post: <T>(path: string, body?: Body) => request<T>("POST", path, body ?? {}),
   put: <T>(path: string, body?: Body) => request<T>("PUT", path, body ?? {}),
