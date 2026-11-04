@@ -941,6 +941,9 @@
     "hint": "Die Aufgabe erhält einen Schlüssel in der neuen Domäne; {key} führt weiterhin zu ihr."
   },
   "development": {
+    "stageDone": "fertig",
+    "stageNow": "läuft",
+    "stageLater": "nicht begonnen",
     "phase": "Phase",
     "empty": "Keine Features für die Filter",
     "emptyHint": "Features entstehen aus angenommenen Aufgaben.",

@@ -941,6 +941,9 @@
     "hint": "The issue gets a key in the new domain; {key} keeps opening it."
   },
   "development": {
+    "stageDone": "done",
+    "stageNow": "in progress",
+    "stageLater": "not started",
     "phase": "Phase",
     "empty": "No features match the filters",
     "emptyHint": "Features are created from accepted issues.",

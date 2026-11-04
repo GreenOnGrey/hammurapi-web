@@ -941,6 +941,9 @@
     "hint": "任务将获得新领域的键；{key} 仍可打开它。"
   },
   "development": {
+    "stageDone": "已完成",
+    "stageNow": "进行中",
+    "stageLater": "未开始",
     "phase": "阶段",
     "empty": "没有符合筛选条件的方案",
     "emptyHint": "方案由已接受的任务创建。",

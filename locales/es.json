@@ -941,6 +941,9 @@
     "hint": "La tarea recibe una clave en el nuevo dominio; {key} seguirá abriéndola."
   },
   "development": {
+    "stageDone": "listo",
+    "stageNow": "en curso",
+    "stageLater": "sin empezar",
     "phase": "Fase",
     "empty": "No hay funcionalidades con estos filtros",
     "emptyHint": "Las funcionalidades se crean a partir de tareas aceptadas.",
