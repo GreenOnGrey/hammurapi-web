@@ -133,6 +133,7 @@ button.avatar-btn[aria-expanded="true"] > span {
   border-bottom: 1px solid var(--border);
   color: var(--text);
   text-decoration: none;
+  cursor: pointer;
 }
 .frow:hover {
   background: var(--surface);

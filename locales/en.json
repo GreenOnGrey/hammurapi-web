@@ -447,6 +447,8 @@
     },
     "services": {
       "noCheck": "no check command",
+      "settings": "Service settings: {key}",
+      "agent": "Agent",
       "title": "Services",
       "key": "Service",
       "system": "System",

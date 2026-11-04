@@ -447,6 +447,8 @@
     },
     "services": {
       "noCheck": "未设置检查命令",
+      "settings": "服务设置：{key}",
+      "agent": "智能体",
       "title": "服务",
       "key": "服务",
       "system": "系统",

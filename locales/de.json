@@ -447,6 +447,8 @@
     },
     "services": {
       "noCheck": "kein Prüfbefehl",
+      "settings": "Service-Einstellungen: {key}",
+      "agent": "Agent",
       "title": "Services",
       "key": "Service",
       "system": "System",
