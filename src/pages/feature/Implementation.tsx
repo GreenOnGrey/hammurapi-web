@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import { invalidateFeature, useImplementation } from "../../api/queries";
 import type { TFunction } from "i18next";
-import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl, TaskDTO } from "../../api/types";
+import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl, TaskDTO, TaskCheck } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { useSession } from "../../app/session";
 import { AutonomyModal } from "./Autonomy";
@@ -72,7 +72,7 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
           ? <button className="btn ghost sm" onClick={() => setAutonomy(true)}>{t(`autonomy.${s.autonomy}.name`)}</button>
           : <span className="st none">{t(`autonomy.${s.autonomy}.name`)}</span>}
       </div>
-      {autonomy && <AutonomyModal service={{ key: s.service, autonomy: s.autonomy }} onClose={() => setAutonomy(false)} />}
+      {autonomy && <AutonomyModal service={{ key: s.service, autonomy: s.autonomy, check: s.check }} onClose={() => setAutonomy(false)} />}
       {latest && (
         <div className="row small" style={{ marginBottom: 6 }}>
           <AgentMark />
@@ -89,6 +89,8 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
           )}
         </div>
       )}
+      {latest?.result?.check && <CheckBadge check={latest.result.check} />}
+      {latest?.result?.warnings?.map((w) => <div key={w} className="banner warn small"><Icon name="alert" /><span className="grow">{w}</span></div>)}
       {s.plan && (
         <details className="docsec" open={!s.pr}>
           <summary><b>{t("impl.plan")}</b> <span className="small muted">{t("impl.planHint")}</span></summary>
@@ -97,6 +99,23 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
       )}
       {s.pr ? <PRRow pr={s.pr} /> : <div className="small muted">{t("impl.noPr")}</div>}
     </section>
+  );
+}
+
+const CHECK_TONE: Record<string, string> = { passed: "approved", failed: "blocked", unavailable: "disc", unverified: "draft" };
+
+/** The readiness check of a task (FTR.HMR.CMN-0008 R18, design §3.3): no badge when nothing changed. */
+export function CheckBadge({ check }: { check: TaskCheck }) {
+  const { t } = useTranslation();
+  if (check.status === "not_run") return null;
+  const label = <span className={`st ${CHECK_TONE[check.status]}`}>{t(`task.check_${check.status}`)}</span>;
+  if (check.status === "unverified") return <div className="row small" style={{ marginBottom: 6 }}>{label}</div>;
+  return (
+    <details className="small" style={{ marginBottom: 6 }}>
+      <summary>{label} <span className="mono t2">{check.command}</span></summary>
+      <div className="t2">{t("task.checkAttempts", { attempts: check.attempts, max: check.maxAttempts })}</div>
+      {check.outputTail && <pre className="mono small">{check.outputTail}</pre>}
+    </details>
   );
 }
 

@@ -574,6 +574,24 @@ export interface ServiceDTO {
   source: "manual" | "backstage";
   catalogRef: string | null;
   deletedInCatalog: boolean;
+  /** FTR.HMR.CMN-0008 R1. */
+  check: ServiceCheck | null;
+}
+
+export interface ServiceCheck {
+  command: string;
+  timeoutSec: number;
+}
+
+/** The readiness check of a code task (FTR.HMR.CMN-0008 R10, R18). */
+export interface TaskCheck {
+  status: "passed" | "failed" | "unavailable" | "not_run" | "unverified";
+  reason?: string;
+  command: string;
+  attempts: number;
+  maxAttempts: number;
+  exitCode?: number;
+  outputTail?: string;
 }
 
 export interface TaskDTO {
@@ -581,7 +599,7 @@ export interface TaskDTO {
   type: "implement" | "address_review" | "update_pr" | "revert" | "ci_setup";
   status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
   service: string;
-  result: { plan?: string; summary?: string; prNumber?: number } | null;
+  result: { plan?: string; summary?: string; prNumber?: number; check?: TaskCheck; warnings?: string[]; stalled?: boolean } | null;
   progress: string | null;
   error: string | null;
   tokensIn: number;
@@ -626,6 +644,7 @@ export interface ServiceImpl {
   service: string;
   repo: string;
   autonomy: Autonomy;
+  check: ServiceCheck | null;
   tasks: TaskDTO[];
   pr: PRDTO | null;
   plan: string | null;
@@ -683,6 +702,8 @@ export interface ValidationSummary {
   coverage: { requirements: number; withTests: number; withPrs: number; passed: number };
   matrix: RequirementRow[];
   discrepancies: { id: string; requirement: string; service: string | null; prUrl: string | null; description: string; foundAt: string }[];
+  /** FTR.HMR.CMN-0008 design §3.5. */
+  autofixing: number;
   reviews: { service: string; pr: number; url: string; review: string; ci: string; byAgent: boolean; required: boolean; passed: boolean }[];
   stage: { enabled: boolean; configured: boolean; deploys: DeployRun[] };
   signatures: Signature[];
