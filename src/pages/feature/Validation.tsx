@@ -38,6 +38,7 @@ export function ValidationTab({ f }: { f: FeatureCard }) {
         { value: d.discrepancies.length, label: t("val.kpi.discrepancies") },
         { value: `${reviewsOk}/${d.reviews.length}`, label: t("val.kpi.reviews") },
       ]} />
+      {d.autofixing > 0 && <p className="small muted">{t("val.autofixing", { n: d.autofixing })}</p>}
       {d.discrepancies.map((x) => (
         <div key={x.id} className="banner warn"><Icon name="alert" />
           <span className="grow"><b>{x.requirement}</b>{x.service ? ` · ${x.service}` : ""}: {x.description}</span>

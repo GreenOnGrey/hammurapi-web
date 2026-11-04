@@ -446,6 +446,7 @@
       "saved": "Ajustes guardados"
     },
     "services": {
+      "noCheck": "sin comando de comprobación",
       "title": "Servicios",
       "key": "Servicio",
       "system": "Sistema",
@@ -579,6 +580,7 @@
     }
   },
   "errors": {
+    "invalid_check": "El comando de comprobación o su tiempo límite no es válido",
     "generic": "Algo salió mal ({code}). Inténtalo de nuevo.",
     "network": "Sin conexión con el servidor.",
     "unauthenticated": "Tu sesión caducó. Inicia sesión de nuevo.",
@@ -820,7 +822,10 @@
     "technical": "Experto técnico"
   },
   "autonomy": {
-    "title": "Autonomía del agente en {key}",
+    "title": "Ajustes del agente en {key}",
+    "check": "Comando de comprobación",
+    "checkTimeout": "Tiempo límite, minutos",
+    "checkHint": "El comando se ejecuta en el sandbox después del agente. El código 0 significa que pasó. Los archivos que cree el comando y no estén en .gitignore entran en los cambios.",
     "noMerge": "En cualquier nivel los PR se fusionan solo en un release.",
     "plan": {
       "name": "Plan",
@@ -975,6 +980,11 @@
     "noPrShort": "sin PR"
   },
   "task": {
+    "check_passed": "Comprobación superada",
+    "check_failed": "Comprobación fallida",
+    "check_unavailable": "No se pudo comprobar",
+    "check_unverified": "Sin comprobar",
+    "checkAttempts": "{attempts} de {max} intentos",
     "retry": "Reintentar",
     "working": "trabajando",
     "status": {
@@ -1020,6 +1030,7 @@
     "closed": "cerrado"
   },
   "val": {
+    "autofixing": "El agente corrige discrepancias: {n, plural, one {# tarea} other {# tareas}}",
     "notYet": "La validación empieza cuando los PR estén listos",
     "notYetHint": "Se revisan pruebas, cobertura, discrepancias y revisiones antes de fusionar nada.",
     "waitingCi": "Esperando los resultados de CI de las ramas de los PR.",

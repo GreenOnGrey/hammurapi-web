@@ -446,6 +446,7 @@
       "saved": "Settings saved"
     },
     "services": {
+      "noCheck": "no check command",
       "title": "Services",
       "key": "Service",
       "system": "System",
@@ -579,6 +580,7 @@
     }
   },
   "errors": {
+    "invalid_check": "The check command or its timeout is invalid",
     "generic": "Something went wrong ({code}). Try again.",
     "network": "No connection to the server.",
     "unauthenticated": "Your session expired. Sign in again.",
@@ -820,7 +822,10 @@
     "technical": "Technical expert"
   },
   "autonomy": {
-    "title": "Agent autonomy in {key}",
+    "title": "Agent settings in {key}",
+    "check": "Check command",
+    "checkTimeout": "Timeout, minutes",
+    "checkHint": "The command runs in the sandbox after the agent. Code 0 means the check passed. Files the command creates that are not in .gitignore get into the changes.",
     "noMerge": "At every level PRs are merged only by a release.",
     "plan": {
       "name": "Plan",
@@ -975,6 +980,11 @@
     "noPrShort": "no PR"
   },
   "task": {
+    "check_passed": "Check passed",
+    "check_failed": "Check failed",
+    "check_unavailable": "Could not check",
+    "check_unverified": "Not checked",
+    "checkAttempts": "{attempts} of {max} attempts",
     "retry": "Retry",
     "working": "working",
     "status": {
@@ -1020,6 +1030,7 @@
     "closed": "closed"
   },
   "val": {
+    "autofixing": "The agent is fixing discrepancies: {n, plural, one {# task} other {# tasks}}",
     "notYet": "Validation starts when the PRs are ready",
     "notYetHint": "It checks tests, coverage, discrepancies and reviews before anything is merged.",
     "waitingCi": "Waiting for CI results of the PR branches.",

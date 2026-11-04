@@ -446,6 +446,7 @@
       "saved": "设置已保存"
     },
     "services": {
+      "noCheck": "未设置检查命令",
       "title": "服务",
       "key": "服务",
       "system": "系统",
@@ -579,6 +580,7 @@
     }
   },
   "errors": {
+    "invalid_check": "检查命令或超时无效",
     "generic": "出现问题（{code}）。请重试。",
     "network": "无法连接服务器。",
     "unauthenticated": "会话已过期，请重新登录。",
@@ -820,7 +822,10 @@
     "technical": "技术专家"
   },
   "autonomy": {
-    "title": "智能体在 {key} 中的自主级别",
+    "title": "{key} 的智能体设置",
+    "check": "检查命令",
+    "checkTimeout": "超时（分钟）",
+    "checkHint": "命令在智能体完成后在沙箱中运行。退出码 0 表示检查通过。命令创建且不在 .gitignore 中的文件会进入变更。",
     "noMerge": "任何级别下 PR 都只在发布时合并。",
     "plan": {
       "name": "计划",
@@ -975,6 +980,11 @@
     "noPrShort": "无 PR"
   },
   "task": {
+    "check_passed": "检查通过",
+    "check_failed": "检查未通过",
+    "check_unavailable": "无法检查",
+    "check_unverified": "未检查",
+    "checkAttempts": "{attempts} / {max} 次尝试",
     "retry": "重试",
     "working": "进行中",
     "status": {
@@ -1020,6 +1030,7 @@
     "closed": "已关闭"
   },
   "val": {
+    "autofixing": "智能体正在修复差异：{n} 个任务",
     "notYet": "PR 就绪后开始验证",
     "notYetHint": "在合并之前检查测试、覆盖率、偏差和评审。",
     "waitingCi": "等待 PR 分支的 CI 结果。",

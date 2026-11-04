@@ -446,6 +446,7 @@
       "saved": "Einstellungen gespeichert"
     },
     "services": {
+      "noCheck": "kein Prüfbefehl",
       "title": "Services",
       "key": "Service",
       "system": "System",
@@ -579,6 +580,7 @@
     }
   },
   "errors": {
+    "invalid_check": "Prüfbefehl oder Zeitlimit ist ungültig",
     "generic": "Etwas ist schiefgelaufen ({code}). Bitte erneut versuchen.",
     "network": "Keine Verbindung zum Server.",
     "unauthenticated": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
@@ -820,7 +822,10 @@
     "technical": "Technischer Experte"
   },
   "autonomy": {
-    "title": "Autonomie des Agenten in {key}",
+    "title": "Agenteneinstellungen in {key}",
+    "check": "Prüfbefehl",
+    "checkTimeout": "Zeitlimit, Minuten",
+    "checkHint": "Der Befehl läuft nach dem Agenten in der Sandbox. Code 0 bedeutet bestanden. Vom Befehl erzeugte Dateien, die nicht in .gitignore stehen, gelangen in die Änderungen.",
     "noMerge": "Auf jeder Stufe werden PRs nur im Release gemergt.",
     "plan": {
       "name": "Plan",
@@ -975,6 +980,11 @@
     "noPrShort": "kein PR"
   },
   "task": {
+    "check_passed": "Prüfung bestanden",
+    "check_failed": "Prüfung fehlgeschlagen",
+    "check_unavailable": "Prüfung nicht möglich",
+    "check_unverified": "Nicht geprüft",
+    "checkAttempts": "{attempts} von {max} Versuchen",
     "retry": "Wiederholen",
     "working": "arbeitet",
     "status": {
@@ -1020,6 +1030,7 @@
     "closed": "geschlossen"
   },
   "val": {
+    "autofixing": "Der Agent behebt Abweichungen: {n, plural, one {# Aufgabe} other {# Aufgaben}}",
     "notYet": "Die Validierung beginnt, wenn die PRs bereit sind",
     "notYetHint": "Geprüft werden Tests, Abdeckung, Abweichungen und Reviews — vor jedem Merge.",
     "waitingCi": "Warten auf CI-Ergebnisse der PR-Branches.",

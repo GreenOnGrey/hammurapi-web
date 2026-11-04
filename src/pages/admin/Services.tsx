@@ -41,7 +41,8 @@ export function ServicesAdmin() {
                 <td className="mono small">{s.repo}</td>
                 <td className="small">{s.owners.join(", ") || <span className="muted">{s.ownerRef || "—"}</span>}</td>
                 <td>
-                  {owns(s.key) ? <button className="btn ghost sm" onClick={() => setAutonomy(s)}>{t(`autonomy.${s.autonomy}.name`)}</button> : t(`autonomy.${s.autonomy}.name`)}
+                  <button className="btn ghost sm" onClick={() => setAutonomy(s)}>{t(`autonomy.${s.autonomy}.name`)}</button>
+                  {!s.check && <div className="small muted">{t("admin.services.noCheck")}</div>}
                 </td>
                 <td className="row" style={{ justifyContent: "flex-end" }}>
                   {me.globalAdmin && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
@@ -56,7 +57,7 @@ export function ServicesAdmin() {
       {!managed && <button className="btn sm" style={{ marginTop: 12 }} onClick={() => setEdit("new")}><Icon name="plus" size={15} />{t("admin.services.add")}</button>}
       {managed && <p className="small muted">{t("admin.services.managed")}</p>}
       {edit && <ServiceModal s={edit === "new" ? null : edit} onClose={() => setEdit(null)} />}
-      {autonomy && <AutonomyModal service={autonomy} onClose={() => setAutonomy(null)} />}
+      {autonomy && <AutonomyModal service={autonomy} canSetAutonomy={owns(autonomy.key)} onClose={() => setAutonomy(null)} />}
       {override && <OverrideModal s={override} onClose={() => setOverride(null)} />}
     </>
   );
