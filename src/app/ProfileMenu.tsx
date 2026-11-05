@@ -115,7 +115,7 @@ export function ProfileMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** Sign-in and the git account (FTR.HMR.CMN-0006 design: «Учётные записи»). */
+/** Sign-in and the git account (FTR.HMR.CMN-0006 design: "Accounts"). */
 function Accounts() {
   const { t } = useTranslation();
   const { me, config } = useSession();

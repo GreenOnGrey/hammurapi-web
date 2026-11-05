@@ -23,7 +23,7 @@ const CONF_CLASS: Record<EstimateConfidence, string> = { high: "approved", mediu
 export const usd = (v: number) => `$${Math.round(v).toLocaleString("en")}`;
 const num = (v: number, lng: string) => v.toLocaleString(lng, { maximumFractionDigits: 1 });
 
-/** «≈ $40 агента · 12 чел/ч · 9 дней» (R17). */
+/** "≈ $40 of the agent · 12 person-hours · 9 days" (R17). */
 export function estimateLine(t: TFunction, e: EstimateTotals, lng: string): string {
   return t("disc.est.line", { usd: usd(e.agentUsd), hours: num(e.personHours, lng), days: e.days });
 }

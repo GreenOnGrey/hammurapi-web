@@ -202,7 +202,7 @@ function RevisionBanner({ d }: { d?: DiscoveryView }) {
   );
 }
 
-/** «Похожее» — folded like the estimate (FTR.HMR.DISC-0001 design §3.6b): the line names the possible
+/** "Similar": folded like the estimate (FTR.HMR.DISC-0001 design §3.6b): the line names the possible
  * duplicates first; unfolded — every item with how it relates. */
 function SimilarBlock({ items }: { items: NonNullable<DiscoveryView["similar"]> }) {
   const { t } = useTranslation();
@@ -234,7 +234,7 @@ function SimilarBlock({ items }: { items: NonNullable<DiscoveryView["similar"]> 
   );
 }
 
-/** «Как измерим» — optional and folded like the estimate (FTR.HMR.DISC-0001 R23, design §3.6a). */
+/** "How we measure": optional and folded like the estimate (FTR.HMR.DISC-0001 R23, design §3.6a). */
 function MeasureBlock({ d }: { d: DiscoveryView }) {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -286,7 +286,7 @@ function DiscoveryDoc({ d, issueKey, canAnswer, estimate }: { d: DiscoveryView; 
       {d.problemTarget && (
         <section className="docsec"><h5>{t("issue.problemFeature")}</h5><KeyLink k={d.problemTarget} /></section>
       )}
-      {/* FTR.HMR.DISC-0001 design §3.6c: «(допущение, см. Q5)» leads to the question */}
+      {/* FTR.HMR.DISC-0001 design §3.6c: "(assumption, see Q5)" leads to the question */}
       <section className="docsec" onClick={links.onClick}>
         <h5>{t("issue.document")}</h5>
         <Markdown text={linkQuestions(d.content ?? "", ids)} />
@@ -500,7 +500,7 @@ function MoveModal({ is, onClose }: { is: IssueCard; onClose: () => void }) {
   );
 }
 
-/** «Поручение: «…» · Ответы: Q1, Q2 · А. Петров» — what a revision answered (FTR.HMR.DISC-0001 design §3.5). */
+/** "Instruction: "…" · Answers: Q1, Q2 · A. Petrov": what a revision answered (FTR.HMR.DISC-0001 design §3.5). */
 export function revisionRequests(t: TFunction, reqs: NonNullable<Revision["requests"]>): string {
   const text = reqs.find((q) => q.instructions)?.instructions;
   const ids = reqs.flatMap((q) => q.questions ?? []);

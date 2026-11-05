@@ -25,7 +25,7 @@ const queryClient = new QueryClient({
 
 setDocumentLanguage(i18nInstance.language);
 
-// Адрес API (/config.json) нужен до первого запроса.
+// The API address (/config.json) is needed before the first request.
 await loadRuntimeConfig();
 
 createRoot(document.getElementById("root")!).render(
