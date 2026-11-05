@@ -14,6 +14,7 @@ Hammurapi is five repositories checked out side by side: `hammurapi-core` (Go ba
   bare `HMR.CMN-…` are obsolete).
 - Deviations from a spec are written into the spec in the same piece of work.
 - Do not commit, tag or push unless asked.
+- English for code, comments, docs, CI, scripts, logs, test names, and the messages and tool descriptions that services return. Russian stays in the locale dictionary `locales/ru.json`, test data that exercises Russian text and the specifications in `hammurapi-specs`. Other Russian here is a leftover to translate.
 
 ## Stack
 
