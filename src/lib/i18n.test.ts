@@ -82,7 +82,7 @@ describe("stage names (FTR.HMR.CMN-0003)", () => {
     expect(ru.t("focus.release")).toBe("Доставка");
   });
 
-  // R3: the agent step is Analysis / «Анализ», so it does not repeat the EN stage name.
+  // R3: the agent step is Analysis in both languages, so it does not repeat the EN stage name.
   it("the agent step is Analysis", () => {
     const english = createI18n("en");
     expect(english.t("issue.analysis")).toBe("Analysis");

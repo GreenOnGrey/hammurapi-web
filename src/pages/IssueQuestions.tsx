@@ -83,7 +83,7 @@ export function answersBody(d: Draft, qs: DiscoveryQuestion[]) {
   };
 }
 
-/** «(допущение, см. Q5)» in the analysis becomes a link to the open question Q5. */
+/** "(assumption, see Q5)" in the analysis becomes a link to the open question Q5. */
 export function linkQuestions(md: string, ids: string[]): string {
   const open = new Set(ids);
   return md.replace(/(см\.|see)(\s+)(Q\d+)\b/g, (all, see: string, sp: string, id: string) => (open.has(id) ? `${see}${sp}[${id}](#q-${id})` : all));
