@@ -1056,6 +1056,32 @@ export interface SpecFeatureLinks {
   changedBy: SpecLinkRef[];
 }
 
+/** GET /api/v1/spec/graph (FTR.HMR.DEV-0002 tech §2.3). */
+export interface SpecGraphNode {
+  key: string;
+  title: string | null;
+  domain: string;
+  system: string;
+  phase: FeaturePhase | null;
+  indexed: boolean;
+  context: boolean;
+}
+
+export type SpecLinkKind = "extends" | "changes";
+
+export interface SpecGraphEdge {
+  source: string;
+  target: string;
+  kind: SpecLinkKind;
+  requirements: string[];
+}
+
+export interface SpecGraphData {
+  commit: string;
+  nodes: SpecGraphNode[];
+  edges: SpecGraphEdge[];
+}
+
 export type SpecChangeReason = "unknown_target" | "target_in_work" | "unknown_requirement";
 
 /** A row of the block "Changes to other features" (FTR.HMR.DEV-0002 tech §2.1). */

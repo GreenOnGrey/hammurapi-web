@@ -42,6 +42,10 @@ const AdminPage = lazy(() =>
 const SpecPage = lazy(() =>
   import("../pages/Spec").then((m) => ({ default: m.SpecPage })),
 );
+// FTR.HMR.DEV-0002 R15: the graph and its layout (d3-force) are a chunk of their own.
+const SpecGraphPage = lazy(() =>
+  import("../pages/SpecGraph").then((m) => ({ default: m.SpecGraphPage })),
+);
 
 export function App() {
   const config = useConfig();
@@ -177,6 +181,7 @@ function Authenticated() {
             <Route index element={<FocusPage />} />
             <Route path="overview" element={<OverviewPage />} />
             <Route path="spec" element={spec} />
+            <Route path="spec/graph" element={<Suspense fallback={<Loading />}><SpecGraphPage /></Suspense>} />
             <Route path="spec/:featureKey" element={spec} />
             <Route path="spec/:featureKey/:area" element={spec} />
             <Route path="research" element={<IssuesPage />} />
