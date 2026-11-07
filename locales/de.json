@@ -1271,6 +1271,27 @@
       "changedBy": "Geändert von",
       "notIndexed": "Nicht im Hauptzweig",
       "more": "{count, plural, one {# weiteres} other {# weitere}}"
+    },
+    "graph": {
+      "open": "Graph",
+      "show": "Im Graph zeigen",
+      "title": "Graph der Spezifikation",
+      "filters": "Filter des Graphen",
+      "system": "System",
+      "allSystems": "Alle Systeme",
+      "kinds": "Arten von Verbindungen",
+      "kind": {
+        "extends": "baut auf",
+        "changes": "ändert"
+      },
+      "depth": "Tiefe des Fokus",
+      "depthN": "{count, plural, one {# Schritt} other {# Schritte}}",
+      "resetFocus": "Fokus zurücksetzen",
+      "failed": "Der Graph konnte nicht erstellt werden",
+      "empty": "Keine Verbindungen",
+      "resetFilters": "Filter zurücksetzen",
+      "list": "Features und ihre Verbindungen",
+      "focusHidden": "{key} liegt außerhalb der Filter"
     }
   },
   "specScan": {

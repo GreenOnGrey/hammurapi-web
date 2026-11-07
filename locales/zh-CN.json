@@ -1271,6 +1271,27 @@
       "changedBy": "被更改",
       "notIndexed": "不在主分支中",
       "more": "{count, plural, other {还有 # 个}}"
+    },
+    "graph": {
+      "open": "图",
+      "show": "在图中显示",
+      "title": "规格图",
+      "filters": "图的筛选",
+      "system": "系统",
+      "allSystems": "所有系统",
+      "kinds": "关系类型",
+      "kind": {
+        "extends": "基于",
+        "changes": "更改"
+      },
+      "depth": "焦点深度",
+      "depthN": "{count, plural, other {# 步}}",
+      "resetFocus": "取消焦点",
+      "failed": "无法构建图",
+      "empty": "没有关系",
+      "resetFilters": "重置筛选",
+      "list": "功能及其关系",
+      "focusHidden": "{key} 不在筛选范围内"
     }
   },
   "specScan": {

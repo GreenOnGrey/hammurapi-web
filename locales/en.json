@@ -1271,6 +1271,27 @@
       "changedBy": "Changed by",
       "notIndexed": "Not in the default branch",
       "more": "{count, plural, one {# more} other {# more}}"
+    },
+    "graph": {
+      "open": "Graph",
+      "show": "Show in graph",
+      "title": "Graph of the specification",
+      "filters": "Filters of the graph",
+      "system": "System",
+      "allSystems": "All systems",
+      "kinds": "Kinds of links",
+      "kind": {
+        "extends": "builds on",
+        "changes": "changes"
+      },
+      "depth": "Depth of the focus",
+      "depthN": "{count, plural, one {# step} other {# steps}}",
+      "resetFocus": "Reset the focus",
+      "failed": "Could not build the graph",
+      "empty": "No links",
+      "resetFilters": "Reset the filters",
+      "list": "Features and their links",
+      "focusHidden": "{key} is outside the filters"
     }
   },
   "specScan": {

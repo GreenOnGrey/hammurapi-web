@@ -22,34 +22,35 @@ const none = { extends: [], changes: [], extendedBy: [], changedBy: [] };
 // FTR.HMR.DEV-0002 qa §6b: the rows of links in the header of a document.
 describe("the links of a feature", () => {
   it("NAV-02: «Changed by» with the requirement, a link to its product with the anchor", () => {
-    const html = wrap(<SpecLinks links={{ ...none, changedBy: [ref("FTR.HMR.DEV-0002", { requirements: ["R13"] })] }} />);
+    const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, changedBy: [ref("FTR.HMR.DEV-0002", { requirements: ["R13"] })] }} />);
     expect(html).toContain("Changed by");
     expect(html).toContain("FTR.HMR.DEV-0002");
     expect(html).toMatch(/· (<!-- -->)?R13/);
     // the number is of the document open now: the plate opens the changing feature without an anchor
     expect(html).toContain('href="/spec/FTR.HMR.DEV-0002/product"');
     expect(html).not.toContain("Builds on");
+    expect(html).toContain('href="/spec/graph?focus=FTR.NAB.CMN-0005"'); // GRAPH-05: «Show in graph»
   });
   it("«Changes» opens the changed feature at its first requirement", () => {
-    const html = wrap(<SpecLinks links={{ ...none, changes: [ref("FTR.HMR.CMN-0001", { requirements: ["R13", "R20"] })] }} />);
+    const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, changes: [ref("FTR.HMR.CMN-0001", { requirements: ["R13", "R20"] })] }} />);
     expect(html).toContain('href="/spec/FTR.HMR.CMN-0001/product#r13"');
   });
   it("NAV-03: no links, no rows", () => {
-    expect(wrap(<SpecLinks links={none} />)).toBe("");
-    expect(wrap(<SpecLinks />)).toBe("");
+    expect(wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={none} />)).toBe("");
+    expect(wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" />)).toBe("");
   });
   it("NAV-04: seven links of a kind — five plates and «2 more»", () => {
     const refs = Array.from({ length: 7 }, (_, i) => ref(`FTR.FMS.CAR-000${i + 1}`));
-    const html = wrap(<SpecLinks links={{ ...none, extends: refs }} />);
+    const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, extends: refs }} />);
     expect(html.match(/class="chip"/g)?.length).toBe(6);
     expect(html).toContain("2 more");
     expect(html).not.toContain("FTR.FMS.CAR-0006");
   });
   it("NAV-05: a key outside the index is a plate without a link", () => {
-    const html = wrap(<SpecLinks links={{ ...none, extends: [ref("FTR.FMS.CAR-0077", { indexed: false, title: null })] }} />);
+    const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, extends: [ref("FTR.FMS.CAR-0077", { indexed: false, title: null })] }} />);
     expect(html).toContain("lnk-off");
     expect(html).toContain("Not in the default branch");
-    expect(html).not.toContain("href=");
+    expect(html).not.toContain('href="/spec/FTR.FMS.CAR-0077');
   });
   it("the anchor of a requirement paragraph", () => {
     expect(requirementAnchor("R13.")).toBe("r13");

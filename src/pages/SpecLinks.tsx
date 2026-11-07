@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Icon } from "@green-on-grey/ui-kit";
 import type { SpecFeatureLinks, SpecLinkRef } from "../api/types";
 
 const ROWS = ["extends", "changes", "extendedBy", "changedBy"] as const;
@@ -9,11 +10,15 @@ const MAX = 5;
 
 /** The links of a feature in the header of a document (FTR.HMR.DEV-0002 R14, R17, design §3.5):
  * up to four rows, a plate per feature; a key outside the index is a plate without a link. */
-export function SpecLinks({ links }: { links?: SpecFeatureLinks }) {
+export function SpecLinks({ links, featureKey }: { links?: SpecFeatureLinks; featureKey: string }) {
   const { t } = useTranslation();
-  if (!links) return null;
+  if (!links || ROWS.every((r) => links[r].length === 0)) return null;
   return (
     <>
+      {/* R16: the graph with the focus on this feature; not on a phone (design §3.7) */}
+      <Link className="btn ghost sm specgraphbtn specshowgraph" to={`/spec/graph?focus=${encodeURIComponent(featureKey)}`}>
+        <Icon name="graph" size={14} />{t("spec.graph.show")}
+      </Link>
       {ROWS.filter((r) => links[r].length > 0).map((r) => (
         <LinkRefs key={r} label={t(`spec.links.${r}`)} refs={links[r]} withReqs={r === "changes" || r === "changedBy"} anchored={r === "changes"} />
       ))}

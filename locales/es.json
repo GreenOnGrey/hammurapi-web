@@ -1271,6 +1271,27 @@
       "changedBy": "Cambiada por",
       "notIndexed": "No está en la rama principal",
       "more": "{count, plural, one {# más} other {# más}}"
+    },
+    "graph": {
+      "open": "Grafo",
+      "show": "Mostrar en el grafo",
+      "title": "Grafo de la especificación",
+      "filters": "Filtros del grafo",
+      "system": "Sistema",
+      "allSystems": "Todos los sistemas",
+      "kinds": "Tipos de vínculos",
+      "kind": {
+        "extends": "se basa en",
+        "changes": "cambia"
+      },
+      "depth": "Profundidad del foco",
+      "depthN": "{count, plural, one {# paso} other {# pasos}}",
+      "resetFocus": "Quitar el foco",
+      "failed": "No se pudo construir el grafo",
+      "empty": "No hay vínculos",
+      "resetFilters": "Restablecer filtros",
+      "list": "Funcionalidades y sus vínculos",
+      "focusHidden": "{key} está fuera de los filtros"
     }
   },
   "specScan": {

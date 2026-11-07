@@ -52,6 +52,7 @@ export const keys = {
   agentMCP: ["admin", "agent", "mcp"] as const,
   agentUsage: (period: string) => ["admin", "agent", "usage", period] as const,
   specTree: ["spec", "tree"] as const,
+  specGraph: ["spec", "graph"] as const,
   specDoc: (key: string, area: string) => ["spec", "doc", key, area] as const,
   specFiles: (key: string, area: string) => ["spec", "files", key, area] as const,
   specSearch: (q: string, domain: string, area: string) => ["spec", "search", q, domain, area] as const,

@@ -54,7 +54,11 @@ export function SpecPage() {
 
   return (
     <main className="main wide specpage">
-      <SearchBar key={q} initial={q} onSearch={search} />
+      <div className="specsearchrow">
+        <SearchBar key={q} initial={q} onSearch={search} />
+        {/* FTR.HMR.DEV-0002 R15, design §3.6: not on a phone */}
+        <Link className="btn sm specgraphbtn" to="/spec/graph"><Icon name="graph" size={15} />{t("spec.graph.open")}</Link>
+      </div>
       <div className={`specnav${showTree ? " tree-open" : ""}`}>
         <aside className="spectree" aria-label={t("spec.tree")}>
           {tree.isLoading && <Loading />}
@@ -481,7 +485,7 @@ function DocumentView({
             ))}
           </LinkRow>
         )}
-        <SpecLinks links={f.links} />
+        <SpecLinks links={f.links} featureKey={d.featureKey} />
         <div className="tabs spectabs" role="tablist" style={{ marginTop: 14 }}>
           {SPEC_AREAS.filter((a) => d.areas.includes(a)).map((a) => (
             <Link

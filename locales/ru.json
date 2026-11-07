@@ -1271,6 +1271,27 @@
       "changedBy": "Его меняют",
       "notIndexed": "Нет в основной ветке",
       "more": "{count, plural, one {ещё #} few {ещё #} many {ещё #} other {ещё #}}"
+    },
+    "graph": {
+      "open": "Граф",
+      "show": "Показать в графе",
+      "title": "Граф спецификации",
+      "filters": "Фильтры графа",
+      "system": "Система",
+      "allSystems": "Все системы",
+      "kinds": "Виды связей",
+      "kind": {
+        "extends": "опирается на",
+        "changes": "меняет"
+      },
+      "depth": "Глубина фокуса",
+      "depthN": "{count, plural, one {# шаг} few {# шага} many {# шагов} other {# шага}}",
+      "resetFocus": "Сбросить фокус",
+      "failed": "Не удалось построить граф",
+      "empty": "Связей нет",
+      "resetFilters": "Сбросить фильтры",
+      "list": "Решения и их связи",
+      "focusHidden": "{key} вне фильтров"
     }
   },
   "specScan": {

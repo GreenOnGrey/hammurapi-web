@@ -111,6 +111,21 @@ const specLinks = {
   extendedBy: Array.from({ length: 7 }, (_, i) => linkRef(`FTR.NAB.CHAT-000${i + 1}`, "Чат")),
   changedBy: [linkRef("FTR.HMR.DEV-0002", "Связи решений", ["R10"])],
 };
+// FTR.HMR.DEV-0002 R15–R17: the graph of the specification
+const gNode = (key, title, phase = "released", indexed = true) => {
+  const [, domain, rest] = key.split(".");
+  return { key, title: indexed ? title : null, domain, system: rest.split("-")[0], phase: indexed ? phase : null, indexed, context: false };
+};
+const gEdge = (source, target, kind, requirements = []) => ({ source, target, kind, requirements });
+const specGraph = { commit: "c1",
+  nodes: [gNode("FTR.HMR.CMN-0001", "Hammurapi"), gNode("FTR.HMR.CMN-0002", "Цикл разработки"), gNode("FTR.HMR.CMN-0005", "Индекс спецификаций"),
+    gNode("FTR.HMR.DEV-0001", "Писатель спецификаций"), gNode("FTR.HMR.DEV-0002", "Связи решений", "spec"), gNode("FTR.NAB.CMN-0001", "Nabu"),
+    gNode("FTR.NAB.CMN-0003", "Память"), gNode("FTR.NAB.CMN-0005", "Общий UI-кит"), gNode("FTR.NAB.CMN-0009", "", "spec", false)],
+  edges: [gEdge("FTR.HMR.CMN-0002", "FTR.HMR.CMN-0001", "extends"), gEdge("FTR.HMR.CMN-0005", "FTR.HMR.CMN-0001", "extends"),
+    gEdge("FTR.HMR.DEV-0001", "FTR.HMR.CMN-0002", "changes", ["R12", "R13", "R14"]), gEdge("FTR.HMR.DEV-0002", "FTR.HMR.DEV-0001", "extends"),
+    gEdge("FTR.HMR.DEV-0002", "FTR.HMR.CMN-0001", "changes", ["R13"]), gEdge("FTR.HMR.DEV-0002", "FTR.NAB.CMN-0005", "extends"),
+    gEdge("FTR.NAB.CMN-0003", "FTR.NAB.CMN-0001", "extends"), gEdge("FTR.NAB.CMN-0005", "FTR.NAB.CMN-0003", "changes", ["R19"]),
+    gEdge("FTR.NAB.CMN-0005", "FTR.NAB.CMN-0009", "extends")] };
 const viewUrl = (key, area, name) => `/api/v1/spec/files/${key}/${area}/raw?mode=view&name=${name}`;
 const specFiles = (key, area) => area !== "design" ? [] : [
   { path: `specs/NAB/CMN/${key}/design/mockups.html`, name: "mockups.html", size: 158_000, mimeType: "text/html", previewable: true, viewUrl: viewUrl(key, area, "mockups.html") },
@@ -172,6 +187,7 @@ function api(url, c) {
   if (p === "/api/v1/agent") return nabuAgent;
   if (p === "/admin/api/v1/nabu") return nabuAdmin(c("mock-nabu"));
   if (p === "/api/v1/spec/tree") return specTree;
+  if (p === "/api/v1/spec/graph") return specGraph;
   let m = /^\/api\/v1\/spec\/documents\/([^/]+)\/([^/]+)$/.exec(p);
   if (m) {
     const d = specDoc(decodeURIComponent(m[1]), m[2]);

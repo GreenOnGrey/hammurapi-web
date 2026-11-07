@@ -2200,3 +2200,17 @@ table.nabu-scenarios td {
 }
 /* FTR.HMR.DEV-0002 design §3.5: a linked feature outside the index */
 .speclinks .chip.lnk-off { opacity: .6; cursor: default; }
+
+/* FTR.HMR.DEV-0002 design §3.6: the graph of the specification */
+.specsearchrow { display: flex; gap: 8px; align-items: center; }
+.specsearchrow .specsearch { flex: 1; }
+.specshowgraph { float: right; margin-top: 6px; }
+.specgraphpage .graphbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 12px; }
+.specgraphpage .graphsel { width: auto; min-width: 140px; }
+.specgraphpage .gkind { display: inline-block; width: 18px; margin-right: 6px; vertical-align: middle; border-top: 2px solid var(--text-2); }
+.specgraphpage .gkind.changes { border-top: 2px dashed var(--violet); }
+.specgraphpage .graphlist { margin-top: 12px; font-size: 13px; }
+.specgraphpage .graphlist ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+@media (max-width: 900px) {
+  .specgraphbtn { display: none; }
+}
