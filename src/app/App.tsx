@@ -99,6 +99,7 @@ function Authenticated() {
         qc.invalidateQueries({ queryKey: ["history", d.uniqueId] });
         qc.invalidateQueries({ queryKey: ["diff", d.uniqueId] });
         qc.invalidateQueries({ queryKey: ["document", d.uniqueId] });
+        qc.invalidateQueries({ queryKey: keys.specChanges(d.uniqueId) });
         qc.invalidateQueries({ queryKey: keys.requirements(d.uniqueId) });
         qc.invalidateQueries({ queryKey: keys.features() });
         qc.invalidateQueries({ queryKey: keys.focus });

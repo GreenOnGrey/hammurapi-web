@@ -127,6 +127,7 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
         setState("saved");
       }
       qc.invalidateQueries({ queryKey: keys.feature(feature.uniqueId) });
+      if (area === "product") qc.invalidateQueries({ queryKey: keys.specChanges(feature.uniqueId) }); // FTR.HMR.DEV-0002 R7
     } catch (e) {
       setState("error");
       if (e instanceof ApiError && e.status === 423) {

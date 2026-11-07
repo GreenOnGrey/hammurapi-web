@@ -717,7 +717,8 @@
     "no_next_stage": "La especificación no tiene siguiente etapa.",
     "writer_blocked": "El redactor se detuvo. Reintenta primero.",
     "gate_not_written": "El documento de esta etapa aún no existe: responde la pregunta del redactor o reintenta.",
-    "gate_generated": "Esta puerta la escribe el agente: pide el cambio en el chat."
+    "gate_generated": "Esta puerta la escribe el agente: pide el cambio en el chat.",
+    "changes_invalid": "Algunas filas de «Changes to other features» («Изменения в других решениях») no se pueden aplicar. Corríjalas y envíe de nuevo."
   },
   "stages": {
     "title": "Etapas",
@@ -1244,7 +1245,33 @@
     "openInNewTab": "Abrir en una pestaña nueva",
     "tooLarge": "El archivo es demasiado grande para verlo",
     "fitToScreen": "Ajustar a la pantalla",
-    "actualSize": "Tamaño real"
+    "actualSize": "Tamaño real",
+    "changes": {
+      "title": "Cambios en otras funcionalidades",
+      "loadFailed": "No se pudieron cargar los cambios",
+      "retry": "Reintentar",
+      "whole": "toda la funcionalidad",
+      "fixFirst": "Corrija primero la sección «Changes to other features» («Изменения в других решениях»)",
+      "state": {
+        "marked": "marcado",
+        "pending": "se marcará",
+        "error": "error"
+      },
+      "reason": {
+        "unknown_target": "No existe esa funcionalidad en la rama principal",
+        "target_in_work": "La funcionalidad sigue en trabajo: cámbiela con una instrucción en su tema",
+        "unknown_requirement": "No existe ese requisito en la rama principal",
+        "other": "Esta fila no se puede aplicar"
+      }
+    },
+    "links": {
+      "extends": "Se basa en",
+      "changes": "Cambia",
+      "extendedBy": "Se basan en ella",
+      "changedBy": "Cambiada por",
+      "notIndexed": "No está en la rama principal",
+      "more": "{count, plural, one {# más} other {# más}}"
+    }
   },
   "specScan": {
     "title": "Revisión del repositorio",

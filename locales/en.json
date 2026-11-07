@@ -717,7 +717,8 @@
     "no_next_stage": "The specification has no next stage.",
     "writer_blocked": "The writer stopped. Retry it first.",
     "gate_not_written": "The gate of this stage is not written yet: answer the question of the writer or retry.",
-    "gate_generated": "The agent writes this gate: ask for a change in the chat."
+    "gate_generated": "The agent writes this gate: ask for a change in the chat.",
+    "changes_invalid": "Some rows of “Changes to other features” cannot be applied. Fix them and submit again."
   },
   "stages": {
     "title": "Stages",
@@ -1244,7 +1245,33 @@
     "openInNewTab": "Open in new tab",
     "tooLarge": "The file is too large to view",
     "fitToScreen": "Fit to screen",
-    "actualSize": "Actual size"
+    "actualSize": "Actual size",
+    "changes": {
+      "title": "Changes to other features",
+      "loadFailed": "Could not load the changes",
+      "retry": "Retry",
+      "whole": "whole feature",
+      "fixFirst": "Fix the section “Changes to other features” first",
+      "state": {
+        "marked": "marked",
+        "pending": "will be marked",
+        "error": "error"
+      },
+      "reason": {
+        "unknown_target": "No such feature in the default branch",
+        "target_in_work": "The feature is still in work: change it through an instruction in its topic",
+        "unknown_requirement": "No such requirement in the default branch",
+        "other": "This row cannot be applied"
+      }
+    },
+    "links": {
+      "extends": "Builds on",
+      "changes": "Changes",
+      "extendedBy": "Built on by",
+      "changedBy": "Changed by",
+      "notIndexed": "Not in the default branch",
+      "more": "{count, plural, one {# more} other {# more}}"
+    }
   },
   "specScan": {
     "title": "Repository check",

@@ -103,6 +103,14 @@ const specDoc = (key, area) => ({ featureKey: key, area, areas: ["product", "des
   historyUrl: `https://github.com/GreenOnGrey/specs/commits/main/specs/NAB/CMN/${key}/${area}/spec.md`,
   feature: { phase: "released", source: "hammurapi", title: "Общий UI-кит Hammurapi и Nabu с очень длинным названием", release: "RLS.NAB.CMN-0003", releasedAt: T("12:00", "04"),
     indexedAt: null, parent: null, issues: [{ key: "ISS.NAB-0007", title: "Кнопки расходятся", url: "/issues/ISS.NAB-0007" }], pullRequests: [] } });
+// FTR.HMR.DEV-0002 R14, R17: links of the feature, by the cookie mock-links
+const linkRef = (key, title, requirements = [], indexed = true) => ({ key, title: indexed ? title : null, indexed, requirements });
+const specLinks = {
+  extends: [linkRef("FTR.NAB.CMN-0001", "Nabu"), linkRef("FTR.NAB.CMN-0009", "", [], false)],
+  changes: [linkRef("FTR.HMR.CMN-0001", "Hammurapi", ["R13", "R20"])],
+  extendedBy: Array.from({ length: 7 }, (_, i) => linkRef(`FTR.NAB.CHAT-000${i + 1}`, "Чат")),
+  changedBy: [linkRef("FTR.HMR.DEV-0002", "Связи решений", ["R10"])],
+};
 const viewUrl = (key, area, name) => `/api/v1/spec/files/${key}/${area}/raw?mode=view&name=${name}`;
 const specFiles = (key, area) => area !== "design" ? [] : [
   { path: `specs/NAB/CMN/${key}/design/mockups.html`, name: "mockups.html", size: 158_000, mimeType: "text/html", previewable: true, viewUrl: viewUrl(key, area, "mockups.html") },
@@ -123,6 +131,7 @@ function feature(state) {
   if (state === "noapproval") return { ...base, approvalRequired: false, gates: [featureGate("product", "draft")], permissions: { ...base.permissions, submit: [], advance: true } };
   if (state === "generated") return { ...base, specStage: "generated", pendingGates: [], gates: [featureGate("product", "approved"), featureGate("arch", "approved"), featureGate("tech", "draft", true), featureGate("qa", "draft", true)],
     skippedAreas: ["design"], permissions: { ...base.permissions, edit: ["product", "arch"], submit: ["tech", "qa"] } };
+  if (state === "changes") return { ...base, gates: [featureGate("product", "draft")] };
   if (state === "running") return { ...base, gates: [featureGate("product", "draft")], writerRun: { mode: "write", state: "generating", areas: ["product"], waitingLock: false }, permissions: { ...base.permissions, edit: [], submit: [] } };
   return { ...base, gates: [featureGate("product", "draft")], openQuestions: { product: 2 } };
 }
@@ -140,6 +149,13 @@ function api(url, c) {
   const p = url.pathname;
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
+  // FTR.HMR.DEV-0002 R7: the block of changes with every state
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/changes") return c("mock-feature") !== "changes" ? { items: [] } : { items: [
+    { feature: "FTR.FMS.CAR-0002", requirement: "R13", note: "Отмена платная после 10 минут.", state: "marked", url: "/spec/FTR.FMS.CAR-0002/product#r13" },
+    { feature: "FTR.FMS.CAR-0001", requirement: null, note: "Новая страница тарифов.", state: "pending", url: "/spec/FTR.FMS.CAR-0001/product" },
+    { feature: "FTR.FMS.CAR-0002", requirement: "R99", note: "Возврат на карту.", state: "error", url: "/spec/FTR.FMS.CAR-0002/product#r99",
+      error: { feature: "FTR.FMS.CAR-0002", requirement: "R99", reason: "unknown_requirement" } },
+  ] };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/topic") return { conversationId: null, title: "FTR.FMS.CAR-0005 — Скидка за ранний возврат авто" };
   if (/^\/api\/v1\/features\/FTR\.FMS\.CAR-0005\/gates\/\w+\/document$/.test(p)) return featureDoc;
   if (p === "/api/v1/config") return config(c("mock-login"));
@@ -157,7 +173,10 @@ function api(url, c) {
   if (p === "/admin/api/v1/nabu") return nabuAdmin(c("mock-nabu"));
   if (p === "/api/v1/spec/tree") return specTree;
   let m = /^\/api\/v1\/spec\/documents\/([^/]+)\/([^/]+)$/.exec(p);
-  if (m) return specDoc(decodeURIComponent(m[1]), m[2]);
+  if (m) {
+    const d = specDoc(decodeURIComponent(m[1]), m[2]);
+    return c("mock-links") ? { ...d, feature: { ...d.feature, links: specLinks } } : d;
+  }
   m = /^\/api\/v1\/spec\/files\/([^/]+)\/([^/]+)$/.exec(p);
   if (m) return { files: specFiles(decodeURIComponent(m[1]), m[2]) };
   if (p === "/api/v1/chat/conversations") return { items: nabuConversations };

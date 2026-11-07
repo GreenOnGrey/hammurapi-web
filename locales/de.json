@@ -717,7 +717,8 @@
     "no_next_stage": "Die Spezifikation hat keine nächste Phase.",
     "writer_blocked": "Der Autor hat angehalten. Wiederholen Sie zuerst den Lauf.",
     "gate_not_written": "Das Dokument dieser Phase fehlt noch: Beantworten Sie die Frage des Autors oder wiederholen Sie den Lauf.",
-    "gate_generated": "Dieses Gate schreibt der Agent: Bitten Sie im Chat um eine Änderung."
+    "gate_generated": "Dieses Gate schreibt der Agent: Bitten Sie im Chat um eine Änderung.",
+    "changes_invalid": "Einige Zeilen von „Changes to other features“ („Изменения в других решениях“) können nicht angewendet werden. Korrigieren Sie sie und reichen Sie erneut ein."
   },
   "stages": {
     "title": "Phasen",
@@ -1244,7 +1245,33 @@
     "openInNewTab": "In neuem Tab öffnen",
     "tooLarge": "Die Datei ist zu groß für die Ansicht",
     "fitToScreen": "An Bildschirm anpassen",
-    "actualSize": "Originalgröße"
+    "actualSize": "Originalgröße",
+    "changes": {
+      "title": "Änderungen an anderen Features",
+      "loadFailed": "Änderungen konnten nicht geladen werden",
+      "retry": "Erneut versuchen",
+      "whole": "gesamtes Feature",
+      "fixFirst": "Korrigieren Sie zuerst den Abschnitt „Changes to other features“ („Изменения в других решениях“)",
+      "state": {
+        "marked": "markiert",
+        "pending": "wird markiert",
+        "error": "Fehler"
+      },
+      "reason": {
+        "unknown_target": "Kein solches Feature im Hauptzweig",
+        "target_in_work": "Das Feature ist noch in Arbeit: Änderungen per Auftrag in seinem Thema",
+        "unknown_requirement": "Keine solche Anforderung im Hauptzweig",
+        "other": "Diese Zeile kann nicht angewendet werden"
+      }
+    },
+    "links": {
+      "extends": "Baut auf",
+      "changes": "Ändert",
+      "extendedBy": "Darauf bauen auf",
+      "changedBy": "Geändert von",
+      "notIndexed": "Nicht im Hauptzweig",
+      "more": "{count, plural, one {# weiteres} other {# weitere}}"
+    }
   },
   "specScan": {
     "title": "Repository-Prüfung",

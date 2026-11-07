@@ -35,6 +35,10 @@ export const SCREENS: Screen[] = [
   { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
   // FTR.HMR.DEV-0001 design §4: the stages, the panel of the specifications, the questions of the writer, the gates as icons
   { name: "feature-spec", path: "/features/FTR.FMS.CAR-0005" },
+  // FTR.HMR.DEV-0002 design §3.1, §3.5: the block of changes on product, the links in the header of a document
+  { name: "feature-changes", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "changes" },
+    act: async (page) => { await page.locator(".chgblock").scrollIntoViewIfNeeded(); } },
+  { name: "spec-doc-links", path: "/spec/FTR.NAB.CMN-0005/product", cookies: { "mock-links": "1" } },
   { name: "feature-writer-running", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "running" } },
   { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },
   { name: "feature-no-approval", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "noapproval" } },

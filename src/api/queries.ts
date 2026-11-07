@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, SpecChangeItem, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -21,6 +21,7 @@ export const keys = {
   discoveryRequest: (id: string) => ["discovery-request", id] as const,
   specRequest: (id: string) => ["spec-request", id] as const,
   specQuestions: (key: string) => ["spec-questions", key] as const,
+  specChanges: (key: string) => ["spec-changes", key] as const,
   features: (f?: object) => (f ? (["features", f] as const) : (["features"] as const)),
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
@@ -111,6 +112,14 @@ export const useFeatureTopic = (key: string, enabled: boolean) =>
 export const useSpecQuestions = (key: string) =>
   useQuery({ queryKey: keys.specQuestions(key), queryFn: () => api.get<{ items: SpecGateQuestions[] }>(`/api/v1/features/${key}/spec/questions`) });
 
+/** The rows of the section "Changes to other features" of the product gate (FTR.HMR.DEV-0002 R7). */
+export const useSpecChanges = (key: string, enabled = true) =>
+  useQuery({
+    queryKey: keys.specChanges(key),
+    queryFn: () => api.get<{ items: SpecChangeItem[] }>(`/api/v1/features/${key}/spec/changes`),
+    enabled,
+  });
+
 export const useSpecRequest = (id: string) =>
   useQuery({ queryKey: keys.specRequest(id), queryFn: () => api.get<SpecRequest>(`/api/v1/spec-requests/${id}`) });
 
@@ -178,6 +187,7 @@ export function invalidateFeature(qc: QueryClient, id: string) {
   qc.invalidateQueries({ queryKey: keys.validation(id) });
   qc.invalidateQueries({ queryKey: keys.focus });
   qc.invalidateQueries({ queryKey: keys.overview() });
+  qc.invalidateQueries({ queryKey: keys.specChanges(id) });
 }
 
 export function invalidateCycle(qc: QueryClient) {
