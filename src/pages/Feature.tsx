@@ -18,6 +18,7 @@ import { ValidationTab } from "./feature/Validation";
 import { ActivityTab } from "./feature/Activity";
 import { BlockedBanner } from "../components/BlockedBanner";
 import { SpecQuestions } from "./feature/SpecQuestions";
+import { SpecChanges, useChangesInvalid } from "./feature/SpecChanges";
 import { useQuestionLinks } from "./IssueQuestions";
 
 const TABS = ["spec", "implementation", "validation", "history"] as const;
@@ -138,6 +139,7 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         setDialog({ kind: "unnumbered", area, list: (e.details.requirements as string[]) ?? [] });
         return;
       }
+      if (e instanceof ApiError && e.code === "changes_invalid") qc.invalidateQueries({ queryKey: keys.specChanges(f.uniqueId) }); // FTR.HMR.DEV-0002 R3: the rows show why
       if (e instanceof ApiError && e.code === "open_questions" && area) { // FTR.HMR.DEV-0001 R14
         setDialog({ kind: "openQuestions", area, list: (e.details.questions as { id: string; title: string }[]) ?? [] });
         return;
@@ -305,6 +307,7 @@ function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvan
       {area && gate ? <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} /> : !skipped && (f.openQuestions[area as Area] ?? 0) === 0 && (
         <Empty icon="files" title={t("feature.noGate")} />
       )}
+      {area === "product" && gate && <SpecChanges featureKey={f.uniqueId} />}
     </section>
   );
 }
@@ -355,8 +358,14 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
   // FTR.HMR.DEV-0001 R21: the order of approval stays strict: the reason is seen before a click
   const before = AREAS.slice(0, AREAS.indexOf(gate.area)).find((a) => f.gates.some((g) => g.area === a && g.status !== "approved"));
   const waits = canApprove && !!before;
+  // FTR.HMR.DEV-0002 R3: wrong rows of "Changes to other features" stop the submission and the next stage
+  // (the next stage aligns the notes from any gate; the submission — only of product)
+  const submitChecked = gate.area === "product" && canSubmit;
+  const invalid = useChangesInvalid(f.uniqueId, submitChecked || f.permissions.advance);
+  const invalidHint = invalid ? t("spec.changes.fixFirst") : undefined;
   let text: React.ReactNode;
   if (running) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.readOnly")}</span>;
+  else if (invalid && (submitChecked || f.permissions.advance)) text = <span className="wait"><Icon name="lock" size={14} />{invalidHint}</span>;
   else if (waits) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.waitsFor", { area: t(`areas.${before}`) })}</span>;
   else if (!f.approvalRequired) text = t("feature.bar.noApproval");
   else if (gate.status === "in_review") text = t("feature.bar.inReview", { when: gate.submittedAt ? relativeTime(gate.submittedAt, i18n.language) : "" });
@@ -369,8 +378,8 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
       <span className="grow ab-grow">{text}</span>
       <Link className="btn sm" to={`/features/${f.uniqueId}/spec/${gate.area}/diff`}>{t("feature.viewChanges")}</Link>
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
-      {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun} onClick={onAdvance}>{t("writer.advance")}</button>}
-      {canSubmit && <button className="btn primary sm abmain" disabled={busy} onClick={onSubmit}>{t("feature.submit")}</button>}
+      {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun || invalid} title={invalidHint} onClick={onAdvance}>{t("writer.advance")}</button>}
+      {canSubmit && <button className="btn primary sm abmain" disabled={busy || (submitChecked && invalid)} title={submitChecked ? invalidHint : undefined} onClick={onSubmit}>{t("feature.submit")}</button>}
       {canApprove && <button className="btn ok sm" disabled={busy || waits} onClick={onApprove}><Icon name="check" size={15} />{t("feature.approve")}</button>}
     </div>
   );

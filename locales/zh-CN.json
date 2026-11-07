@@ -717,7 +717,8 @@
     "no_next_stage": "规格说明没有下一阶段。",
     "writer_blocked": "撰写代理已停止，请先重试。",
     "gate_not_written": "此阶段的文档尚未写好：请回答撰写代理的问题或重试。",
-    "gate_generated": "此关卡由代理撰写：请在聊天中提出修改。"
+    "gate_generated": "此关卡由代理撰写：请在聊天中提出修改。",
+    "changes_invalid": "“Changes to other features”（“Изменения в других решениях”）中的部分行无法应用。请修正后重新提交。"
   },
   "stages": {
     "title": "阶段",
@@ -1244,7 +1245,33 @@
     "openInNewTab": "在新标签页中打开",
     "tooLarge": "文件过大，无法预览",
     "fitToScreen": "适应屏幕",
-    "actualSize": "实际大小"
+    "actualSize": "实际大小",
+    "changes": {
+      "title": "对其他功能的更改",
+      "loadFailed": "无法加载更改",
+      "retry": "重试",
+      "whole": "整个功能",
+      "fixFirst": "请先修正“Changes to other features”（“Изменения в других решениях”）部分",
+      "state": {
+        "marked": "已标记",
+        "pending": "将被标记",
+        "error": "错误"
+      },
+      "reason": {
+        "unknown_target": "主分支中没有该功能",
+        "target_in_work": "该功能仍在进行中：请在其主题中通过指令更改",
+        "unknown_requirement": "主分支中没有该需求",
+        "other": "此行无法应用"
+      }
+    },
+    "links": {
+      "extends": "基于",
+      "changes": "更改",
+      "extendedBy": "被依赖",
+      "changedBy": "被更改",
+      "notIndexed": "不在主分支中",
+      "more": "{count, plural, other {还有 # 个}}"
+    }
   },
   "specScan": {
     "title": "仓库检查",

@@ -1036,7 +1036,36 @@ export interface SpecDocument {
     parent: string | null;
     issues: { key: string; title: string; url: string }[];
     pullRequests: SpecPR[];
+    /** Links with other features (FTR.HMR.DEV-0002 R14); absent with an older core. */
+    links?: SpecFeatureLinks;
   };
+}
+
+/** The other end of a link; title is null outside the index (FTR.HMR.DEV-0002 R17). */
+export interface SpecLinkRef {
+  key: string;
+  title: string | null;
+  indexed: boolean;
+  requirements: string[];
+}
+
+export interface SpecFeatureLinks {
+  extends: SpecLinkRef[];
+  changes: SpecLinkRef[];
+  extendedBy: SpecLinkRef[];
+  changedBy: SpecLinkRef[];
+}
+
+export type SpecChangeReason = "unknown_target" | "target_in_work" | "unknown_requirement";
+
+/** A row of the block "Changes to other features" (FTR.HMR.DEV-0002 tech §2.1). */
+export interface SpecChangeItem {
+  feature: string;
+  requirement: string | null;
+  note: string;
+  state: "marked" | "pending" | "error";
+  url: string;
+  error?: { feature: string; requirement?: string; reason: SpecChangeReason };
 }
 
 export interface SpecFile {

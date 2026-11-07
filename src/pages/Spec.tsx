@@ -28,6 +28,7 @@ import { PhaseBadge } from "../components/cycle";
 import { FileViewer, rawUrl } from "../components/FileViewer";
 import { bytes, dateTime } from "../lib/format";
 import { errorText } from "../lib/errors";
+import { LinkRow, SpecLinks, requirementAnchor } from "./SpecLinks";
 
 /** "Specification": the navigator of the specification merged to the default
  * branch, read-only (FTR.HMR.CMN-0005 R11–R16, R20; FTR.HMR.SPEC-0001). The tree
@@ -382,6 +383,12 @@ function DocumentView({
     hs.forEach((h, i) => {
       if (d.toc[i]) h.id = d.toc[i].slug;
     });
+    // FTR.HMR.DEV-0002: a requirement paragraph **R13.** gets the anchor r13
+    root.querySelectorAll<HTMLElement>(".ProseMirror p > strong:first-child").forEach((b) => {
+      const id = requirementAnchor(b.textContent ?? "");
+      const p = b.parentElement;
+      if (id && p && p.firstChild === b && !document.getElementById(id)) p.id = id;
+    });
     const hash = decodeURIComponent(location.hash.slice(1));
     if (hash) document.getElementById(hash)?.scrollIntoView();
     const io = new IntersectionObserver(
@@ -474,6 +481,7 @@ function DocumentView({
             ))}
           </LinkRow>
         )}
+        <SpecLinks links={f.links} />
         <div className="tabs spectabs" role="tablist" style={{ marginTop: 14 }}>
           {SPEC_AREAS.filter((a) => d.areas.includes(a)).map((a) => (
             <Link
@@ -611,15 +619,6 @@ function DocumentView({
           }}
         />
       )}
-    </div>
-  );
-}
-
-function LinkRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="row speclinks">
-      <span className="small muted">{label}</span>
-      <span className="chips">{children}</span>
     </div>
   );
 }
