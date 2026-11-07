@@ -10,7 +10,7 @@ describe("the warning of a scenario row", () => {
   it("warns about an unbound scenario", () => {
     expect(scenarioWarning({ name: "issue_analysis", code: false }, undefined, agents)).toBe("unbound");
   });
-  it("warns only when a code scenario has an agent without the sandbox of Nabu", () => {
+  it("HN-10: warns only when a code scenario has an agent without the sandbox of Nabu", () => {
     expect(scenarioWarning({ name: "codegen", code: true }, "plain", agents)).toBe("noSandbox");
     expect(scenarioWarning({ name: "codegen", code: true }, "coder", agents)).toBeNull();
     expect(scenarioWarning({ name: "issue_analysis", code: false }, "plain", agents)).toBeNull();
