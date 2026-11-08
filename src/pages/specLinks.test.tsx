@@ -21,6 +21,14 @@ const none = { extends: [], changes: [], extendedBy: [], changedBy: [] };
 
 // FTR.HMR.DEV-0002 qa §6b: the rows of links in the header of a document.
 describe("the links of a feature", () => {
+  it("NAV-06: the rows are folded by default under a line with their count and the button of the graph", () => {
+    const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, extends: [ref("FTR.NAB.CMN-0001")], changedBy: [ref("FTR.HMR.DEV-0002")] }} />);
+    expect(html).toMatch(/<details class="fold"><summary>Links to other features/);
+    expect(html).toContain('<span class="foldcount">2</span>');
+    expect(html).toContain("Show in graph");
+    expect(html).not.toMatch(/<summary>.*Show in graph.*<\/summary>/s); // a link inside the toggle is not a link
+    expect(html).not.toMatch(/<details[^>]* open/);
+  });
   it("NAV-02: «Changed by» with the requirement, a link to its product with the anchor", () => {
     const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, changedBy: [ref("FTR.HMR.DEV-0002", { requirements: ["R13"] })] }} />);
     expect(html).toContain("Changed by");
@@ -42,7 +50,7 @@ describe("the links of a feature", () => {
   it("NAV-04: seven links of a kind — five plates and «2 more»", () => {
     const refs = Array.from({ length: 7 }, (_, i) => ref(`FTR.FMS.CAR-000${i + 1}`));
     const html = wrap(<SpecLinks featureKey="FTR.NAB.CMN-0005" links={{ ...none, extends: refs }} />);
-    expect(html.match(/class="chip"/g)?.length).toBe(6);
+    expect(html.match(/class="chip[ "]/g)?.length).toBe(6);
     expect(html).toContain("2 more");
     expect(html).not.toContain("FTR.FMS.CAR-0006");
   });

@@ -2200,17 +2200,35 @@ table.nabu-scenarios td {
 }
 /* FTR.HMR.DEV-0002 design §3.5: a linked feature outside the index */
 .speclinks .chip.lnk-off { opacity: .6; cursor: default; }
+/* a plate never leaves the column: the title is cut, the key and the requirements stay whole */
+.lnkchips { flex: 1 1 auto; min-width: 0; max-width: 100%; }
+.lnkchip { max-width: 100%; min-width: 0; }
+.lnkchip .lnk-k { flex: none; }
+.lnkchip .lnk-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 /* FTR.HMR.DEV-0002 design §3.6: the graph of the specification */
 .specsearchrow { display: flex; gap: 8px; align-items: center; }
 .specsearchrow .specsearch { flex: 1; }
-.specshowgraph { float: right; margin-top: 6px; }
 .specgraphpage .graphbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 12px; }
 .specgraphpage .graphsel { width: auto; min-width: 140px; }
 .specgraphpage .gkind { display: inline-block; width: 18px; margin-right: 6px; vertical-align: middle; border-top: 2px solid var(--text-2); }
 .specgraphpage .gkind.changes { border-top: 2px dashed var(--violet); }
-.specgraphpage .graphlist { margin-top: 12px; font-size: 13px; }
-.specgraphpage .graphlist ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.specsearchrow .specgraphbtn { align-self: stretch; gap: 6px; padding: 0 16px; font-size: 14px; }
+.specgraphpage .graphlist { margin-top: 16px; font-size: 13px; }
+/* a fold: a summary with a chevron and a count (design §3.5, §3.6) */
+.fold > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; font-size: 14px; font-weight: 600; padding: 4px 0; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before { content: ""; flex: none; width: 6px; height: 6px; margin: 0 2px; border-right: 2px solid var(--text-2); border-bottom: 2px solid var(--text-2); transform: rotate(-45deg); transition: transform .15s; }
+.fold[open] > summary::before { transform: rotate(45deg); }
+.fold .foldcount { font-weight: 500; color: var(--muted); }
+.speclinksfold { position: relative; margin-top: 8px; }
+.speclinksfold > .specshowgraph { position: absolute; top: 0; right: 0; }
+.speclinksfold > .fold > summary { width: fit-content; }
+.specgraphpage .graphlist ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); gap: 10px; align-items: start; }
+.specgraphpage .graphcard { border: 1px solid var(--border); border-radius: var(--r-m); background: var(--surface); padding: 10px 12px; min-width: 0; }
+.specgraphpage .graphcard-h { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-weight: 600; }
+.specgraphpage .graphcard-h a { text-decoration: none; }
+.specgraphpage .graphcard-t { font-weight: 500; color: var(--text-2); }
 @media (max-width: 900px) {
   .specgraphbtn { display: none; }
 }

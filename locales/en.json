@@ -1270,7 +1270,8 @@
       "extendedBy": "Built on by",
       "changedBy": "Changed by",
       "notIndexed": "Not in the default branch",
-      "more": "{count, plural, one {# more} other {# more}}"
+      "more": "{count, plural, one {# more} other {# more}}",
+      "title": "Links to other features"
     },
     "graph": {
       "open": "Graph",
@@ -1291,7 +1292,12 @@
       "empty": "No links",
       "resetFilters": "Reset the filters",
       "list": "Features and their links",
-      "focusHidden": "{key} is outside the filters"
+      "focusHidden": "{key} is outside the filters",
+      "layout": "Layout",
+      "layouts": {
+        "rows": "Rows",
+        "free": "Free"
+      }
     }
   },
   "specScan": {

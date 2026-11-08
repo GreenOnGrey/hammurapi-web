@@ -41,6 +41,7 @@ export const SCREENS: Screen[] = [
   { name: "spec-doc-links", path: "/spec/FTR.NAB.CMN-0005/product", cookies: { "mock-links": "1" } },
   // FTR.HMR.DEV-0002 design §3.6: the graph, by domain, with the focus at depth 2
   { name: "spec-graph", path: "/spec/graph", only: "desktop" },
+  { name: "spec-graph-free", path: "/spec/graph?layout=free", only: "desktop" },
   { name: "spec-graph-focus", path: "/spec/graph?domain=HMR&focus=FTR.HMR.DEV-0002&depth=2", only: "desktop" },
   { name: "feature-writer-running", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "running" } },
   { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },

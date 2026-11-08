@@ -1270,7 +1270,8 @@
       "extendedBy": "На него опираются",
       "changedBy": "Его меняют",
       "notIndexed": "Нет в основной ветке",
-      "more": "{count, plural, one {ещё #} few {ещё #} many {ещё #} other {ещё #}}"
+      "more": "{count, plural, one {ещё #} few {ещё #} many {ещё #} other {ещё #}}",
+      "title": "Связи с другими решениями"
     },
     "graph": {
       "open": "Граф",
@@ -1291,7 +1292,12 @@
       "empty": "Связей нет",
       "resetFilters": "Сбросить фильтры",
       "list": "Решения и их связи",
-      "focusHidden": "{key} вне фильтров"
+      "focusHidden": "{key} вне фильтров",
+      "layout": "Раскладка",
+      "layouts": {
+        "rows": "Ряды",
+        "free": "Свободно"
+      }
     }
   },
   "specScan": {

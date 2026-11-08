@@ -1,16 +1,19 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Empty, Graph, Icon, Loading } from "@green-on-grey/ui-kit";
-import type { GraphEdge, GraphNode, GraphSelection } from "@green-on-grey/ui-kit";
+import type { GraphEdge, GraphNode, GraphRow, GraphSelection } from "@green-on-grey/ui-kit";
 import { api } from "../api/client";
 import { keys } from "../api/queries";
-import type { SpecGraphData, SpecGraphEdge, SpecGraphNode, SpecLinkKind } from "../api/types";
+import type { SpecFeatureLinks, SpecGraphData, SpecGraphEdge, SpecGraphNode, SpecLinkKind, SpecLinkRef } from "../api/types";
 import { errorText } from "../lib/errors";
+import { LinkRows } from "./SpecLinks";
 
 const KINDS: SpecLinkKind[] = ["extends", "changes"];
 const GROUPS = 6; // g-c1…g-c6 of the kit
+export type GraphLayout = "rows" | "free";
+const LAYOUTS: GraphLayout[] = ["rows", "free"];
 
 /** What the page shows for the filters of the address (FTR.HMR.DEV-0002 tech §6a): the features of the
  * domain and the system, the features linked to them as context, the edges of the chosen kinds. */
@@ -23,12 +26,21 @@ export interface GraphView {
   /** The legend: a colour group per domain; with more domains than colours a group names several. */
   legend: { group: number; label: string }[];
   groupOf: Map<string, number>;
+  /** The rows of the row layout, by domain, then system; none in the free layout. */
+  rows?: GraphRow[];
 }
+
+/** The number of a key, FTR.HMR.CMN-0007 → 7: in a system the numbers are given in turn, so they are the order in
+ * which the features appeared. */
+export const keyNumber = (key: string): number | undefined => {
+  const m = /-(\d+)$/.exec(key);
+  return m ? Number(m[1]) : undefined; // a key without a number goes to the end of its row
+};
 
 /** The tooltip of a node: its title, phase and links by kind (design §3.6). */
 export type NodeTip = (n: SpecGraphNode, links: Record<SpecLinkKind, number>) => string | undefined;
 
-export function graphView(data: SpecGraphData, f: { domain: string; system: string; kinds: SpecLinkKind[] }, tip: NodeTip): GraphView {
+export function graphView(data: SpecGraphData, f: { domain: string; system: string; kinds: SpecLinkKind[]; layout: GraphLayout }, tip: NodeTip): GraphView {
   const byKey = new Map(data.nodes.map((n) => [n.key, n]));
   const inside = (n: SpecGraphNode) => (!f.domain || n.domain === f.domain) && (!f.system || n.system === f.system);
   const edges = data.edges.filter((e) => {
@@ -49,17 +61,26 @@ export function graphView(data: SpecGraphData, f: { domain: string; system: stri
     group: i + 1, label: domains.filter((_d, j) => j % GROUPS === i).join(", "),
   }));
   const keysSorted = [...shown.keys()].toSorted();
+  const rowed = f.layout === "rows";
   const nodes: GraphNode[] = keysSorted.map((k) => {
     const n = byKey.get(k)!;
     const mine = [...(out.get(k) ?? []), ...(inc.get(k) ?? [])];
     const links = { extends: mine.filter((e) => e.kind === "extends").length, changes: mine.filter((e) => e.kind === "changes").length };
-    return { id: k, label: k, title: tip(n, links), group: groupOf.get(n.domain), size: mine.length, dashed: !n.indexed, muted: !shown.get(k) };
+    const node: GraphNode = { id: k, label: k, title: tip(n, links), group: groupOf.get(n.domain), size: mine.length, dashed: !n.indexed, muted: !shown.get(k) };
+    // R15, design §3.6: a row per domain and system, the features of a row by number; the row names the domain and
+    // the system, so a node keeps the rest of its key
+    if (rowed) return { ...node, row: `${n.domain}.${n.system}`, order: keyNumber(k), label: k.startsWith(`FTR.${n.domain}.`) ? k.slice(`FTR.${n.domain}.`.length) : k };
+    return node;
   });
   // design §1: "changes" — a dashed line, "extends" — a solid one; the arrow points at the feature built on or changed
   const gEdges: GraphEdge[] = edges.map((e) => ({ source: e.source, target: e.target, directed: true, dashed: e.kind === "changes",
     title: e.requirements.length > 0 ? e.requirements.join(", ") : undefined }));
   const list = keysSorted.map((k) => ({ node: byKey.get(k)!, out: out.get(k) ?? [], in: inc.get(k) ?? [] }));
-  return { nodes, edges: gEdges, list, byKey, legend, groupOf };
+  // the keys are sorted, and a key begins with its domain and system: the rows come in their order
+  const rows = rowed
+    ? [...new Map(keysSorted.map((k) => byKey.get(k)!).map((n) => [`${n.domain}.${n.system}`, { id: `${n.domain}.${n.system}`, label: `${n.domain} · ${n.system}` }])).values()]
+    : undefined;
+  return { nodes, edges: gEdges, list, byKey, legend, groupOf, rows };
 }
 
 /** A selection of the graph that is still in the view: a filter may take its node or edge away. */
@@ -74,6 +95,7 @@ export function liveSelection(s: GraphSelection, v: Pick<GraphView, "nodes" | "e
 export function SpecGraphPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [params, setParams] = useSearchParams();
   const domain = params.get("domain") ?? "";
   const system = params.get("system") ?? "";
@@ -81,7 +103,9 @@ export function SpecGraphPage() {
   const kinds = useMemo(() => (kindParam === null ? KINDS : KINDS.filter((k) => kindParam.split(",").includes(k))), [kindParam]);
   const focus = params.get("focus") ?? undefined;
   const depth: 1 | 2 = params.get("depth") === "2" ? 2 : 1;
+  const layout: GraphLayout = params.get("layout") === "free" ? "free" : "rows";
   const [selected, setSelected] = useState<GraphSelection>(null);
+  const [listOpen, setListOpen] = useState(false); // the list is drawn only when it is open
   const q = useQuery({ queryKey: keys.specGraph, queryFn: () => api.get<SpecGraphData>("/api/v1/spec/graph") });
 
   const set = (patch: Record<string, string | null>) => {
@@ -100,7 +124,7 @@ export function SpecGraphPage() {
   const data = q.data;
   const tip = useCallback<NodeTip>((n, links) => [n.title, n.phase && t(`phase.${n.phase}`),
     `${t("spec.graph.kind.extends")}: ${links.extends}`, `${t("spec.graph.kind.changes")}: ${links.changes}`].filter(Boolean).join(" · "), [t]);
-  const view = useMemo(() => (data ? graphView(data, { domain, system, kinds }, tip) : null), [data, domain, system, kinds, tip]);
+  const view = useMemo(() => (data ? graphView(data, { domain, system, kinds, layout }, tip) : null), [data, domain, system, kinds, layout, tip]);
   const systems = useMemo(() => [...new Set((data?.nodes ?? []).filter((n) => !domain || n.domain === domain).map((n) => n.system))].toSorted(), [data, domain]);
   const byKey = view?.byKey ?? new Map<string, SpecGraphNode>();
   const focusShown = !!focus && !!view?.nodes.some((n) => n.id === focus);
@@ -112,11 +136,21 @@ export function SpecGraphPage() {
     const f = byKey.get(n.id);
     return [n.id, f?.title, f?.indexed ? undefined : t("spec.links.notIndexed")].filter(Boolean).join(", ");
   };
+  const ref = (key: string, requirements: string[]): SpecLinkRef => {
+    const f = byKey.get(key);
+    return { key, title: f?.indexed ? f.title : null, indexed: !!f?.indexed, requirements };
+  };
 
   return (
     <main className="main wide specgraphpage">
       <div className="crumbs">
-        <Link to="/spec" aria-label={t("common.back")}><Icon name="back" size={16} /></Link>
+        {/* design §3.6: back to where the graph was opened from; opened by a link from outside — the navigator.
+            The filters replace the entry of the address, so one step back leaves the graph. */}
+        <Link to="/spec" aria-label={t("common.back")} onClick={(e) => {
+          if (location.key === "default") return; // the first page of the tab: there is nowhere to go back to
+          e.preventDefault();
+          navigate(-1);
+        }}><Icon name="back" size={16} /></Link>
         {t("spec.graph.title")}
       </div>
       <div className="graphbar" role="group" aria-label={t("spec.graph.filters")}>
@@ -132,6 +166,13 @@ export function SpecGraphPage() {
           {KINDS.map((k) => (
             <button key={k} type="button" aria-pressed={kinds.includes(k)} onClick={() => toggleKind(k)}>
               <i className={`gkind ${k}`} aria-hidden="true" />{t(`spec.graph.kind.${k}`)}
+            </button>
+          ))}
+        </div>
+        <div className="seg" role="group" aria-label={t("spec.graph.layout")}>
+          {LAYOUTS.map((l) => (
+            <button key={l} type="button" aria-pressed={layout === l} onClick={() => set({ layout: l === "rows" ? null : l })}>
+              {t(`spec.graph.layouts.${l}`)}
             </button>
           ))}
         </div>
@@ -171,20 +212,31 @@ export function SpecGraphPage() {
               setSelected(s);
             }}
             focus={focus} depth={depth} onOpen={open} nodeLabel={nodeLabel}
-            legend={view.legend} />
-          <details className="graphlist">
-            <summary>{t("spec.graph.list")}</summary>
-            <ul>
-              {view.list.map(({ node, out, in: inc }) => (
-                <li key={node.key}>
-                  {node.indexed ? <Link className="mono" to={`/spec/${node.key}/product`}>{node.key}</Link>
-                    : <span className="mono muted" title={t("spec.links.notIndexed")}>{node.key}</span>}
-                  {node.title && <> {node.title}</>}
-                  {out.map((e) => <div key={`o${e.target}${e.kind}`} className="small muted">→ {t(`spec.graph.kind.${e.kind}`)} {e.target}{e.requirements.length > 0 && ` · ${e.requirements.join(", ")}`}</div>)}
-                  {inc.map((e) => <div key={`i${e.source}${e.kind}`} className="small muted">← {t(`spec.graph.kind.${e.kind}`)} {e.source}{e.requirements.length > 0 && ` · ${e.requirements.join(", ")}`}</div>)}
-                </li>
-              ))}
-            </ul>
+            legend={view.legend} rows={view.rows} draggable />
+          <details className="fold graphlist" onToggle={(e) => setListOpen(e.currentTarget.open)}>
+            <summary>{t("spec.graph.list")} <span className="foldcount">{view.list.length}</span></summary>
+            {listOpen && (
+              <ul>
+                {view.list.map(({ node, out, in: inc }) => {
+                  const links: SpecFeatureLinks = {
+                    extends: out.filter((e) => e.kind === "extends").map((e) => ref(e.target, e.requirements)),
+                    changes: out.filter((e) => e.kind === "changes").map((e) => ref(e.target, e.requirements)),
+                    extendedBy: inc.filter((e) => e.kind === "extends").map((e) => ref(e.source, e.requirements)),
+                    changedBy: inc.filter((e) => e.kind === "changes").map((e) => ref(e.source, e.requirements)),
+                  };
+                  return (
+                    <li key={node.key} className="graphcard">
+                      <div className="graphcard-h">
+                        {node.indexed ? <Link className="mono" to={`/spec/${node.key}/product`}>{node.key}</Link>
+                          : <span className="mono muted" title={t("spec.links.notIndexed")}>{node.key}</span>}
+                        {node.title && <span className="graphcard-t">{node.title}</span>}
+                      </div>
+                      <LinkRows links={links} />
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </details>
         </>
       )}

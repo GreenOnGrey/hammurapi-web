@@ -1270,7 +1270,8 @@
       "extendedBy": "Darauf bauen auf",
       "changedBy": "Geändert von",
       "notIndexed": "Nicht im Hauptzweig",
-      "more": "{count, plural, one {# weiteres} other {# weitere}}"
+      "more": "{count, plural, one {# weiteres} other {# weitere}}",
+      "title": "Verknüpfungen mit anderen Features"
     },
     "graph": {
       "open": "Graph",
@@ -1291,7 +1292,12 @@
       "empty": "Keine Verbindungen",
       "resetFilters": "Filter zurücksetzen",
       "list": "Features und ihre Verbindungen",
-      "focusHidden": "{key} liegt außerhalb der Filter"
+      "focusHidden": "{key} liegt außerhalb der Filter",
+      "layout": "Anordnung",
+      "layouts": {
+        "rows": "Reihen",
+        "free": "Frei"
+      }
     }
   },
   "specScan": {

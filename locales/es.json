@@ -1270,7 +1270,8 @@
       "extendedBy": "Se basan en ella",
       "changedBy": "Cambiada por",
       "notIndexed": "No está en la rama principal",
-      "more": "{count, plural, one {# más} other {# más}}"
+      "more": "{count, plural, one {# más} other {# más}}",
+      "title": "Vínculos con otras funcionalidades"
     },
     "graph": {
       "open": "Grafo",
@@ -1291,7 +1292,12 @@
       "empty": "No hay vínculos",
       "resetFilters": "Restablecer filtros",
       "list": "Funcionalidades y sus vínculos",
-      "focusHidden": "{key} está fuera de los filtros"
+      "focusHidden": "{key} está fuera de los filtros",
+      "layout": "Disposición",
+      "layouts": {
+        "rows": "Filas",
+        "free": "Libre"
+      }
     }
   },
   "specScan": {
