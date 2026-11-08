@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SpecGraphData } from "../api/types";
-import { graphView, liveSelection } from "./SpecGraph";
+import { graphView, keyNumber, liveSelection } from "./SpecGraph";
 
 const node = (key: string, indexed = true) => {
   const [, domain, rest] = key.split(".");
@@ -16,7 +16,7 @@ const data: SpecGraphData = {
     { source: "FTR.NAB.CMN-0005", target: "FTR.NAB.CMN-0009", kind: "extends", requirements: [] },
   ],
 };
-const all = { domain: "", system: "", kinds: ["extends", "changes"] as ("extends" | "changes")[] };
+const all = { domain: "", system: "", kinds: ["extends", "changes"] as ("extends" | "changes")[], layout: "rows" as const };
 const tip = () => undefined;
 
 // FTR.HMR.DEV-0002 qa §6c: the filters of the graph on the client.
@@ -50,5 +50,22 @@ describe("the view of the graph", () => {
     const v = graphView(data, { ...all, kinds: ["extends"] }, tip);
     expect(liveSelection({ kind: "edge", source: "FTR.HMR.DEV-0002", target: "FTR.HMR.CMN-0001" }, v)).toBeNull();
     expect(liveSelection({ kind: "edge", source: "FTR.HMR.DEV-0002", target: "FTR.NAB.CMN-0005" }, v)).not.toBeNull();
+  });
+  it("GRAPH-11: by default a row per domain and system, its features by number, the key without the domain", () => {
+    const v = graphView(data, all, tip);
+    expect(v.rows?.map((r) => r.label)).toEqual(["HMR · CMN", "HMR · DEV", "NAB · CMN"]);
+    const at = new Map(v.nodes.map((n) => [n.id, n]));
+    expect(at.get("FTR.NAB.CMN-0009")).toMatchObject({ row: "NAB.CMN", order: 9, label: "CMN-0009" });
+    expect(at.get("FTR.HMR.DEV-0002")).toMatchObject({ row: "HMR.DEV", order: 2, label: "DEV-0002" });
+  });
+  it("GRAPH-11: the free layout has no rows and labels by the whole key", () => {
+    const v = graphView(data, { ...all, layout: "free" }, tip);
+    expect(v.rows).toBeUndefined();
+    expect(v.nodes.every((n) => n.row === undefined && n.label === n.id)).toBe(true);
+  });
+  it("the number of a key is the order of its feature in the system", () => {
+    expect(keyNumber("FTR.HMR.CMN-0007")).toBe(7);
+    expect(keyNumber("FTR.HMR.CMN-0010")!).toBeGreaterThan(keyNumber("FTR.HMR.CMN-0009")!);
+    expect(keyNumber("FTR.HMR.CMN-OLD")).toBeUndefined();
   });
 });
