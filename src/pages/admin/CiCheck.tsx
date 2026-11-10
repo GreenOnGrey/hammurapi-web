@@ -51,7 +51,9 @@ function proposeError(t: TFunction, e: unknown, repo: string) {
 }
 
 /** The row «CI check» (design §3.1, §3.2): the chip of the status, the PR, «Propose PR» and «Check now». */
-export function CiCheckRow({ target, canPropose }: { target: CiTarget; canPropose: boolean }) {
+/** The status of the check, its pull request and its actions. `bare` — inside a field of a form, which gives the
+ * label: no label and no rule of its own. */
+export function CiCheckRow({ target, canPropose, bare = false }: { target: CiTarget; canPropose: boolean; bare?: boolean }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
@@ -83,8 +85,8 @@ export function CiCheckRow({ target, canPropose }: { target: CiTarget; canPropos
     : st.status === "outdated" ? t("ciCheck.status.outdated", { version: st.version ?? "", contract: st.contractVersion })
       : t(`ciCheck.status.${st.status}`);
   return (
-    <div className="cirow">
-      <span className="cirow-l">{t("ciCheck.title")}</span>
+    <div className={bare ? "cirow bare" : "cirow"}>
+      {!bare && <span className="cirow-l">{t("ciCheck.title")}</span>}
       {q.isLoading && <span className="small muted">…</span>}
       {q.error && <span className="small err-text">{errorText(t, q.error)}</span>}
       {st && <span className={`st ${CHIP[st.status]}${st.status === "on" ? " cion" : ""}`}>{label}</span>}
@@ -231,9 +233,9 @@ export function ServiceCiSection({ service, repo }: { service: string; repo: str
   const { t } = useTranslation();
   const { owns, isAnyAdmin } = useSession();
   return (
-    <>
-      <h3 className="group-h">{t("ciCheck.section")}</h3>
-      <CiCheckRow target={{ kind: "service", key: service, repo }} canPropose={owns(service) || isAnyAdmin} />
-    </>
+    <div className="field" role="group" aria-labelledby="sv-ci">
+      <label id="sv-ci">{t("ciCheck.section")}</label>
+      <CiCheckRow target={{ kind: "service", key: service, repo }} canPropose={owns(service) || isAnyAdmin} bare />
+    </div>
   );
 }
