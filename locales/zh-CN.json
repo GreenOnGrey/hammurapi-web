@@ -1348,7 +1348,17 @@
       "layouts": {
         "rows": "按行",
         "free": "自由"
-      }
+      },
+      "inWork": "进行中",
+      "layer": "链接层",
+      "layers": {
+        "product": "产品",
+        "arch": "架构",
+        "both": "两者"
+      },
+      "draftBanner": "功能 {key} 正在进行中：其链接为草稿",
+      "backToFeature": "返回功能",
+      "edgeLegend": "边的类型"
     }
   },
   "specScan": {

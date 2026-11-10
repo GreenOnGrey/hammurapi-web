@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { SpecGraphData } from "../api/types";
-import { graphView, keyNumber, liveSelection } from "./SpecGraph";
+import { graphView, keyNumber, liveSelection, withDraft } from "./SpecGraph";
+import type { DraftLayer, SpecGraphData } from "../api/types";
 
 const node = (key: string, indexed = true) => {
   const [, domain, rest] = key.split(".");
@@ -67,5 +67,41 @@ describe("the view of the graph", () => {
     expect(keyNumber("FTR.HMR.CMN-0007")).toBe(7);
     expect(keyNumber("FTR.HMR.CMN-0010")!).toBeGreaterThan(keyNumber("FTR.HMR.CMN-0009")!);
     expect(keyNumber("FTR.HMR.CMN-OLD")).toBeUndefined();
+  });
+});
+
+// FTR.HMR.DEV-0003 qa §2.2, §2.3: the layer of links and the feature in work in the graph.
+describe("the graph of DEV-0003", () => {
+  const layers: DraftLayer[] = [
+    { layer: "product", state: "approved", extends: [{ key: "FTR.HMR.CMN-0001", title: "C", indexed: true, items: [] }], changes: [] },
+    { layer: "arch", state: "draft", extends: [], changes: [{ key: "FTR.HMR.DEV-0002", title: "D", indexed: true, items: ["A5"] }, { key: "FTR.HMR.SPEC-0009", title: null, indexed: false, items: [] }] },
+  ];
+  const draft = { key: "FTR.HMR.DEV-0003", label: "in work" };
+
+  it("ARCH-17: an edge of arch is double, one of product single", () => {
+    const d: SpecGraphData = { ...data, edges: [{ ...data.edges[0], layer: "arch" }, data.edges[1]] };
+    expect(graphView(d, { ...all, layer: "both" }, tip).edges.map((e) => !!e.double)).toEqual([true, false]);
+    expect(graphView(d, all, tip).edges.map((e) => e.target)).toEqual(["FTR.NAB.CMN-0005"]); // the default layer is product
+    expect(graphView(d, { ...all, layer: "arch" }, tip).edges.map((e) => e.target)).toEqual(["FTR.HMR.CMN-0001"]);
+  });
+  it("DRAFT-13: the feature in work is a dashed node «in work» with dashed edges, in the row of its system", () => {
+    const v = graphView(withDraft(data, draft.key, "W", layers, "both"), { ...all, layer: "both", draft }, tip);
+    const n = v.nodes.find((x) => x.id === draft.key)!;
+    expect(n.dashed).toBe(true);
+    expect(n.label).toBe("DEV-0003 · in work");
+    expect(n.row).toBe("HMR.DEV");
+    const mine = v.edges.filter((e) => e.source === draft.key);
+    expect(mine.map((e) => [e.target, e.dashed, !!e.double, e.title])).toEqual([
+      ["FTR.HMR.CMN-0001", true, false, undefined], ["FTR.HMR.DEV-0002", true, true, "A5"], ["FTR.HMR.SPEC-0009", true, true, undefined]]);
+    expect(v.nodes.find((x) => x.id === "FTR.HMR.SPEC-0009")?.dashed).toBe(true); // a target outside the default branch
+  });
+  it("ARCH-16: the links of a feature in work follow the layer", () => {
+    expect(withDraft(data, draft.key, null, layers, "product").edges.filter((e) => e.source === draft.key).map((e) => e.target)).toEqual(["FTR.HMR.CMN-0001"]);
+    expect(withDraft(data, draft.key, null, layers, "arch").edges.filter((e) => e.source === draft.key).every((e) => e.layer === "arch")).toBe(true);
+  });
+  it("DRAFT-09: before the first revision the node stands alone", () => {
+    const d = withDraft(data, draft.key, null, [], "both");
+    expect(d.nodes.some((n) => n.key === draft.key)).toBe(true);
+    expect(d.edges).toEqual(data.edges);
   });
 });

@@ -1141,6 +1141,8 @@ export interface SpecGraphEdge {
   target: string;
   kind: SpecLinkKind;
   requirements: string[];
+  /** The layer of the link (FTR.HMR.DEV-0003 R15); absent in an older core — product. */
+  layer?: "product" | "arch";
 }
 
 export interface SpecGraphData {

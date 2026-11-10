@@ -1348,7 +1348,17 @@
       "layouts": {
         "rows": "Rows",
         "free": "Free"
-      }
+      },
+      "inWork": "in work",
+      "layer": "Layer of links",
+      "layers": {
+        "product": "Product",
+        "arch": "Architecture",
+        "both": "Both"
+      },
+      "draftBanner": "Feature {key} is in work: its links are a draft",
+      "backToFeature": "Back to the feature",
+      "edgeLegend": "Kinds of edges"
     }
   },
   "specScan": {

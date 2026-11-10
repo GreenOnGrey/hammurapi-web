@@ -57,6 +57,9 @@ export const SCREENS: Screen[] = [
   { name: "spec-graph", path: "/spec/graph", only: "desktop" },
   { name: "spec-graph-free", path: "/spec/graph?layout=free", only: "desktop" },
   { name: "spec-graph-focus", path: "/spec/graph?domain=HMR&focus=FTR.HMR.DEV-0002&depth=2", only: "desktop" },
+  // FTR.HMR.DEV-0003 design §3.6: the layer of arch, both layers with a feature in work
+  { name: "spec-graph-arch", path: "/spec/graph?layer=arch&domain=HMR", only: "desktop" },
+  { name: "spec-graph-draft", path: "/spec/graph?focus=FTR.FMS.CAR-0005&draft=1&layer=both", cookies: { "mock-feature": "dev3" }, only: "desktop" },
   { name: "feature-writer-running", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "running" } },
   { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },
   { name: "feature-no-approval", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "noapproval" } },
