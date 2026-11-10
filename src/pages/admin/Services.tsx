@@ -8,6 +8,7 @@ import { useSession } from "../../app/session";
 import { errorText } from "../../lib/errors";
 import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
 import { AgentFields, useAgentSettings } from "../feature/Autonomy";
+import { ServiceCiSection } from "./CiCheck";
 
 /** Services: the catalog from Backstage or the manual list (R10, R11). */
 export function ServicesAdmin() {
@@ -82,7 +83,7 @@ function ServiceModal({ s, onClose }: { s: ServiceDTO | null; onClose: () => voi
       else if (name !== s.name || system !== (s.system ?? "") || repo !== s.repo || owner !== (s.ownerRef ?? "")) await api.patch(`/admin/api/v1/services/${s.key}`, body);
       await agent.persist();
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: keys.services }); invalidateCycle(qc); onClose(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: keys.services }); qc.invalidateQueries({ queryKey: keys.ciCheck }); invalidateCycle(qc); onClose(); },
   });
   const editable = !s || s.source === "manual";
   const systems = domains.data?.flatMap((d) => d.systems.map((x) => `${d.key}/${x.key}`)) ?? [];
@@ -114,6 +115,7 @@ function ServiceModal({ s, onClose }: { s: ServiceDTO | null; onClose: () => voi
       {s && <>
         {editable && <h3 className="group-h">{t("admin.services.agent")}</h3>}
         <AgentFields settings={agent} canSetAutonomy={owns(s.key)} />
+        <ServiceCiSection service={s.key} repo={s.repo} />
       </>}
       {save.error && <div className="err-text">{errorText(t, save.error)}</div>}
     </Modal>

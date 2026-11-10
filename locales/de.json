@@ -751,7 +751,14 @@
     "invalid_item": "Das Element ist R, A oder der Kopf",
     "feature_branch_not_found": "Der Zweig der Funktion wurde nicht gefunden",
     "rules_contract": "Die Vorlage verletzt die Pflichtstruktur der Dokumente",
-    "bad_layer": "Die Ebene ist product, arch oder both"
+    "bad_layer": "Die Ebene ist product, arch oder both",
+    "service_not_found": "Dienst nicht gefunden.",
+    "token_invalid": "Das Diensttoken ist unbekannt.",
+    "token_revoked": "Das Diensttoken wurde widerrufen.",
+    "token_scope": "Das Token gehört zu einem anderen Dienst.",
+    "rate_limited": "Zu viele Anfragen. Versuchen Sie es in einer Minute erneut.",
+    "ci_check_exists": "Das Repository hat bereits die CI-Prüfdatei oder deren offenen PR.",
+    "provider_forbidden": "Der Git-Anbieter hat abgelehnt: {reason}"
   },
   "stages": {
     "title": "Phasen",
@@ -1661,5 +1668,52 @@
       "removed": "Die Datei {name} wurde entfernt, {open} ist geöffnet",
       "narrow": "Das Mockup öffnet sich im Vollbild."
     }
+  },
+  "ciCheck": {
+    "section": "CI-Prüfung der Tests",
+    "title": "CI-Prüfung",
+    "contract": "Vertragsversion von Hammurapi",
+    "status": {
+      "none": "nicht verbunden",
+      "proposed": "vorgeschlagen",
+      "on": "verbunden · {version}",
+      "outdated": "veraltet · {version} → {contract}",
+      "manual": "manuell geändert"
+    },
+    "pr": "PR #{number}",
+    "propose": "PR vorschlagen",
+    "proposeTitle": "CI-Prüfung vorschlagen",
+    "open": "PR öffnen",
+    "proposeText": "Hammurapi öffnet in Ihrem Namen einen PR in {repo}: die Datei {path}, Version {version}. Über das Mergen entscheiden die Reviewer des Repositorys.",
+    "proposeGitLab": "Für GitLab fügt der PR auch die include-Zeile in .gitlab-ci.yml hinzu.",
+    "proposeService": "Der Job ruft Hammurapi mit dem Dienstschlüssel {key} auf; legen Sie das Diensttoken im Secret HAMMURAPI_SERVICE_TOKEN ab.",
+    "opened": "PR geöffnet",
+    "checkedAt": "Geprüft {at}",
+    "manualHint": "Die Versionszeile wurde nicht gefunden: Aktualisieren Sie die CI-Datei selbst oder löschen Sie sie und schlagen Sie erneut einen PR vor",
+    "providerError": "Letzte Prüfung fehlgeschlagen: {error}",
+    "noWorkflows": "Der Hammurapi-App fehlt die Berechtigung Workflows: write. Erteilen Sie sie in den Einstellungen der App.",
+    "noRights": "Ihr Konto darf in {repo} keinen Branch erstellen",
+    "needsToken": "Ohne Token schlägt die Prüfung fehl: Stellen Sie es aus und legen Sie es in den Secrets des Repositorys ab"
+  },
+  "serviceToken": {
+    "title": "Diensttoken",
+    "none": "nicht ausgestellt",
+    "issued": "ausgestellt {at} · zuletzt verwendet {used}",
+    "never": "nie",
+    "issue": "Ausstellen",
+    "reissue": "Neu ausstellen",
+    "revoke": "Widerrufen",
+    "reissueTitle": "Token von {key} neu ausstellen",
+    "revokeTitle": "Token von {key} widerrufen",
+    "breaks": "Das alte Token funktioniert sofort nicht mehr. Die CI des Dienstes schlägt fehl, bis Sie das Secret ersetzen.",
+    "modalTitle": "Token des Dienstes {key}",
+    "copy": "Kopieren",
+    "once": "Das Token wird nur einmal angezeigt. Legen Sie es im Secret HAMMURAPI_SERVICE_TOKEN des Repositorys {repo} ab.",
+    "whereGitHub": "GitHub: Settings → Secrets and variables → Actions",
+    "whereGitLab": "GitLab: Settings → CI/CD → Variables, masked",
+    "saved": "Ich habe das Token gespeichert",
+    "done": "Fertig",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen: Das Token ist markiert, kopieren Sie es manuell"
   }
 }

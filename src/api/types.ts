@@ -38,6 +38,29 @@ export interface PublicConfig {
   languages: string[];
   defaultLanguage: string;
   defaultBranch: string;
+  /** The version of the document contract: the version of speclint in CI (FTR.HMR.SPEC-0002 R1); absent in an older core. */
+  contractVersion?: string;
+}
+
+/** The status of the check of speclint in CI of a repository (FTR.HMR.SPEC-0002 tech §3.3). */
+export interface CiCheck {
+  status: "none" | "proposed" | "on" | "outdated" | "manual";
+  version: string | null;
+  contractVersion: string;
+  path: string | null;
+  repo: string;
+  pr: { number: number; url: string; kind: "propose" | "bump" } | null;
+  error: string | null;
+  checkedAt: string | null;
+}
+
+/** The token of a service for CI as its card shows it (FTR.HMR.SPEC-0002 tech §3.2). */
+export interface ServiceToken {
+  issued: boolean;
+  prefix: string | null;
+  createdAt: string | null;
+  createdBy: string | null;
+  lastUsedAt: string | null;
 }
 
 export interface ExpertDomains {

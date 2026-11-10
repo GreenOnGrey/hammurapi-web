@@ -751,7 +751,14 @@
     "invalid_item": "The item is R, A or the header",
     "feature_branch_not_found": "The branch of the feature is not found",
     "rules_contract": "The template breaks the required structure of documents",
-    "bad_layer": "The layer is product, arch or both"
+    "bad_layer": "The layer is product, arch or both",
+    "service_not_found": "Service not found.",
+    "token_invalid": "The service token is unknown.",
+    "token_revoked": "The service token is revoked.",
+    "token_scope": "The token belongs to another service.",
+    "rate_limited": "Too many requests. Try again in a minute.",
+    "ci_check_exists": "The repository already has the CI check file or its open PR.",
+    "provider_forbidden": "The git provider refused: {reason}"
   },
   "stages": {
     "title": "Stages",
@@ -1661,5 +1668,52 @@
       "removed": "The file {name} is removed, {open} is open",
       "narrow": "The mockup opens over the whole screen."
     }
+  },
+  "ciCheck": {
+    "section": "CI check of tests",
+    "title": "CI check",
+    "contract": "Hammurapi contract version",
+    "status": {
+      "none": "not connected",
+      "proposed": "proposed",
+      "on": "connected · {version}",
+      "outdated": "outdated · {version} → {contract}",
+      "manual": "changed by hand"
+    },
+    "pr": "PR #{number}",
+    "propose": "Propose PR",
+    "proposeTitle": "Propose the check in CI",
+    "open": "Open PR",
+    "proposeText": "Hammurapi will open a PR in {repo} on your behalf: the file {path}, version {version}. Merging it is up to the reviewers of the repository.",
+    "proposeGitLab": "For GitLab the PR also adds the include line to .gitlab-ci.yml.",
+    "proposeService": "The job calls Hammurapi with the service key {key}; put the service token into the secret HAMMURAPI_SERVICE_TOKEN.",
+    "opened": "PR opened",
+    "checkedAt": "Checked {at}",
+    "manualHint": "The version line was not found: update the CI file yourself, or delete it and propose a PR again",
+    "providerError": "Last check failed: {error}",
+    "noWorkflows": "The Hammurapi app lacks the Workflows: write permission. Grant it in the settings of the app.",
+    "noRights": "Your account cannot create a branch in {repo}",
+    "needsToken": "The check will fail without a token: issue it and put it into the secrets of the repository"
+  },
+  "serviceToken": {
+    "title": "Service token",
+    "none": "not issued",
+    "issued": "issued {at} · last used {used}",
+    "never": "never",
+    "issue": "Issue",
+    "reissue": "Reissue",
+    "revoke": "Revoke",
+    "reissueTitle": "Reissue the token of {key}",
+    "revokeTitle": "Revoke the token of {key}",
+    "breaks": "The old token stops working at once. The CI of the service fails until you replace the secret.",
+    "modalTitle": "Token of service {key}",
+    "copy": "Copy",
+    "once": "The token is shown once. Put it into the secret HAMMURAPI_SERVICE_TOKEN of the repository {repo}.",
+    "whereGitHub": "GitHub: Settings → Secrets and variables → Actions",
+    "whereGitLab": "GitLab: Settings → CI/CD → Variables, masked",
+    "saved": "I saved the token",
+    "done": "Done",
+    "copied": "Copied",
+    "copyFailed": "Could not copy: the token is selected, copy it by hand"
   }
 }

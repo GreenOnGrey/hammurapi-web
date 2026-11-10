@@ -751,7 +751,14 @@
     "invalid_item": "El elemento es R, A o el encabezado",
     "feature_branch_not_found": "No se encontró la rama de la funcionalidad",
     "rules_contract": "La plantilla rompe la estructura obligatoria de los documentos",
-    "bad_layer": "La capa es product, arch o both"
+    "bad_layer": "La capa es product, arch o both",
+    "service_not_found": "Servicio no encontrado.",
+    "token_invalid": "El token del servicio es desconocido.",
+    "token_revoked": "El token del servicio está revocado.",
+    "token_scope": "El token pertenece a otro servicio.",
+    "rate_limited": "Demasiadas solicitudes. Inténtelo de nuevo en un minuto.",
+    "ci_check_exists": "El repositorio ya tiene el archivo de comprobación de CI o su PR abierto.",
+    "provider_forbidden": "El proveedor de git se negó: {reason}"
   },
   "stages": {
     "title": "Etapas",
@@ -1661,5 +1668,52 @@
       "removed": "El archivo {name} se eliminó, se abrió {open}",
       "narrow": "La maqueta se abre a pantalla completa."
     }
+  },
+  "ciCheck": {
+    "section": "Comprobación de pruebas en CI",
+    "title": "Comprobación en CI",
+    "contract": "Versión del contrato de Hammurapi",
+    "status": {
+      "none": "no conectada",
+      "proposed": "propuesta",
+      "on": "conectada · {version}",
+      "outdated": "desactualizada · {version} → {contract}",
+      "manual": "cambiada a mano"
+    },
+    "pr": "PR #{number}",
+    "propose": "Proponer PR",
+    "proposeTitle": "Proponer la comprobación en CI",
+    "open": "Abrir PR",
+    "proposeText": "Hammurapi abrirá un PR en {repo} en su nombre: el archivo {path}, versión {version}. Fusionarlo es decisión de los revisores del repositorio.",
+    "proposeGitLab": "En GitLab el PR también añade la línea include a .gitlab-ci.yml.",
+    "proposeService": "El trabajo llama a Hammurapi con la clave de servicio {key}; guarde el token del servicio en el secreto HAMMURAPI_SERVICE_TOKEN.",
+    "opened": "PR abierto",
+    "checkedAt": "Comprobado {at}",
+    "manualHint": "No se encontró la línea de versión: actualice el archivo de CI usted mismo, o elimínelo y proponga un PR de nuevo",
+    "providerError": "La última comprobación falló: {error}",
+    "noWorkflows": "A la aplicación Hammurapi le falta el permiso Workflows: write. Concédalo en la configuración de la aplicación.",
+    "noRights": "Su cuenta no puede crear una rama en {repo}",
+    "needsToken": "Sin token la comprobación fallará: emítalo y guárdelo en los secretos del repositorio"
+  },
+  "serviceToken": {
+    "title": "Token del servicio",
+    "none": "no emitido",
+    "issued": "emitido {at} · último uso {used}",
+    "never": "nunca",
+    "issue": "Emitir",
+    "reissue": "Reemitir",
+    "revoke": "Revocar",
+    "reissueTitle": "Reemitir el token de {key}",
+    "revokeTitle": "Revocar el token de {key}",
+    "breaks": "El token anterior deja de funcionar de inmediato. La CI del servicio fallará hasta que sustituya el secreto.",
+    "modalTitle": "Token del servicio {key}",
+    "copy": "Copiar",
+    "once": "El token se muestra una sola vez. Guárdelo en el secreto HAMMURAPI_SERVICE_TOKEN del repositorio {repo}.",
+    "whereGitHub": "GitHub: Settings → Secrets and variables → Actions",
+    "whereGitLab": "GitLab: Settings → CI/CD → Variables, masked",
+    "saved": "He guardado el token",
+    "done": "Listo",
+    "copied": "Copiado",
+    "copyFailed": "No se pudo copiar: el token está seleccionado, cópielo a mano"
   }
 }

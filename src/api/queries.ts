@@ -31,6 +31,11 @@ export const keys = {
   releases: (f?: object) => (f ? (["releases", f] as const) : (["releases"] as const)),
   release: (key: string) => ["release", key] as const,
   services: ["services"] as const,
+  // FTR.HMR.SPEC-0002: the check in CI of the repository of specifications ("spec") or of a service
+  ciCheck: ["ci-check"] as const,
+  ciCheckSpec: ["ci-check", "spec"] as const,
+  ciCheckService: (key: string) => ["ci-check", "service", key] as const,
+  serviceToken: (key: string) => ["service-token", key] as const,
   document: (id: string, area: string) => ["document", id, area] as const,
   history: (id: string, area: string) => ["history", id, area] as const,
   diff: (id: string, area: string) => ["diff", id, area] as const,

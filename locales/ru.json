@@ -751,7 +751,14 @@
     "invalid_item": "Элемент — R, A или шапка",
     "feature_branch_not_found": "Ветка решения не найдена",
     "rules_contract": "Шаблон нарушает обязательную структуру документа",
-    "bad_layer": "Слой — product, arch или both"
+    "bad_layer": "Слой — product, arch или both",
+    "service_not_found": "Сервис не найден.",
+    "token_invalid": "Токен сервиса неизвестен.",
+    "token_revoked": "Токен сервиса отозван.",
+    "token_scope": "Токен принадлежит другому сервису.",
+    "rate_limited": "Слишком много запросов. Повторите через минуту.",
+    "ci_check_exists": "В репозитории уже есть файл проверки CI или его открытый PR.",
+    "provider_forbidden": "Git-провайдер отказал: {reason}"
   },
   "stages": {
     "title": "Этапы",
@@ -1661,5 +1668,52 @@
       "removed": "Файл {name} удалён, открыт {open}",
       "narrow": "Макет открывается на весь экран."
     }
+  },
+  "ciCheck": {
+    "section": "Проверка тестов в CI",
+    "title": "Проверка в CI",
+    "contract": "Версия контракта Hammurapi",
+    "status": {
+      "none": "не подключена",
+      "proposed": "предложена",
+      "on": "подключена · {version}",
+      "outdated": "устарела · {version} → {contract}",
+      "manual": "изменена вручную"
+    },
+    "pr": "PR #{number}",
+    "propose": "Предложить PR",
+    "proposeTitle": "Предложить проверку в CI",
+    "open": "Открыть PR",
+    "proposeText": "Hammurapi откроет PR в {repo} от вашего имени: файл {path}, версия {version}. Влить его — решение ревьюеров репозитория.",
+    "proposeGitLab": "Для GitLab PR также добавит строку include в .gitlab-ci.yml.",
+    "proposeService": "Задание обращается к Hammurapi с ключом сервиса {key}; положите токен сервиса в секрет HAMMURAPI_SERVICE_TOKEN.",
+    "opened": "PR открыт",
+    "checkedAt": "Проверено {at}",
+    "manualHint": "Строка версии не найдена: обновите файл CI сами или удалите его и предложите PR заново",
+    "providerError": "Последняя проверка не удалась: {error}",
+    "noWorkflows": "У приложения Hammurapi нет права Workflows: write. Выдайте его в настройках приложения.",
+    "noRights": "У вашей учётной записи нет прав создать ветку в {repo}",
+    "needsToken": "Проверка упадёт без токена: выпустите его и положите в секреты репозитория"
+  },
+  "serviceToken": {
+    "title": "Токен сервиса",
+    "none": "не выпущен",
+    "issued": "выпущен {at} · последнее использование {used}",
+    "never": "никогда",
+    "issue": "Выпустить",
+    "reissue": "Перевыпустить",
+    "revoke": "Отозвать",
+    "reissueTitle": "Перевыпустить токен {key}",
+    "revokeTitle": "Отозвать токен {key}",
+    "breaks": "Старый токен перестанет работать сразу. CI сервиса упадёт, пока вы не замените секрет.",
+    "modalTitle": "Токен сервиса {key}",
+    "copy": "Скопировать",
+    "once": "Токен показан один раз. Положите его в секрет HAMMURAPI_SERVICE_TOKEN репозитория {repo}.",
+    "whereGitHub": "GitHub: Settings → Secrets and variables → Actions",
+    "whereGitLab": "GitLab: Settings → CI/CD → Variables, masked",
+    "saved": "Я сохранил токен",
+    "done": "Готово",
+    "copied": "Скопировано",
+    "copyFailed": "Не удалось скопировать: токен выделен, скопируйте его вручную"
   }
 }

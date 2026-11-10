@@ -751,7 +751,14 @@
     "invalid_item": "条目为 R、A 或页眉",
     "feature_branch_not_found": "未找到功能分支",
     "rules_contract": "模板破坏了文档的必需结构",
-    "bad_layer": "层为 product、arch 或 both"
+    "bad_layer": "层为 product、arch 或 both",
+    "service_not_found": "未找到服务。",
+    "token_invalid": "服务令牌未知。",
+    "token_revoked": "服务令牌已吊销。",
+    "token_scope": "该令牌属于其他服务。",
+    "rate_limited": "请求过多。请一分钟后重试。",
+    "ci_check_exists": "仓库中已有 CI 检查文件或其打开的 PR。",
+    "provider_forbidden": "Git 提供方拒绝：{reason}"
   },
   "stages": {
     "title": "阶段",
@@ -1661,5 +1668,52 @@
       "removed": "文件 {name} 已删除，已打开 {open}",
       "narrow": "原型以全屏打开。"
     }
+  },
+  "ciCheck": {
+    "section": "CI 测试检查",
+    "title": "CI 检查",
+    "contract": "Hammurapi 契约版本",
+    "status": {
+      "none": "未接入",
+      "proposed": "已提议",
+      "on": "已接入 · {version}",
+      "outdated": "已过时 · {version} → {contract}",
+      "manual": "已手动修改"
+    },
+    "pr": "PR #{number}",
+    "propose": "提议 PR",
+    "proposeTitle": "提议 CI 检查",
+    "open": "打开 PR",
+    "proposeText": "Hammurapi 将以您的名义在 {repo} 中打开 PR：文件 {path}，版本 {version}。是否合并由仓库的审阅者决定。",
+    "proposeGitLab": "对于 GitLab，PR 还会在 .gitlab-ci.yml 中添加 include 行。",
+    "proposeService": "该作业使用服务键 {key} 调用 Hammurapi；请将服务令牌放入密钥 HAMMURAPI_SERVICE_TOKEN。",
+    "opened": "PR 已打开",
+    "checkedAt": "检查于 {at}",
+    "manualHint": "未找到版本行：请自行更新 CI 文件，或删除它并重新提议 PR",
+    "providerError": "上次检查失败：{error}",
+    "noWorkflows": "Hammurapi 应用缺少 Workflows: write 权限。请在应用设置中授予。",
+    "noRights": "您的账户无法在 {repo} 中创建分支",
+    "needsToken": "没有令牌检查将失败：请签发令牌并放入仓库的密钥"
+  },
+  "serviceToken": {
+    "title": "服务令牌",
+    "none": "未签发",
+    "issued": "签发于 {at} · 最近使用 {used}",
+    "never": "从未",
+    "issue": "签发",
+    "reissue": "重新签发",
+    "revoke": "吊销",
+    "reissueTitle": "重新签发 {key} 的令牌",
+    "revokeTitle": "吊销 {key} 的令牌",
+    "breaks": "旧令牌将立即失效。在您替换密钥之前，服务的 CI 将失败。",
+    "modalTitle": "服务 {key} 的令牌",
+    "copy": "复制",
+    "once": "令牌只显示一次。请将其放入仓库 {repo} 的密钥 HAMMURAPI_SERVICE_TOKEN。",
+    "whereGitHub": "GitHub: Settings → Secrets and variables → Actions",
+    "whereGitLab": "GitLab: Settings → CI/CD → Variables, masked",
+    "saved": "我已保存令牌",
+    "done": "完成",
+    "copied": "已复制",
+    "copyFailed": "无法复制：令牌已选中，请手动复制"
   }
 }
