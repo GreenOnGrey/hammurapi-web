@@ -2232,3 +2232,43 @@ table.nabu-scenarios td {
 @media (max-width: 900px) {
   .specgraphbtn { display: none; }
 }
+
+/* FTR.HMR.DEV-0003 design §3.1: «Документ | Макет» on a gate */
+.gateview-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.gateview-grow { flex: 1; }
+.gateview-name { font-size: 13px; color: var(--text-2); }
+.gateview-file { width: auto; max-width: 260px; }
+.gateview-note { color: var(--ok, var(--text-2)); margin: -4px 0 8px; }
+.gateview-frame { display: block; width: 100%; height: max(480px, calc(100vh - 320px)); border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.gateview-image { border: 1px solid var(--border); border-radius: 8px; overflow: auto; max-height: calc(100vh - 320px); min-height: 240px; display: flex; }
+.gateview-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text-2); }
+
+/* FTR.HMR.DEV-0003 design §3.5: a row of the block of changes opens into the text in force */
+.chgitem { border-bottom: 1px solid var(--border); }
+.chgitem:last-child { border-bottom: 0; }
+.chgitem > .chgrow { border-bottom: 0; }
+.chgchev { flex: none; width: 22px; }
+.chgchev-ic { transform: rotate(0deg); transition: transform 0.15s; color: var(--muted); }
+.chgchev-ic.open { transform: rotate(90deg); }
+.chgclick { cursor: pointer; }
+.chgnow { margin: 0 0 10px 34px; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 0 8px 8px 0; display: grid; gap: 6px; }
+.chgnow-h { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); }
+.chgnow-text { font-size: 13px; }
+
+/* FTR.HMR.DEV-0003 design §3.4: the links of a feature in work by layer */
+.featurelinks { margin-top: 8px; }
+.lnklayer { margin: 6px 0 10px; }
+.lnklayer-h { display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 4px; }
+.lnkstate { font-size: 11px; text-transform: none; letter-spacing: 0; background: transparent; border: 1px solid var(--muted); }
+.lnkstate.draft { border-style: dashed; }
+
+/* FTR.HMR.DEV-0003 design §3.9: the required structure of documents beside the editor of a template */
+.rulesgridc { container-type: inline-size; }
+.rulesgrid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.rulesgrid-main { min-width: 0; }
+.rulescontract { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.rulescontract ul { margin: 6px 0; padding-left: 18px; display: grid; gap: 6px; }
+.rulescontract-ex { display: block; white-space: pre-wrap; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.rulesviol ul { margin: 4px 0 0; padding-left: 18px; }
+/* the editor needs the width: the panel goes above it when the block is narrow (the chat open, a phone) */
+@container (max-width: 960px) { .rulesgrid { grid-template-columns: minmax(0, 1fr); } .rulesgrid .rulescontract { order: -1; } }

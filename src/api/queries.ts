@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, SpecChangeItem, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, DraftLayer, GateFiles, SpecChangeItem, SpecItemText, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -22,6 +22,7 @@ export const keys = {
   specRequest: (id: string) => ["spec-request", id] as const,
   specQuestions: (key: string) => ["spec-questions", key] as const,
   specChanges: (key: string) => ["spec-changes", key] as const,
+  gateFiles: (id: string, area: string) => ["gate-files", id, area] as const,
   features: (f?: object) => (f ? (["features", f] as const) : (["features"] as const)),
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
@@ -114,11 +115,34 @@ export const useSpecQuestions = (key: string) =>
   useQuery({ queryKey: keys.specQuestions(key), queryFn: () => api.get<{ items: SpecGateQuestions[] }>(`/api/v1/features/${key}/spec/questions`) });
 
 /** The rows of the section "Changes to other features" of the product gate (FTR.HMR.DEV-0002 R7). */
-export const useSpecChanges = (key: string, enabled = true) =>
+// FTR.HMR.DEV-0003 R1: the files of a gate in the branch of the feature.
+export const useGateFiles = (id: string, area: string) =>
   useQuery({
-    queryKey: keys.specChanges(key),
-    queryFn: () => api.get<{ items: SpecChangeItem[] }>(`/api/v1/features/${key}/spec/changes`),
+    queryKey: keys.gateFiles(id, area),
+    queryFn: () => api.get<GateFiles>(`/api/v1/features/${id}/gates/${area}/files`),
+  });
+
+export const useSpecChanges = (key: string, area: "product" | "arch" = "product", enabled = true) =>
+  useQuery({
+    queryKey: [...keys.specChanges(key), area],
+    queryFn: () => api.get<{ items: SpecChangeItem[] }>(`/api/v1/features/${key}/spec/changes${area === "arch" ? "?area=arch" : ""}`),
     enabled,
+  });
+
+// FTR.HMR.DEV-0003 R6: the links of a feature in work from its branch.
+export const useDraftLinks = (id: string) =>
+  useQuery({
+    queryKey: ["draft-links", id] as const,
+    queryFn: () => api.get<{ layers: DraftLayer[] }>(`/api/v1/features/${id}/spec/links`),
+  });
+
+// FTR.HMR.DEV-0003 R8: the text of a requirement or a decision of the index.
+export const useSpecItem = (key: string, item: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["spec", "item", key, item] as const,
+    queryFn: () => api.get<SpecItemText>(`/api/v1/spec/items/${encodeURIComponent(key)}/${encodeURIComponent(item)}`),
+    enabled,
+    staleTime: 60_000,
   });
 
 export const useSpecRequest = (id: string) =>

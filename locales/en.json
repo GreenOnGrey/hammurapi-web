@@ -168,7 +168,18 @@
     "openInNavigator": "Open in Specification",
     "stages": "Stages",
     "stageLater": "This stage has not started yet",
-    "specifications": "Specifications"
+    "specifications": "Specifications",
+    "links": {
+      "layer": {
+        "product": "Product",
+        "arch": "Architecture"
+      },
+      "state": {
+        "draft": "draft",
+        "approved": "approved",
+        "skipped": "skipped"
+      }
+    }
   },
   "editor": {
     "toolbar": "Formatting",
@@ -436,7 +447,23 @@
       "readOnly": "You can read these rules; only administrators of this area change them.",
       "history": "Change history",
       "noHistory": "No closed changes yet.",
-      "diffTitle": "Proposed change"
+      "diffTitle": "Proposed change",
+      "contract": {
+        "title": "Required structure of documents",
+        "hint": "Hammurapi reads these elements in every document. They can be moved, but not removed or changed in format.",
+        "alsoRead": "Also read: {langs}",
+        "rejected": "The template breaks the required structure",
+        "broken": "{file} of {area} in the default branch breaks the required structure:",
+        "open": "Open the template",
+        "elements": {
+          "depends_on": "No line «Depends on» in the header",
+          "requirement": "No requirement R1 with criteria «Given»",
+          "decisions": "The table of decisions has no column A",
+          "changes_section": "No section «Changes to other features» with its table",
+          "parent": "No parent in the front matter",
+          "file": "The template is missing"
+        }
+      }
     },
     "settings": {
       "title": "Settings",
@@ -718,7 +745,13 @@
     "writer_blocked": "The writer stopped. Retry it first.",
     "gate_not_written": "The gate of this stage is not written yet: answer the question of the writer or retry.",
     "gate_generated": "The agent writes this gate: ask for a change in the chat.",
-    "changes_invalid": "Some rows of “Changes to other features” cannot be applied. Fix them and submit again."
+    "changes_invalid": "Some rows of “Changes to other features” cannot be applied. Fix them and submit again.",
+    "decisions_without_id": "Some decisions have no number A",
+    "spec_item_not_found": "No such item in the specification index",
+    "invalid_item": "The item is R, A or the header",
+    "feature_branch_not_found": "The branch of the feature is not found",
+    "rules_contract": "The template breaks the required structure of documents",
+    "bad_layer": "The layer is product, arch or both"
   },
   "stages": {
     "title": "Stages",
@@ -1169,7 +1202,11 @@
     "text": "{count, plural, one {# requirement has no ID. Test cases and code link to requirements by ID.} other {# requirements have no ID. Test cases and code link to requirements by ID.}}",
     "askAgent": "Ask the agent to add IDs",
     "submitAnyway": "Submit without IDs",
-    "prompt": "Number all requirements of the product specification as **R1.** with acceptance criteria."
+    "prompt": "Number all requirements of the product specification as **R1.** with acceptance criteria.",
+    "decisionsTitle": "Decisions without a number",
+    "decisionsText": "{count, plural, one {# decision has no number A. Other features refer to a decision by its number.} other {# decisions have no number A. Other features refer to a decision by its number.}}",
+    "decisionsAskAgent": "Ask the agent to number them",
+    "decisionsPrompt": "Number all decisions of the architecture specification A1, A2, … in the first column of the table of decisions."
   },
   "activity": {
     "created": "Created",
@@ -1261,8 +1298,15 @@
         "unknown_target": "No such feature in the default branch",
         "target_in_work": "The feature is still in work: change it through an instruction in its topic",
         "unknown_requirement": "No such requirement in the default branch",
-        "other": "This row cannot be applied"
-      }
+        "other": "This row cannot be applied",
+        "unknown_decision": "No such architecture decision in the default branch",
+        "wrong_kind": "Product changes requirements R, arch changes decisions A"
+      },
+      "expand": "Show the text in force",
+      "now": "In force now · {key} {item}",
+      "openInNavigator": "Open in the navigator",
+      "textFailed": "Could not load the text",
+      "whatChanges": "What this feature changes: {note}"
     },
     "links": {
       "extends": "Builds on",
@@ -1591,6 +1635,21 @@
       "later": "not started",
       "laterHint": "Starts after the previous stage",
       "label": "{name}, {state}, {count, plural, one {# question} other {# questions}}"
+    }
+  },
+  "gate": {
+    "view": {
+      "mode": "Document or mockup",
+      "document": "Document",
+      "mockup": "Mockup",
+      "file": "File of the mockup",
+      "theme": "Theme of the mockup",
+      "light": "Light",
+      "dark": "Dark",
+      "fullscreen": "Full screen",
+      "updated": "The mockup is updated",
+      "removed": "The file {name} is removed, {open} is open",
+      "narrow": "The mockup opens over the whole screen."
     }
   }
 }

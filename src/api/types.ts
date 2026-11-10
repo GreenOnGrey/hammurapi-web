@@ -1047,6 +1047,50 @@ export interface SpecLinkRef {
   title: string | null;
   indexed: boolean;
   requirements: string[];
+  /** FTR.HMR.DEV-0003 R15: the layer of the link and the new name of requirements; absent in an older core. */
+  layer?: "product" | "arch";
+  items?: string[];
+}
+
+/** The document contract of the rules (FTR.HMR.DEV-0003 R17–R20). */
+export interface ContractElement {
+  element: string;
+  title: string;
+  example: string;
+}
+
+export interface RulesContract {
+  lang: string;
+  alsoRead: string[];
+  template: ContractElement[];
+  fixTemplate: ContractElement[];
+}
+
+export interface ContractViolation {
+  element: string;
+  message: string;
+}
+
+export interface RulesViolation {
+  area: Area;
+  file: "template" | "fix-template";
+  sha: string;
+  violations: ContractViolation[];
+}
+
+/** A layer of the links of a feature in work, from the documents of its branch (FTR.HMR.DEV-0003 R6). */
+export interface DraftLinkRef {
+  key: string;
+  title: string | null;
+  indexed: boolean;
+  items: string[];
+}
+
+export interface DraftLayer {
+  layer: "product" | "arch";
+  state: "draft" | "approved" | "skipped";
+  extends: DraftLinkRef[];
+  changes: DraftLinkRef[];
 }
 
 export interface SpecFeatureLinks {
@@ -1082,11 +1126,15 @@ export interface SpecGraphData {
   edges: SpecGraphEdge[];
 }
 
-export type SpecChangeReason = "unknown_target" | "target_in_work" | "unknown_requirement";
+export type SpecChangeReason = "unknown_target" | "target_in_work" | "unknown_requirement" | "unknown_decision" | "wrong_kind";
 
 /** A row of the block "Changes to other features" (FTR.HMR.DEV-0002 tech §2.1). */
 export interface SpecChangeItem {
   feature: string;
+  /** R<n> of product or A<n> of arch, null for the whole feature (FTR.HMR.DEV-0003); absent in an older core. */
+  item?: string | null;
+  kind?: "requirement" | "decision";
+  /** The old name of item. */
   requirement: string | null;
   note: string;
   state: "marked" | "pending" | "error";
@@ -1102,6 +1150,30 @@ export interface SpecFile {
   previewable: boolean;
   /** The file as a page of its own in an opaque origin; absent in older cores (FTR.HMR.SPEC-0001 R6). */
   viewUrl?: string;
+}
+
+/** The text of a requirement, a decision or the header of a document of the index (FTR.HMR.DEV-0003 R8). */
+export interface SpecItemText {
+  key: string;
+  item: string;
+  kind: "requirement" | "decision" | "header";
+  markdown: string;
+  url: string;
+}
+
+/** A file of the folder of a gate in the branch of a feature (FTR.HMR.DEV-0003 R1). */
+export interface GateFile {
+  name: string;
+  size: number;
+  mimeType: string;
+  blobSha: string;
+  previewable: boolean;
+  viewUrl?: string;
+}
+
+export interface GateFiles {
+  ref: string;
+  files: GateFile[];
 }
 
 export interface SpecSearchItem {

@@ -393,6 +393,12 @@ function DocumentView({
       const p = b.parentElement;
       if (id && p && p.firstChild === b && !document.getElementById(id)) p.id = id;
     });
+    // FTR.HMR.DEV-0003 R10: a row of the table of decisions | A5 | … gets the anchor a5
+    root.querySelectorAll<HTMLElement>(".ProseMirror tr").forEach((tr) => {
+      const m = /^(A\d+[a-z]?)$/.exec((tr.firstElementChild?.textContent ?? "").trim());
+      const id = m ? m[1].toLowerCase() : null;
+      if (id && !document.getElementById(id)) tr.id = id;
+    });
     const hash = decodeURIComponent(location.hash.slice(1));
     if (hash) document.getElementById(hash)?.scrollIntoView();
     const io = new IntersectionObserver(
@@ -485,7 +491,7 @@ function DocumentView({
             ))}
           </LinkRow>
         )}
-        <SpecLinks links={f.links} featureKey={d.featureKey} />
+        <SpecLinks links={f.links} featureKey={d.featureKey} area={d.area} />
         <div className="tabs spectabs" role="tablist" style={{ marginTop: 14 }}>
           {SPEC_AREAS.filter((a) => d.areas.includes(a)).map((a) => (
             <Link

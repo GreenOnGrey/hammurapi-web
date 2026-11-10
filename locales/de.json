@@ -168,7 +168,18 @@
     "openInNavigator": "In der Spezifikation öffnen",
     "stages": "Phasen",
     "stageLater": "Diese Phase hat noch nicht begonnen",
-    "specifications": "Spezifikationen"
+    "specifications": "Spezifikationen",
+    "links": {
+      "layer": {
+        "product": "Produkt",
+        "arch": "Architektur"
+      },
+      "state": {
+        "draft": "Entwurf",
+        "approved": "genehmigt",
+        "skipped": "übersprungen"
+      }
+    }
   },
   "editor": {
     "toolbar": "Formatierung",
@@ -436,7 +447,23 @@
       "readOnly": "Sie können diese Regeln lesen; ändern können sie nur Administratoren dieses Bereichs.",
       "history": "Änderungsverlauf",
       "noHistory": "Noch keine abgeschlossenen Änderungen.",
-      "diffTitle": "Vorgeschlagene Änderung"
+      "diffTitle": "Vorgeschlagene Änderung",
+      "contract": {
+        "title": "Pflichtstruktur der Dokumente",
+        "hint": "Hammurapi liest diese Elemente in jedem Dokument. Sie dürfen verschoben, aber nicht entfernt oder im Format geändert werden.",
+        "alsoRead": "Ebenfalls gelesen: {langs}",
+        "rejected": "Die Vorlage verletzt die Pflichtstruktur",
+        "broken": "{file} von {area} im Hauptzweig verletzt die Pflichtstruktur:",
+        "open": "Vorlage öffnen",
+        "elements": {
+          "depends_on": "Keine Zeile «Depends on» im Kopf",
+          "requirement": "Keine Anforderung R1 mit Kriterien «Given»",
+          "decisions": "Die Entscheidungstabelle hat keine Spalte A",
+          "changes_section": "Kein Abschnitt «Changes to other features» mit Tabelle",
+          "parent": "Kein parent im Front Matter",
+          "file": "Die Vorlage fehlt"
+        }
+      }
     },
     "settings": {
       "title": "Einstellungen",
@@ -718,7 +745,13 @@
     "writer_blocked": "Der Autor hat angehalten. Wiederholen Sie zuerst den Lauf.",
     "gate_not_written": "Das Dokument dieser Phase fehlt noch: Beantworten Sie die Frage des Autors oder wiederholen Sie den Lauf.",
     "gate_generated": "Dieses Gate schreibt der Agent: Bitten Sie im Chat um eine Änderung.",
-    "changes_invalid": "Einige Zeilen von „Changes to other features“ („Изменения в других решениях“) können nicht angewendet werden. Korrigieren Sie sie und reichen Sie erneut ein."
+    "changes_invalid": "Einige Zeilen von „Changes to other features“ („Изменения в других решениях“) können nicht angewendet werden. Korrigieren Sie sie und reichen Sie erneut ein.",
+    "decisions_without_id": "Einige Entscheidungen haben keine Nummer A",
+    "spec_item_not_found": "Kein solches Element im Spezifikationsindex",
+    "invalid_item": "Das Element ist R, A oder der Kopf",
+    "feature_branch_not_found": "Der Zweig der Funktion wurde nicht gefunden",
+    "rules_contract": "Die Vorlage verletzt die Pflichtstruktur der Dokumente",
+    "bad_layer": "Die Ebene ist product, arch oder both"
   },
   "stages": {
     "title": "Phasen",
@@ -1169,7 +1202,11 @@
     "text": "{count, plural, one {# Anforderung ohne ID. Testfälle und Code verweisen per ID.} other {# Anforderungen ohne ID. Testfälle und Code verweisen per ID.}}",
     "askAgent": "Agent um IDs bitten",
     "submitAnyway": "Ohne IDs einreichen",
-    "prompt": "Nummeriere alle Anforderungen der Produktspezifikation als **R1.** mit Akzeptanzkriterien."
+    "prompt": "Nummeriere alle Anforderungen der Produktspezifikation als **R1.** mit Akzeptanzkriterien.",
+    "decisionsTitle": "Entscheidungen ohne Nummer",
+    "decisionsText": "{count, plural, one {# Entscheidung hat keine Nummer A. Andere Funktionen verweisen über die Nummer darauf.} other {# Entscheidungen haben keine Nummer A. Andere Funktionen verweisen über die Nummer darauf.}}",
+    "decisionsAskAgent": "Den Agenten bitten, sie zu nummerieren",
+    "decisionsPrompt": "Nummeriere alle Entscheidungen der Architekturspezifikation A1, A2, … in der ersten Spalte der Entscheidungstabelle."
   },
   "activity": {
     "created": "Erstellt",
@@ -1261,8 +1298,15 @@
         "unknown_target": "Kein solches Feature im Hauptzweig",
         "target_in_work": "Das Feature ist noch in Arbeit: Änderungen per Auftrag in seinem Thema",
         "unknown_requirement": "Keine solche Anforderung im Hauptzweig",
-        "other": "Diese Zeile kann nicht angewendet werden"
-      }
+        "other": "Diese Zeile kann nicht angewendet werden",
+        "unknown_decision": "Keine solche Architekturentscheidung im Hauptzweig",
+        "wrong_kind": "product ändert Anforderungen R, arch Entscheidungen A"
+      },
+      "expand": "Geltenden Text zeigen",
+      "now": "Gilt jetzt · {key} {item}",
+      "openInNavigator": "Im Navigator öffnen",
+      "textFailed": "Der Text konnte nicht geladen werden",
+      "whatChanges": "Was diese Funktion ändert: {note}"
     },
     "links": {
       "extends": "Baut auf",
@@ -1591,6 +1635,21 @@
       "later": "nicht begonnen",
       "laterHint": "Beginnt nach der vorherigen Phase",
       "label": "{name}, {state}, {count, plural, one {# Frage} other {# Fragen}}"
+    }
+  },
+  "gate": {
+    "view": {
+      "mode": "Dokument oder Mockup",
+      "document": "Dokument",
+      "mockup": "Mockup",
+      "file": "Datei des Mockups",
+      "theme": "Design des Mockups",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "fullscreen": "Vollbild",
+      "updated": "Das Mockup wurde aktualisiert",
+      "removed": "Die Datei {name} wurde entfernt, {open} ist geöffnet",
+      "narrow": "Das Mockup öffnet sich im Vollbild."
     }
   }
 }
