@@ -6,7 +6,7 @@ import type { TFunction } from "i18next";
 import { Icon, Modal, useToast } from "@green-on-grey/ui-kit";
 import { ApiError, api } from "../../api/client";
 import { keys } from "../../api/queries";
-import type { CiCheck, ServiceToken } from "../../api/types";
+import type { CiCheck, CiToken } from "../../api/types";
 import { useSession } from "../../app/session";
 import { errorText } from "../../lib/errors";
 import { dateTime } from "../../lib/format";
@@ -30,7 +30,8 @@ function NestedModal({ title, onClose, footer, children }: { title: string; onCl
 }
 
 const base = (t: CiTarget) => (t.kind === "spec" ? "/api/v1/ci-checks/spec" : `/api/v1/ci-checks/services/${encodeURIComponent(t.key)}`);
-const tokenPath = (key: string) => `/api/v1/services/${encodeURIComponent(key)}/token`;
+// FTR.HMR.SPEC-0003: one installation token for CI without OIDC; the OIDC token of a CI job needs none
+const tokenPath = "/api/v1/ci-token";
 
 // design §1: the status is told by the text of the chip as well as by its colour
 const CHIP: Record<CiCheck["status"], string> = { none: "none", proposed: "handed_off", on: "draft", outdated: "in_review", manual: "in_review" };
@@ -39,8 +40,7 @@ const ciKey = (t: CiTarget) => (t.kind === "spec" ? keys.ciCheckSpec : keys.ciCh
 
 export const useCiCheck = (target: CiTarget) => useQuery({ queryKey: ciKey(target), queryFn: () => api.get<CiCheck>(base(target)) });
 
-export const useServiceToken = (key: string, enabled = true) =>
-  useQuery({ queryKey: keys.serviceToken(key), queryFn: () => api.get<ServiceToken>(tokenPath(key)), enabled });
+export const useCiToken = () => useQuery({ queryKey: keys.ciToken, queryFn: () => api.get<CiToken>(tokenPath) });
 
 /** The text of an error of the proposal: the permission of the GitHub App, the rights of the user in git. */
 function proposeError(t: TFunction, e: unknown, repo: string) {
@@ -115,24 +115,25 @@ export function CiCheckRow({ target, canPropose }: { target: CiTarget; canPropos
   );
 }
 
-/** The row «Service token» (design §3.2, §3.3): issued or not, its use, issue, reissue and revoke. */
-export function ServiceTokenRow({ service, repo, provider }: { service: string; repo: string; provider: string }) {
+/** The row «CI token» in Settings (FTR.HMR.SPEC-0003 design §3.1): issued or not, its use, issue, reissue and
+ * revoke; only CI without OIDC needs it. */
+export function CiTokenRow({ provider }: { provider: string }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
-  const q = useServiceToken(service);
+  const q = useCiToken();
   const [ask, setAsk] = useState<"reissue" | "revoke" | null>(null);
   const [shown, setShown] = useState<string | null>(null);
   const issue = useMutation({
     mutationFn: async (reissue: boolean) => {
-      if (!reissue) { // the card may be stale: issuing revokes a token another owner has just issued
-        const cur = await api.get<ServiceToken>(tokenPath(service));
+      if (!reissue) { // the row may be stale: issuing revokes a token another administrator has just issued
+        const cur = await api.get<CiToken>(tokenPath);
         if (cur.issued) {
-          qc.setQueryData(keys.serviceToken(service), cur);
+          qc.setQueryData(keys.ciToken, cur);
           return null;
         }
       }
-      return api.post<{ token: string; prefix: string }>(tokenPath(service));
+      return api.post<{ token: string; prefix: string }>(tokenPath);
     },
     onSuccess: (r) => {
       if (!r) {
@@ -141,15 +142,15 @@ export function ServiceTokenRow({ service, repo, provider }: { service: string; 
       }
       setAsk(null);
       setShown(r.token);
-      void qc.invalidateQueries({ queryKey: keys.serviceToken(service) });
+      void qc.invalidateQueries({ queryKey: keys.ciToken });
     },
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
   const revoke = useMutation({
-    mutationFn: () => api.del(tokenPath(service)),
+    mutationFn: () => api.del(tokenPath),
     onSuccess: () => {
       setAsk(null);
-      void qc.invalidateQueries({ queryKey: keys.serviceToken(service) });
+      void qc.invalidateQueries({ queryKey: keys.ciToken });
     },
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
@@ -158,85 +159,81 @@ export function ServiceTokenRow({ service, repo, provider }: { service: string; 
   const closeShown = useCallback(() => setShown(null), []);
   return (
     <div className="cirow">
-      <span className="cirow-l">{t("serviceToken.title")}</span>
+      <span className="cirow-l">{t("ciToken.title")}</span>
       {q.error && <span className="small err-text">{errorText(t, q.error)}</span>}
-      {tok && !tok.issued && <span className="st none">{t("serviceToken.none")}</span>}
+      {tok && !tok.issued && <span className="st none">{t("ciToken.none")}</span>}
       {tok?.issued && (
         <span className="small">
           <span className="mono">{tok.prefix}…</span>{" "}
-          {t("serviceToken.issued", {
+          {t("ciToken.issued", {
             at: tok.createdAt ? dateTime(tok.createdAt, i18n.language) : "",
-            used: tok.lastUsedAt ? dateTime(tok.lastUsedAt, i18n.language) : t("serviceToken.never"),
+            used: tok.lastUsedAt ? dateTime(tok.lastUsedAt, i18n.language) : t("ciToken.never"),
           })}
         </span>
       )}
-      {tok && !tok.issued && <button type="button" className="btn sm" disabled={issue.isPending} onClick={() => issue.mutate(false)}>{t("serviceToken.issue")}</button>}
+      {tok && !tok.issued && <button type="button" className="btn sm" disabled={issue.isPending} onClick={() => issue.mutate(false)}>{t("ciToken.issue")}</button>}
       {tok?.issued && <>
-        <button type="button" className="btn ghost sm" onClick={() => setAsk("reissue")}>{t("serviceToken.reissue")}</button>
-        <button type="button" className="btn ghost sm danger" onClick={() => setAsk("revoke")}>{t("serviceToken.revoke")}</button>
+        <button type="button" className="btn ghost sm" onClick={() => setAsk("reissue")}>{t("ciToken.reissue")}</button>
+        <button type="button" className="btn ghost sm danger" onClick={() => setAsk("revoke")}>{t("ciToken.revoke")}</button>
       </>}
+      {tok && !tok.issued && <div className="cirow-hint small muted">{t("ciToken.hint")}</div>}
       {ask && (
-        <NestedModal title={t(`serviceToken.${ask}Title`, { key: service })} onClose={closeAsk} footer={
+        <NestedModal title={t(`ciToken.${ask}Title`)} onClose={closeAsk} footer={
           <>
             <button className="btn ghost" onClick={closeAsk}>{t("common.cancel")}</button>
             <button className="btn primary danger" disabled={issue.isPending || revoke.isPending}
-              onClick={() => (ask === "reissue" ? issue.mutate(true) : revoke.mutate())}>{t(`serviceToken.${ask}`)}</button>
+              onClick={() => (ask === "reissue" ? issue.mutate(true) : revoke.mutate())}>{t(`ciToken.${ask}`)}</button>
           </>
         }>
-          <p>{t("serviceToken.breaks")}</p>
+          <p>{t("ciToken.breaks")}</p>
         </NestedModal>
       )}
-      {shown && <TokenModal service={service} repo={repo} provider={provider} token={shown} onClose={closeShown} />}
+      {shown && <TokenModal provider={provider} token={shown} onClose={closeShown} />}
     </div>
   );
 }
 
 /** The token, once (design §3.3): copy, where to put it, «Done» only after «I saved the token». */
-export function TokenModal({ service, repo, provider, token, onClose }: { service: string; repo: string; provider: string; token: string; onClose: () => void }) {
+export function TokenModal({ provider, token, onClose }: { provider: string; token: string; onClose: () => void }) {
   const { t } = useTranslation();
   const toast = useToast();
   const [saved, setSaved] = useState(false);
-  const secrets = provider === "gitlab" ? t("serviceToken.whereGitLab") : t("serviceToken.whereGitHub");
+  const secrets = provider === "gitlab" ? t("ciToken.whereGitLab") : t("ciToken.whereGitHub");
   // closed only after «I saved the token»: Escape and the cross do nothing before
   const close = useCallback(() => { if (saved) onClose(); }, [saved, onClose]);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(token);
-      toast({ kind: "ok", title: t("serviceToken.copied") });
+      toast({ kind: "ok", title: t("ciToken.copied") });
     } catch {
-      (document.getElementById("svc-token") as HTMLInputElement | null)?.select(); // no clipboard (plain http): select it
-      toast({ kind: "error", title: t("serviceToken.copyFailed") });
+      (document.getElementById("ci-token") as HTMLInputElement | null)?.select(); // no clipboard (plain http): select it
+      toast({ kind: "error", title: t("ciToken.copyFailed") });
     }
   };
   return (
-    <NestedModal title={t("serviceToken.modalTitle", { key: service })} onClose={close} footer={
-      <button className="btn primary" disabled={!saved} onClick={onClose}>{t("serviceToken.done")}</button>
+    <NestedModal title={t("ciToken.modalTitle")} onClose={close} footer={
+      <button className="btn primary" disabled={!saved} onClick={onClose}>{t("ciToken.done")}</button>
     }>
       <div className="row tokrow">
-        <input id="svc-token" className="inp mono tok-inp" readOnly value={token} aria-label={t("serviceToken.title")} onFocus={(e) => e.currentTarget.select()} />
-        <button type="button" className="btn sm" onClick={() => void copy()}><Icon name="copy" size={14} />{t("serviceToken.copy")}</button>
+        <input id="ci-token" className="inp mono tok-inp" readOnly value={token} aria-label={t("ciToken.title")} onFocus={(e) => e.currentTarget.select()} />
+        <button type="button" className="btn sm" onClick={() => void copy()}><Icon name="copy" size={14} />{t("ciToken.copy")}</button>
       </div>
-      <p className="small">{t("serviceToken.once", { repo })}</p>
+      <p className="small">{t("ciToken.once")}</p>
       <p className="small muted">{secrets}</p>
-      <label className="row small"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />{t("serviceToken.saved")}</label>
+      <label className="row small"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />{t("ciToken.saved")}</label>
     </NestedModal>
   );
 }
 
-/** The section «CI check of tests» of the card of a service (design §2, §3.2). */
+/** The section «CI check of tests» of the card of a service (design §2, FTR.HMR.SPEC-0003 design §3.2): only the
+ * status of the check — the job presents the OIDC token of its CI, there is no token of the service. */
 export function ServiceCiSection({ service, repo }: { service: string; repo: string }) {
   const { t } = useTranslation();
-  const { owns, isAnyAdmin, config } = useSession();
-  const can = owns(service) || isAnyAdmin; // the owners of the service and the administrators (tech §6)
-  const check = useCiCheck({ kind: "service", key: service, repo });
-  const token = useServiceToken(service, can);
-  const needsToken = can && token.data && !token.data.issued && check.data && ["proposed", "on", "outdated"].includes(check.data.status);
+  const { owns, isAnyAdmin } = useSession();
   return (
     <>
       <h3 className="group-h">{t("ciCheck.section")}</h3>
-      <CiCheckRow target={{ kind: "service", key: service, repo }} canPropose={can} />
-      {can && <ServiceTokenRow service={service} repo={repo} provider={config.provider} />}
-      {needsToken && <div className="banner warn small"><Icon name="alert" size={14} />{t("ciCheck.needsToken")}</div>}
+      <CiCheckRow target={{ kind: "service", key: service, repo }} canPropose={owns(service) || isAnyAdmin} />
     </>
   );
 }

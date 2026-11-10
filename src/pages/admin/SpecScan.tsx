@@ -17,7 +17,7 @@ import { dateTime, duration } from "../../lib/format";
 import { Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 import { adminPath } from "./paths";
 import { useSession } from "../../app/session";
-import { CiCheckRow } from "./CiCheck";
+import { CiCheckRow, CiTokenRow } from "./CiCheck";
 
 /** The check of the specification repository in Settings (FTR.HMR.CMN-0005 R1,
  * R3, R5, R7): period, "Check now", the last run and the indexing problems. */
@@ -169,6 +169,7 @@ export function SpecScanSection() {
       {/* FTR.HMR.SPEC-0002 design §2: the check in CI and the version of the contract */}
       {me.globalAdmin && <CiCheckRow target={{ kind: "spec" }} canPropose />}
       {config.contractVersion && <div className="cirow"><span className="cirow-l">{t("ciCheck.contract")}</span><span className="mono small">{config.contractVersion}</span></div>}
+      {me.globalAdmin && <CiTokenRow provider={config.provider} />}
 
       <h3 style={{ fontSize: 15, marginTop: 18 }}>{t("specScan.problems")}</h3>
       {problems.length === 0 ? (

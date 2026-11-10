@@ -35,7 +35,7 @@ export const keys = {
   ciCheck: ["ci-check"] as const,
   ciCheckSpec: ["ci-check", "spec"] as const,
   ciCheckService: (key: string) => ["ci-check", "service", key] as const,
-  serviceToken: (key: string) => ["service-token", key] as const,
+  ciToken: ["ci-token"] as const,
   document: (id: string, area: string) => ["document", id, area] as const,
   history: (id: string, area: string) => ["history", id, area] as const,
   diff: (id: string, area: string) => ["diff", id, area] as const,
