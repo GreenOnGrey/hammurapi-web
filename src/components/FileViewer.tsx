@@ -32,20 +32,6 @@ export function pickFile<F extends ViewerFile>(files: F[], name: string): F | un
   return files.find((f) => f.name === name) ?? files[0];
 }
 
-/** The switch of the theme of a mockup (FTR.HMR.DEV-0003 R2). */
-export function ThemeSwitch({ theme, onChange }: { theme: MockupTheme; onChange: (t: MockupTheme) => void }) {
-  const { t } = useTranslation();
-  return (
-    <div className="seg mockup-theme" role="group" aria-label={t("gate.view.theme")}>
-      {(["light", "dark"] as const).map((x) => (
-        <button key={x} type="button" aria-pressed={theme === x} onClick={() => onChange(x)}>
-          {t(`gate.view.${x}`)}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 /** A mockup in a frame of an opaque origin, in a theme: `color-scheme` of the frame and the
  * fragment `#theme=` reach the mockup without any access to it (FTR.HMR.DEV-0003 arch §3.3). */
 export function MockupFrame({ href, title, theme, className }: { href: string; title: string; theme: MockupTheme; className: string }) {
@@ -87,7 +73,7 @@ export function FileViewer({
 }) {
   const { t } = useTranslation();
   const [name, setName] = useState(initial);
-  const [theme, setTheme] = useMockupTheme();
+  const theme = useMockupTheme();
   const fileHref: FileHref = href ?? ((n, mode) => rawUrl(featureKey, area, n, mode));
   const file = pickFile(files, name);
   // an image is fitted to the screen; the button or a click shows it at its own size (R5)
@@ -157,7 +143,6 @@ export function FileViewer({
             </select>
           )}
           <span className="fileviewer-grow" />
-          {isHtml && view && <ThemeSwitch theme={theme} onChange={setTheme} />}
           {!isHtml && (
             <button
               className="btn ghost sm"
