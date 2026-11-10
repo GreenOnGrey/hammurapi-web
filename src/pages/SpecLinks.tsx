@@ -11,19 +11,21 @@ const MAX = 5;
 /** The links of a feature in the header of a document (FTR.HMR.DEV-0002 R14, R17, design §3.5):
  * up to four rows, a plate per feature; a key outside the index is a plate without a link. The rows are folded
  * by default; the button of the graph stands next to the fold, not in it, so it is not a part of the toggle. */
-export function SpecLinks({ links, featureKey }: { links?: SpecFeatureLinks; featureKey: string }) {
+export function SpecLinks({ links, featureKey, area = "product" }: { links?: SpecFeatureLinks; featureKey: string; area?: string }) {
+  // FTR.HMR.DEV-0003 R15: the core gives the links of the layer of the open area; arch links go to arch
+  const layer = area === "arch" ? "arch" : "product";
   const { t } = useTranslation();
   if (!links || ROWS.every((r) => links[r].length === 0)) return null;
   const count = ROWS.reduce((n, r) => n + links[r].length, 0);
   return (
     <div className="speclinksfold">
       {/* R16: the graph with the focus on this feature; not on a phone (design §3.7) */}
-      <Link className="btn ghost sm specgraphbtn specshowgraph" to={`/spec/graph?focus=${encodeURIComponent(featureKey)}`}>
+      <Link className="btn ghost sm specgraphbtn specshowgraph" to={`/spec/graph?focus=${encodeURIComponent(featureKey)}${layer === "arch" ? "&layer=arch" : ""}`}>
         <Icon name="graph" size={14} />{t("spec.graph.show")}
       </Link>
       <details className="fold">
         <summary>{t("spec.links.title")} <span className="foldcount">{count}</span></summary>
-        <LinkRows links={links} />
+        <LinkRows links={links} area={layer} />
       </details>
     </div>
   );
@@ -31,16 +33,16 @@ export function SpecLinks({ links, featureKey }: { links?: SpecFeatureLinks; fea
 
 /** The rows of the links of a feature, one per kind that has links: in the header of a document and in the list
  * under the graph (design §3.5, §3.6). */
-export function LinkRows({ links }: { links: SpecFeatureLinks }) {
+export function LinkRows({ links, area = "product" }: { links: SpecFeatureLinks; area?: "product" | "arch" }) {
   const { t } = useTranslation();
   return ROWS.filter((r) => links[r].length > 0).map((r) => (
-    <LinkRefs key={r} label={t(`spec.links.${r}`)} refs={links[r]} withReqs={r === "changes" || r === "changedBy"} anchored={r === "changes"} />
+    <LinkRefs key={r} label={t(`spec.links.${r}`)} refs={links[r]} withReqs={r === "changes" || r === "changedBy"} anchored={r === "changes"} area={area} />
   ));
 }
 
 // The requirements of a link are numbers in the changed feature: the plate of «Changes» goes to the first of them,
 // the plate of «Changed by» to the changing feature without an anchor (they are numbers of the document open now).
-function LinkRefs({ label, refs, withReqs, anchored }: { label: string; refs: SpecLinkRef[]; withReqs: boolean; anchored: boolean }) {
+function LinkRefs({ label, refs, withReqs, anchored, area }: { label: string; refs: SpecLinkRef[]; withReqs: boolean; anchored: boolean; area: "product" | "arch" }) {
   const { t } = useTranslation();
   const [all, setAll] = useState(false);
   const shown = all ? refs : refs.slice(0, MAX);
@@ -50,16 +52,17 @@ function LinkRefs({ label, refs, withReqs, anchored }: { label: string; refs: Sp
         const body = (
           <>
             <span className="mono lnk-k">{r.key}</span>
-            {withReqs && r.requirements.length > 0 && <span className="mono"> · {r.requirements.join(", ")}</span>}
+            {withReqs && (r.items ?? r.requirements).length > 0 && <span className="mono"> · {(r.items ?? r.requirements).join(", ")}</span>}
             {r.title && <span className="lnk-t">{r.title}</span>}
           </>
         );
         if (!r.indexed) {
           return <span key={r.key} className="chip lnkchip lnk-off" title={t("spec.links.notIndexed")}>{body}</span>;
         }
-        const anchor = anchored && r.requirements[0] ? `#${r.requirements[0].toLowerCase()}` : "";
+        const first = (r.items ?? r.requirements)[0];
+        const anchor = anchored && first ? `#${first.toLowerCase()}` : "";
         // a long title is cut to the width of the column (design §3.5): the whole of it is in the tooltip
-        return <Link key={r.key} className="chip lnkchip" to={`/spec/${r.key}/product${anchor}`} title={r.title ? `${r.key} ${r.title}` : undefined}>{body}</Link>;
+        return <Link key={r.key} className="chip lnkchip" to={`/spec/${r.key}/${area}${anchor}`} title={r.title ? `${r.key} ${r.title}` : undefined}>{body}</Link>;
       })}
       {!all && refs.length > MAX && (
         <button type="button" className="chip" onClick={() => setAll(true)}>{t("spec.links.more", { count: refs.length - MAX })}</button>

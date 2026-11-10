@@ -168,7 +168,18 @@
     "openInNavigator": "在规范中打开",
     "stages": "阶段",
     "stageLater": "此阶段尚未开始",
-    "specifications": "规格说明"
+    "specifications": "规格说明",
+    "links": {
+      "layer": {
+        "product": "产品",
+        "arch": "架构"
+      },
+      "state": {
+        "draft": "草稿",
+        "approved": "已批准",
+        "skipped": "已跳过"
+      }
+    }
   },
   "editor": {
     "toolbar": "格式",
@@ -436,7 +447,23 @@
       "readOnly": "您可以查看这些规则；只有该领域的管理员可以修改。",
       "history": "变更历史",
       "noHistory": "暂无已关闭的变更。",
-      "diffTitle": "提议的变更"
+      "diffTitle": "提议的变更",
+      "contract": {
+        "title": "文档的必需结构",
+        "hint": "Hammurapi 会读取每个文档中的这些元素。可以移动，但不能删除或更改格式。",
+        "alsoRead": "也可读取：{langs}",
+        "rejected": "模板破坏了必需结构",
+        "broken": "主分支中 {area} 的 {file} 破坏了必需结构：",
+        "open": "打开模板",
+        "elements": {
+          "depends_on": "页眉中没有 «Depends on» 行",
+          "requirement": "没有带 «Given» 标准的需求 R1",
+          "decisions": "决策表没有 A 列",
+          "changes_section": "没有带表格的 «Changes to other features» 部分",
+          "parent": "front matter 中没有 parent",
+          "file": "缺少模板"
+        }
+      }
     },
     "settings": {
       "title": "设置",
@@ -718,7 +745,13 @@
     "writer_blocked": "撰写代理已停止，请先重试。",
     "gate_not_written": "此阶段的文档尚未写好：请回答撰写代理的问题或重试。",
     "gate_generated": "此关卡由代理撰写：请在聊天中提出修改。",
-    "changes_invalid": "“Changes to other features”（“Изменения в других решениях”）中的部分行无法应用。请修正后重新提交。"
+    "changes_invalid": "“Changes to other features”（“Изменения в других решениях”）中的部分行无法应用。请修正后重新提交。",
+    "decisions_without_id": "部分决策没有 A 编号",
+    "spec_item_not_found": "规范索引中没有该条目",
+    "invalid_item": "条目为 R、A 或页眉",
+    "feature_branch_not_found": "未找到功能分支",
+    "rules_contract": "模板破坏了文档的必需结构",
+    "bad_layer": "层为 product、arch 或 both"
   },
   "stages": {
     "title": "阶段",
@@ -1169,7 +1202,11 @@
     "text": "{count, plural, other {# 条需求没有 ID。测试用例和代码通过 ID 关联需求。}}",
     "askAgent": "请智能体添加 ID",
     "submitAnyway": "不加 ID 直接提交",
-    "prompt": "请将产品规格中的所有需求编号为 **R1.**，并附验收标准。"
+    "prompt": "请将产品规格中的所有需求编号为 **R1.**，并附验收标准。",
+    "decisionsTitle": "未编号的决策",
+    "decisionsText": "{count, plural, other {# 个决策没有 A 编号。其他功能通过编号引用决策。}}",
+    "decisionsAskAgent": "让代理编号",
+    "decisionsPrompt": "在决策表第一列为架构规范的所有决策编号 A1、A2……"
   },
   "activity": {
     "created": "已创建",
@@ -1261,8 +1298,15 @@
         "unknown_target": "主分支中没有该功能",
         "target_in_work": "该功能仍在进行中：请在其主题中通过指令更改",
         "unknown_requirement": "主分支中没有该需求",
-        "other": "此行无法应用"
-      }
+        "other": "此行无法应用",
+        "unknown_decision": "主分支中没有该架构决策",
+        "wrong_kind": "product 变更需求 R，arch 变更决策 A"
+      },
+      "expand": "显示现行文本",
+      "now": "当前生效 · {key} {item}",
+      "openInNavigator": "在导航器中打开",
+      "textFailed": "无法加载文本",
+      "whatChanges": "本功能的变更：{note}"
     },
     "links": {
       "extends": "基于",
@@ -1591,6 +1635,21 @@
       "later": "未开始",
       "laterHint": "在上一阶段之后开始",
       "label": "{name}，{state}，{count, plural, other {# 个问题}}"
+    }
+  },
+  "gate": {
+    "view": {
+      "mode": "文档或原型",
+      "document": "文档",
+      "mockup": "原型",
+      "file": "原型文件",
+      "theme": "原型主题",
+      "light": "浅色",
+      "dark": "深色",
+      "fullscreen": "全屏",
+      "updated": "原型已更新",
+      "removed": "文件 {name} 已删除，已打开 {open}",
+      "narrow": "原型以全屏打开。"
     }
   }
 }

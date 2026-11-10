@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { api } from "../../api/client";
+import { api, ApiError } from "../../api/client";
 import { keys } from "../../api/queries";
-import { AREAS, type Area, type List, type RuleChange, type RuleFile } from "../../api/types";
+import { AREAS, type Area, type ContractViolation, type List, type RuleChange, type RuleFile, type RulesContract, type RulesViolation } from "../../api/types";
 import { useSession } from "../../app/session";
 import { MarkdownEditor } from "../../editor/MarkdownEditor";
 import { errorText } from "../../lib/errors";
@@ -17,26 +17,27 @@ export function RulesAdmin() {
   const { me, isAreaAdmin } = useSession();
   const visible = AREAS.filter((a) => me.globalAdmin || isAreaAdmin(a));
   const [area, setArea] = useState<Area>(visible[0] ?? "product");
+  const [file, setFile] = useState<"template" | "fix-template">("template");
   if (visible.length === 0) return <p className="muted">{t("admin.noAccess")}</p>;
   return (
     <>
       <h1 className="ftitle" style={{ fontSize: 20 }}>{t("admin.rules.title")}</h1>
+      <RulesViolationsBanner onOpen={(a, f) => { if (visible.includes(a)) { setArea(a); setFile(f); } }} />
       <div className="tabs" role="tablist">
         {visible.map((a) => (
-          <button key={a} role="tab" aria-selected={area === a} className={area === a ? "on" : ""} onClick={() => setArea(a)}>{t(`areas.${a}`)}</button>
+          <button key={a} role="tab" aria-selected={area === a} className={area === a ? "on" : ""} onClick={() => { setArea(a); setFile("template"); }}>{t(`areas.${a}`)}</button>
         ))}
       </div>
-      <AreaRules key={area} area={area} />
+      <AreaRules key={area} area={area} file={file} setFile={setFile} />
     </>
   );
 }
 
-function AreaRules({ area }: { area: Area }) {
+function AreaRules({ area, file, setFile }: { area: Area; file: "template" | "fix-template"; setFile: (f: "template" | "fix-template") => void }) {
   const { t, i18n } = useTranslation();
   const { me } = useSession();
   const qc = useQueryClient();
   const toast = useToast();
-  const [file, setFile] = useState<"template" | "fix-template">("template");
   const [viewing, setViewing] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const rules = useQuery({
@@ -59,7 +60,9 @@ function AreaRules({ area }: { area: Area }) {
       refresh();
       toast({ kind: "ok", title: v.action === "approve" ? t("admin.rules.applied") : t("admin.rules.withdrawn") });
     },
-    onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
+    onError: (e) => toast({ kind: "error", title: errorText(t, e),
+      text: e instanceof ApiError && e.code === "rules_contract"
+        ? ((e.details.violations as ContractViolation[]) ?? []).map((v) => violationText(t, v)).join("; ") : undefined }),
   });
 
   if (rules.isLoading) return <Loading />;
@@ -97,7 +100,12 @@ function AreaRules({ area }: { area: Area }) {
         ))}
         <span className="small muted" style={{ marginLeft: "auto" }}><span className="mono">/{current.path}</span></span>
       </div>
-      <RuleEditor key={`${file}-${current.sha}`} area={area} rule={current} canChange={rules.data.canChange} blocked={!!openForFile} onProposed={refresh} />
+      <div className="rulesgridc"><div className="rulesgrid">
+        <div className="rulesgrid-main">
+          <RuleEditor key={`${file}-${current.sha}`} area={area} rule={current} canChange={rules.data.canChange} blocked={!!openForFile} onProposed={refresh} />
+        </div>
+        <ContractPanel area={area} file={file} />
+      </div></div>
       <div className="row" style={{ marginTop: 10 }}>
         <button className="btn ghost sm" onClick={() => setShowHistory((v) => !v)}>{t("admin.rules.history")}</button>
       </div>
@@ -135,6 +143,8 @@ function RuleEditor({ area, rule, canChange, blocked, onProposed }: {
   const [content, setContent] = useState<string | null>(null);
   const [baseline, setBaseline] = useState<string | null>(null);
   const [comment, setComment] = useState("");
+  // FTR.HMR.DEV-0003 R19: the violations of the contract stay above the editor while it is edited
+  const [violations, setViolations] = useState<ContractViolation[]>([]);
   const propose = useMutation({
     mutationFn: () => api.post<{ id: string; prUrl: string }>(`/admin/api/v1/rules/${area}/changes`, {
       file: rule.file, content: joinFrontMatter(split.front, normalizeEnding(restorePlaceholders(content ?? ""))), baseSha: rule.sha, comment,
@@ -142,9 +152,16 @@ function RuleEditor({ area, rule, canChange, blocked, onProposed }: {
     onSuccess: (r) => {
       toast({ kind: "ok", title: t("admin.rules.proposed"), text: prLink(r.prUrl) });
       setComment("");
+      setViolations([]);
       onProposed();
     },
-    onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
+    onError: (e) => {
+      if (e instanceof ApiError && e.code === "rules_contract") {
+        setViolations((e.details.violations as ContractViolation[]) ?? []);
+        return;
+      }
+      toast({ kind: "error", title: errorText(t, e) });
+    },
   });
   const dirty = content !== null && baseline !== null && content !== baseline;
   const readOnly = !canChange || blocked;
@@ -152,6 +169,7 @@ function RuleEditor({ area, rule, canChange, blocked, onProposed }: {
     <>
       {blocked && <div className="banner">{t("admin.rules.blocked")}</div>}
       {!canChange && <div className="banner">{t("admin.rules.readOnly")}</div>}
+      {violations.length > 0 && <ViolationList title={t("admin.rules.contract.rejected")} list={violations} />}
       <div className="codeedit doc" style={{ maxWidth: "none" }}>
         <MarkdownEditor value={protectPlaceholders(split.body)} readOnly={readOnly} ariaLabel={t(`admin.rules.files.${rule.file}`)}
           onReady={(n) => { setBaseline(n); setContent(n); }} onChange={setContent} />
@@ -189,4 +207,77 @@ function ChangeDiffModal({ id, onClose }: { id: string; onClose: () => void }) {
       )}
     </Modal>
   );
+}
+
+/** The required structure of documents of an area, read-only (FTR.HMR.DEV-0003 R18, design §3.9). */
+function ContractPanel({ area, file }: { area: Area; file: "template" | "fix-template" }) {
+  const { t } = useTranslation();
+  const q = useQuery({
+    queryKey: ["admin", "rules", area, "contract"] as const,
+    queryFn: () => api.get<RulesContract>(`/admin/api/v1/rules/${area}/contract`),
+  });
+  if (!q.data) return null;
+  const list = file === "template" ? q.data.template : q.data.fixTemplate;
+  if (list.length === 0) return null;
+  return (
+    <details className="rulescontract">
+      <summary><b>{t("admin.rules.contract.title")}</b></summary>
+      <p className="small muted">{t("admin.rules.contract.hint")}</p>
+      <ul>
+        {list.map((el) => (
+          <li key={el.element}>
+            {el.title}
+            <code className="rulescontract-ex">{el.example}</code>
+          </li>
+        ))}
+      </ul>
+      {q.data.alsoRead.length > 0 && <p className="small muted">{t("admin.rules.contract.alsoRead", { langs: q.data.alsoRead.join(", ") })}</p>}
+    </details>
+  );
+}
+
+function ViolationList({ title, list }: { title: string; list: ContractViolation[] }) {
+  return (
+    <div className="banner err rulesviol">
+      <b>{title}</b>
+      <ul>{list.map((v, i) => <li key={`${v.element}-${i}`}><ViolationText v={v} /></li>)}</ul>
+    </div>
+  );
+}
+
+/** Templates of the default branch that break the contract — a commit in git past Hammurapi (FTR.HMR.DEV-0003 R20).
+ * No close button: the banner leaves when the template is fixed. */
+export function RulesViolationsBanner({ onOpen }: { onOpen?: (a: Area, f: "template" | "fix-template") => void }) {
+  const { t } = useTranslation();
+  const q = useQuery({
+    queryKey: ["admin", "rules", "violations"] as const,
+    queryFn: () => api.get<{ items: RulesViolation[] }>("/admin/api/v1/rules/violations"),
+    staleTime: 60_000,
+  });
+  const items = q.data?.items ?? [];
+  if (items.length === 0) return null;
+  return (
+    <>
+      {items.map((v) => (
+        <div key={`${v.area}-${v.file}`} className="banner warn rulesviol">
+          <Icon name="alert" size={16} />
+          <span className="grow-text">
+            {t("admin.rules.contract.broken", { file: t(`admin.rules.files.${v.file}`), area: t(`areas.${v.area}`) })}{" "}
+            {v.violations.map((x, i) => <span key={`${x.element}-${i}`}>{i > 0 && "; "}<ViolationText v={x} /></span>)}
+          </span>
+          {onOpen && <button className="btn sm" onClick={() => onOpen(v.area, v.file)}>{t("admin.rules.contract.open")}</button>}
+        </div>
+      ))}
+    </>
+  );
+}
+
+/** A violation in the language of the interface by its element; the message of the core when the element is unknown. */
+function violationText(t: (k: string, o?: Record<string, unknown>) => string, v: ContractViolation): string {
+  return t(`admin.rules.contract.elements.${v.element}`, { defaultValue: v.message });
+}
+
+function ViolationText({ v }: { v: ContractViolation }) {
+  const { t } = useTranslation();
+  return <>{violationText(t, v)}</>;
 }

@@ -39,6 +39,14 @@ export const SCREENS: Screen[] = [
   { name: "feature-changes", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "changes" },
     act: async (page) => { await page.locator(".chgblock").scrollIntoViewIfNeeded(); } },
   { name: "spec-doc-links", path: "/spec/FTR.NAB.CMN-0005/product", cookies: { "mock-links": "1" } },
+  // FTR.HMR.DEV-0003 design §3.1–§3.5, §3.9: the mockup on the gate, the links of a feature in work by layer,
+  // the block of arch with a row opened, the rules with the required structure and the banner of a broken template
+  { name: "feature-mockup", path: "/features/FTR.FMS.CAR-0005/spec/design?view=mockup&file=mockups.html", cookies: { "mock-feature": "dev3" } },
+  { name: "feature-links", path: "/features/FTR.FMS.CAR-0005/spec/design", cookies: { "mock-feature": "dev3" },
+    act: async (page) => { await page.locator(".featurelinks summary").click(); } },
+  { name: "feature-arch-changes", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "dev3" },
+    act: async (page) => { await page.locator(".chgchev").first().click(); await page.locator(".chgnow-text").waitFor(); await page.locator(".chgblock").scrollIntoViewIfNeeded(); } },
+  { name: "admin-rules-contract", path: "/admin/rules", cookies: { "mock-rules": "broken" } },
   // FTR.HMR.DEV-0002 design §3.6: the graph, by domain, with the focus at depth 2
   { name: "spec-graph", path: "/spec/graph", only: "desktop" },
   { name: "spec-graph-free", path: "/spec/graph?layout=free", only: "desktop" },

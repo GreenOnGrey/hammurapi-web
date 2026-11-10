@@ -127,7 +127,11 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
         setState("saved");
       }
       qc.invalidateQueries({ queryKey: keys.feature(feature.uniqueId) });
-      if (area === "product") qc.invalidateQueries({ queryKey: keys.specChanges(feature.uniqueId) }); // FTR.HMR.DEV-0002 R7
+      // FTR.HMR.DEV-0002 R7, FTR.HMR.DEV-0003 R16: the rows of the section of product or arch, and the links of the feature in work
+      if (area === "product" || area === "arch") {
+        qc.invalidateQueries({ queryKey: keys.specChanges(feature.uniqueId) });
+        qc.invalidateQueries({ queryKey: ["draft-links", feature.uniqueId] });
+      }
     } catch (e) {
       setState("error");
       if (e instanceof ApiError && e.status === 423) {

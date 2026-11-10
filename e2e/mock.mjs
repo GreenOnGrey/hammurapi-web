@@ -147,6 +147,9 @@ function feature(state) {
   if (state === "generated") return { ...base, specStage: "generated", pendingGates: [], gates: [featureGate("product", "approved"), featureGate("arch", "approved"), featureGate("tech", "draft", true), featureGate("qa", "draft", true)],
     skippedAreas: ["design"], permissions: { ...base.permissions, edit: ["product", "arch"], submit: ["tech", "qa"] } };
   if (state === "changes") return { ...base, gates: [featureGate("product", "draft")] };
+  // FTR.HMR.DEV-0003: the mockup on the gate design, the block of arch, the links of the feature in work
+  if (state === "dev3") return { ...base, specStage: "arch", gates: [featureGate("product", "approved"), featureGate("design", "draft"), featureGate("arch", "draft")],
+    permissions: { ...base.permissions, edit: ["design", "arch"], submit: ["design", "arch"] } };
   if (state === "running") return { ...base, gates: [featureGate("product", "draft")], writerRun: { mode: "write", state: "generating", areas: ["product"], waitingLock: false }, permissions: { ...base.permissions, edit: [], submit: [] } };
   return { ...base, gates: [featureGate("product", "draft")], openQuestions: { product: 2 } };
 }
@@ -165,11 +168,41 @@ function api(url, c) {
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
   // FTR.HMR.DEV-0002 R7: the block of changes with every state
-  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/changes") return c("mock-feature") !== "changes" ? { items: [] } : { items: [
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/changes" && url.searchParams.get("area") !== "arch") return c("mock-feature") !== "changes" ? { items: [] } : { items: [
     { feature: "FTR.FMS.CAR-0002", requirement: "R13", note: "Отмена платная после 10 минут.", state: "marked", url: "/spec/FTR.FMS.CAR-0002/product#r13" },
     { feature: "FTR.FMS.CAR-0001", requirement: null, note: "Новая страница тарифов.", state: "pending", url: "/spec/FTR.FMS.CAR-0001/product" },
     { feature: "FTR.FMS.CAR-0002", requirement: "R99", note: "Возврат на карту.", state: "error", url: "/spec/FTR.FMS.CAR-0002/product#r99",
       error: { feature: "FTR.FMS.CAR-0002", requirement: "R99", reason: "unknown_requirement" } },
+  ] };
+  // FTR.HMR.DEV-0003 R1, R6, R8, R16
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/design/files") return c("mock-feature") !== "dev3" ? { ref: "ftr", files: [] } : { ref: "ftr", files: [
+    { name: "flow.html", size: 9_000, mimeType: "text/html", blobSha: "b2", previewable: true, viewUrl: "/api/v1/features/FTR.FMS.CAR-0005/gates/design/files/raw?mode=view&name=flow.html&v=b2" },
+    { name: "mockups.html", size: 48_000, mimeType: "text/html", blobSha: "b1", previewable: true, viewUrl: "/api/v1/features/FTR.FMS.CAR-0005/gates/design/files/raw?mode=view&name=mockups.html&v=b1" },
+  ] };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/links") return c("mock-feature") !== "dev3" ? { layers: [] } : { layers: [
+    { layer: "product", state: "approved", extends: [{ key: "FTR.FMS.CAR-0001", title: "Каталог машин", indexed: true, items: [] }],
+      changes: [{ key: "FTR.FMS.CAR-0002", title: "Бронь", indexed: true, items: ["R13"] }] },
+    { layer: "arch", state: "draft", extends: [{ key: "FTR.FMS.CAR-0002", title: "Бронь", indexed: true, items: ["A1"] }, { key: "FTR.FMS.CAR-0009", title: null, indexed: false, items: [] }],
+      changes: [{ key: "FTR.FMS.CAR-0002", title: "Бронь", indexed: true, items: ["A2"] }] },
+  ] };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/changes" && url.searchParams.get("area") === "arch") return c("mock-feature") !== "dev3" ? { items: [] } : { items: [
+    { feature: "FTR.FMS.CAR-0002", item: "A2", kind: "decision", requirement: "A2", note: "Отмена — команда сервису тарифов, а не событие.", state: "marked", url: "/spec/FTR.FMS.CAR-0002/arch#a2" },
+    { feature: "FTR.FMS.CAR-0002", item: "R13", kind: "decision", requirement: "R13", note: "Требование в arch.", state: "error", url: "/spec/FTR.FMS.CAR-0002/arch#r13",
+      error: { feature: "FTR.FMS.CAR-0002", requirement: "R13", reason: "wrong_kind" } },
+  ] };
+  if (p === "/api/v1/spec/items/FTR.FMS.CAR-0002/A2") return { key: "FTR.FMS.CAR-0002", item: "A2", kind: "decision", url: "/spec/FTR.FMS.CAR-0002/arch#a2",
+    markdown: "| A | Решение | Обоснование |\n|---|---|---|\n| A2 | Отмена — событие Kafka | Подписчики узнают об отмене сами |" };
+  if (p === "/admin/api/v1/rules/product") return { area: "product", canChange: true, files: [
+    { file: "template", path: "rules/product/template.md", sha: "t1", content: "# Продуктовая спецификация: <название фичи>\n\n**Опирается на:** <ключи>\n\n## Требования\n\n**R1.** <Требование>\n\n## Изменения в других решениях\n\n| Решение | Требование | Что изменилось |\n|---|---|---|\n" },
+    { file: "fix-template", path: "rules/product/fix-template.md", sha: "t2", content: "---\nparent: FTR.FMS.CAR-0000\n---\n\n# Исправление\n" },
+  ] };
+  if (p === "/admin/api/v1/rules/product/contract") return { lang: "ru", alsoRead: ["en"], fixTemplate: [], template: [
+    { element: "depends_on", title: "Строка «Опирается на»", example: "**Опирается на:** `FTR.HMR.CMN-0001` (R3)" },
+    { element: "requirement", title: "Требования R<n> с критериями «Дано»", example: "**R1.** …\n- Дано …" },
+    { element: "changes_section", title: "Раздел «Изменения в других решениях»", example: "## Изменения в других решениях\n| Решение | Требование | Что изменилось |" },
+  ] };
+  if (p === "/admin/api/v1/rules/violations") return { items: c("mock-rules") !== "broken" ? [] : [
+    { area: "arch", file: "template", sha: "a1", violations: [{ element: "decisions", message: "the table of decisions has no column A<n>" }] },
   ] };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/topic") return { conversationId: null, title: "FTR.FMS.CAR-0005 — Скидка за ранний возврат авто" };
   if (/^\/api\/v1\/features\/FTR\.FMS\.CAR-0005\/gates\/\w+\/document$/.test(p)) return featureDoc;

@@ -19,6 +19,8 @@ import { ActivityTab } from "./feature/Activity";
 import { BlockedBanner } from "../components/BlockedBanner";
 import { SpecQuestions } from "./feature/SpecQuestions";
 import { SpecChanges, useChangesInvalid } from "./feature/SpecChanges";
+import { GateView } from "./feature/GateView";
+import { FeatureLinks } from "./feature/FeatureLinks";
 import { useQuestionLinks } from "./IssueQuestions";
 
 const TABS = ["spec", "implementation", "validation", "history"] as const;
@@ -115,7 +117,7 @@ type Dialog =
   | { kind: "history"; area: Area }
   | { kind: "deleteFeature" }
   | { kind: "codegen" }
-  | { kind: "unnumbered"; area: Area; list: string[] }
+  | { kind: "unnumbered"; area: Area; list: string[]; decisions?: boolean }
   | { kind: "flag" }
   | { kind: "openQuestions"; area: Area; list: { id: string; title: string }[] }
   | null;
@@ -137,6 +139,10 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
     onError: (e) => {
       if (e instanceof ApiError && e.code === "requirements_without_id" && area) {
         setDialog({ kind: "unnumbered", area, list: (e.details.requirements as string[]) ?? [] });
+        return;
+      }
+      if (e instanceof ApiError && e.code === "decisions_without_id" && area) { // FTR.HMR.DEV-0003 R16
+        setDialog({ kind: "unnumbered", area, list: (e.details.decisions as string[]) ?? [], decisions: true });
         return;
       }
       if (e instanceof ApiError && e.code === "changes_invalid") qc.invalidateQueries({ queryKey: keys.specChanges(f.uniqueId) }); // FTR.HMR.DEV-0002 R3: the rows show why
@@ -196,6 +202,9 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         <NavLink to={`/features/${f.uniqueId}/history`} className={`btn ghost sm metahist${tab === "history" ? " on" : ""}`}><Icon name="clock" size={14} />{t("feature.tabs.history")}</NavLink>
       </div>
 
+      {/* FTR.HMR.DEV-0003 R7: the links of the feature in work, under meta, above the stages */}
+      {specPhase && <FeatureLinks featureKey={f.uniqueId} />}
+
       <FeatureStages f={f} tab={tab} />
 
       {tab === "implementation" && <ImplementationTab f={f} />}
@@ -231,12 +240,12 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
       {dialog?.kind === "codegen" && <CodegenModal f={f} onClose={() => setDialog(null)} />}
       {dialog?.kind === "flag" && <FlagModal f={f} onClose={() => setDialog(null)} />}
       {dialog?.kind === "unnumbered" && (
-        <Modal title={t("unnumbered.title")} onClose={() => setDialog(null)} footer={
+        <Modal title={t(dialog.decisions ? "unnumbered.decisionsTitle" : "unnumbered.title")} onClose={() => setDialog(null)} footer={
           <>
             <button className="btn ghost" onClick={() => {
               setDialog(null);
-              chat.send(t("unnumbered.prompt"));
-            }}>{t("unnumbered.askAgent")}</button>
+              chat.send(t(dialog.decisions ? "unnumbered.decisionsPrompt" : "unnumbered.prompt"));
+            }}>{t(dialog.decisions ? "unnumbered.decisionsAskAgent" : "unnumbered.askAgent")}</button>
             <button className="btn primary" onClick={() => {
               const a = dialog.area;
               setDialog(null);
@@ -244,7 +253,7 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
             }}>{t("unnumbered.submitAnyway")}</button>
           </>
         }>
-          <p className="t2" style={{ marginTop: 0 }}>{t("unnumbered.text", { count: dialog.list.length })}</p>
+          <p className="t2" style={{ marginTop: 0 }}>{t(dialog.decisions ? "unnumbered.decisionsText" : "unnumbered.text", { count: dialog.list.length })}</p>
           <ul className="small">{dialog.list.map((x) => <li key={x}>{x}</li>)}</ul>
         </Modal>
       )}
@@ -304,10 +313,14 @@ function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvan
       {skipped && <div className="actionbar"><span className="st none">{t("writer.skipped")}</span><span className="grow ab-grow">{t("writer.skippedHint")}</span></div>}
       {gate && <ActionBar f={f} gate={gate} busy={busy} onSubmit={onSubmit} onApprove={onApprove} onAdvance={onAdvance} onHistory={() => onDialog({ kind: "history", area: gate.area })} />}
       {area && f.phase === "spec" && <SpecQuestions featureKey={f.uniqueId} area={area} highlighted={highlighted} />}
-      {area && gate ? <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} /> : !skipped && (f.openQuestions[area as Area] ?? 0) === 0 && (
+      {area && gate ? (
+        <GateView featureId={f.uniqueId} area={area}>
+          <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} />
+        </GateView>
+      ) : !skipped && (f.openQuestions[area as Area] ?? 0) === 0 && (
         <Empty icon="files" title={t("feature.noGate")} />
       )}
-      {area === "product" && gate && <SpecChanges featureKey={f.uniqueId} />}
+      {(area === "product" || area === "arch") && gate && <SpecChanges featureKey={f.uniqueId} area={area} />}
     </section>
   );
 }
@@ -360,8 +373,13 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
   const waits = canApprove && !!before;
   // FTR.HMR.DEV-0002 R3: wrong rows of "Changes to other features" stop the submission and the next stage
   // (the next stage aligns the notes from any gate; the submission — only of product)
-  const submitChecked = gate.area === "product" && canSubmit;
-  const invalid = useChangesInvalid(f.uniqueId, submitChecked || f.permissions.advance);
+  // FTR.HMR.DEV-0003 R12: the section of arch too
+  const submitChecked = (gate.area === "product" || gate.area === "arch") && canSubmit;
+  const rows = useChangesInvalid(f.uniqueId, (gate.area === "product" && canSubmit) || f.permissions.advance,
+    (gate.area === "arch" && canSubmit) || f.permissions.advance);
+  // the submission is checked by the section of its own gate, the next stage by both
+  const submitInvalid = (gate.area === "product" && rows.product) || (gate.area === "arch" && rows.arch);
+  const invalid = submitInvalid || (f.permissions.advance && (rows.product || rows.arch));
   const invalidHint = invalid ? t("spec.changes.fixFirst") : undefined;
   let text: React.ReactNode;
   if (running) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.readOnly")}</span>;
@@ -378,8 +396,8 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
       <span className="grow ab-grow">{text}</span>
       <Link className="btn sm" to={`/features/${f.uniqueId}/spec/${gate.area}/diff`}>{t("feature.viewChanges")}</Link>
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
-      {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun || invalid} title={invalidHint} onClick={onAdvance}>{t("writer.advance")}</button>}
-      {canSubmit && <button className="btn primary sm abmain" disabled={busy || (submitChecked && invalid)} title={submitChecked ? invalidHint : undefined} onClick={onSubmit}>{t("feature.submit")}</button>}
+      {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun || rows.product || rows.arch} title={rows.product || rows.arch ? invalidHint : undefined} onClick={onAdvance}>{t("writer.advance")}</button>}
+      {canSubmit && <button className="btn primary sm abmain" disabled={busy || (submitChecked && submitInvalid)} title={submitChecked && submitInvalid ? invalidHint : undefined} onClick={onSubmit}>{t("feature.submit")}</button>}
       {canApprove && <button className="btn ok sm" disabled={busy || waits} onClick={onApprove}><Icon name="check" size={15} />{t("feature.approve")}</button>}
     </div>
   );

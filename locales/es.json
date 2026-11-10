@@ -168,7 +168,18 @@
     "openInNavigator": "Abrir en Especificación",
     "stages": "Etapas",
     "stageLater": "Esta etapa aún no ha comenzado",
-    "specifications": "Especificaciones"
+    "specifications": "Especificaciones",
+    "links": {
+      "layer": {
+        "product": "Producto",
+        "arch": "Arquitectura"
+      },
+      "state": {
+        "draft": "borrador",
+        "approved": "aprobado",
+        "skipped": "omitido"
+      }
+    }
   },
   "editor": {
     "toolbar": "Formato",
@@ -436,7 +447,23 @@
       "readOnly": "Puedes leer estas reglas; solo los administradores de esta área pueden cambiarlas.",
       "history": "Historial de cambios",
       "noHistory": "Aún no hay cambios cerrados.",
-      "diffTitle": "Cambio propuesto"
+      "diffTitle": "Cambio propuesto",
+      "contract": {
+        "title": "Estructura obligatoria de los documentos",
+        "hint": "Hammurapi lee estos elementos en cada documento. Se pueden mover, pero no eliminar ni cambiar de formato.",
+        "alsoRead": "También se lee: {langs}",
+        "rejected": "La plantilla rompe la estructura obligatoria",
+        "broken": "{file} de {area} en la rama principal rompe la estructura obligatoria:",
+        "open": "Abrir la plantilla",
+        "elements": {
+          "depends_on": "No hay línea «Depends on» en el encabezado",
+          "requirement": "No hay requisito R1 con criterios «Given»",
+          "decisions": "La tabla de decisiones no tiene columna A",
+          "changes_section": "No hay sección «Changes to other features» con su tabla",
+          "parent": "No hay parent en el front matter",
+          "file": "Falta la plantilla"
+        }
+      }
     },
     "settings": {
       "title": "Ajustes",
@@ -718,7 +745,13 @@
     "writer_blocked": "El redactor se detuvo. Reintenta primero.",
     "gate_not_written": "El documento de esta etapa aún no existe: responde la pregunta del redactor o reintenta.",
     "gate_generated": "Esta puerta la escribe el agente: pide el cambio en el chat.",
-    "changes_invalid": "Algunas filas de «Changes to other features» («Изменения в других решениях») no se pueden aplicar. Corríjalas y envíe de nuevo."
+    "changes_invalid": "Algunas filas de «Changes to other features» («Изменения в других решениях») no se pueden aplicar. Corríjalas y envíe de nuevo.",
+    "decisions_without_id": "Algunas decisiones no tienen número A",
+    "spec_item_not_found": "No existe ese elemento en el índice de especificaciones",
+    "invalid_item": "El elemento es R, A o el encabezado",
+    "feature_branch_not_found": "No se encontró la rama de la funcionalidad",
+    "rules_contract": "La plantilla rompe la estructura obligatoria de los documentos",
+    "bad_layer": "La capa es product, arch o both"
   },
   "stages": {
     "title": "Etapas",
@@ -1169,7 +1202,11 @@
     "text": "{count, plural, one {# requisito sin ID. Los casos de prueba y el código enlazan por ID.} other {# requisitos sin ID. Los casos de prueba y el código enlazan por ID.}}",
     "askAgent": "Pedir al agente que añada ID",
     "submitAnyway": "Enviar sin ID",
-    "prompt": "Numera todos los requisitos de la especificación de producto como **R1.** con criterios de aceptación."
+    "prompt": "Numera todos los requisitos de la especificación de producto como **R1.** con criterios de aceptación.",
+    "decisionsTitle": "Decisiones sin número",
+    "decisionsText": "{count, plural, one {# decisión no tiene número A. Otras funcionalidades la citan por su número.} other {# decisiones no tienen número A. Otras funcionalidades las citan por su número.}}",
+    "decisionsAskAgent": "Pedir al agente que las numere",
+    "decisionsPrompt": "Numera todas las decisiones de la especificación de arquitectura A1, A2, … en la primera columna de la tabla de decisiones."
   },
   "activity": {
     "created": "Creado",
@@ -1261,8 +1298,15 @@
         "unknown_target": "No existe esa funcionalidad en la rama principal",
         "target_in_work": "La funcionalidad sigue en trabajo: cámbiela con una instrucción en su tema",
         "unknown_requirement": "No existe ese requisito en la rama principal",
-        "other": "Esta fila no se puede aplicar"
-      }
+        "other": "Esta fila no se puede aplicar",
+        "unknown_decision": "No existe esa decisión de arquitectura en la rama principal",
+        "wrong_kind": "product cambia requisitos R, arch decisiones A"
+      },
+      "expand": "Mostrar el texto vigente",
+      "now": "Vigente ahora · {key} {item}",
+      "openInNavigator": "Abrir en el navegador",
+      "textFailed": "No se pudo cargar el texto",
+      "whatChanges": "Qué cambia esta funcionalidad: {note}"
     },
     "links": {
       "extends": "Se basa en",
@@ -1591,6 +1635,21 @@
       "later": "sin empezar",
       "laterHint": "Empieza tras la etapa anterior",
       "label": "{name}, {state}, {count, plural, one {# pregunta} other {# preguntas}}"
+    }
+  },
+  "gate": {
+    "view": {
+      "mode": "Documento o maqueta",
+      "document": "Documento",
+      "mockup": "Maqueta",
+      "file": "Archivo de la maqueta",
+      "theme": "Tema de la maqueta",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "fullscreen": "Pantalla completa",
+      "updated": "La maqueta se actualizó",
+      "removed": "El archivo {name} se eliminó, se abrió {open}",
+      "narrow": "La maqueta se abre a pantalla completa."
     }
   }
 }

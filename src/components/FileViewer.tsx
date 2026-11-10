@@ -7,6 +7,7 @@ import { api, ApiError, qs } from "../api/client";
 import { apiUrl } from "../api/base";
 import type { SpecFile } from "../api/types";
 import { errorText } from "../lib/errors";
+import { useMockupTheme, withTheme, type MockupTheme } from "../lib/mockupTheme";
 
 export function rawUrl(key: string, area: string, name: string, mode?: string) {
   return apiUrl(
@@ -20,9 +21,44 @@ export function viewHref(file: Pick<SpecFile, "viewUrl">): string | undefined {
   return file.viewUrl ? apiUrl(file.viewUrl) : undefined;
 }
 
+/** A file the viewer shows: of the index (SpecFile) or of the branch of a feature (GateFile). */
+export type ViewerFile = Pick<SpecFile, "name" | "mimeType" | "viewUrl">;
+
+/** The address of a file to download or to fetch for an image (mode preview). */
+export type FileHref = (name: string, mode?: string) => string;
+
 /** The first file the viewer shows when it is opened by name. */
-export function pickFile(files: SpecFile[], name: string): SpecFile | undefined {
+export function pickFile<F extends ViewerFile>(files: F[], name: string): F | undefined {
   return files.find((f) => f.name === name) ?? files[0];
+}
+
+/** The switch of the theme of a mockup (FTR.HMR.DEV-0003 R2). */
+export function ThemeSwitch({ theme, onChange }: { theme: MockupTheme; onChange: (t: MockupTheme) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="seg mockup-theme" role="group" aria-label={t("gate.view.theme")}>
+      {(["light", "dark"] as const).map((x) => (
+        <button key={x} type="button" aria-pressed={theme === x} onClick={() => onChange(x)}>
+          {t(`gate.view.${x}`)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A mockup in a frame of an opaque origin, in a theme: `color-scheme` of the frame and the
+ * fragment `#theme=` reach the mockup without any access to it (FTR.HMR.DEV-0003 arch §3.3). */
+export function MockupFrame({ href, title, theme, className }: { href: string; title: string; theme: MockupTheme; className: string }) {
+  return (
+    <iframe
+      className={className}
+      title={title}
+      src={withTheme(href, theme)}
+      sandbox="allow-scripts"
+      referrerPolicy="no-referrer"
+      style={{ colorScheme: theme }}
+    />
+  );
 }
 
 /** Files of an area over the whole screen (FTR.HMR.SPEC-0001 R5–R7, design §3.3).
@@ -39,25 +75,30 @@ export function FileViewer({
   files,
   initial,
   onClose,
+  href,
 }: {
   featureKey: string;
   area: string;
-  files: SpecFile[];
+  files: ViewerFile[];
   initial: string;
-  onClose: () => void;
+  onClose: (name: string) => void;
+  /** The files of the branch of a feature (FTR.HMR.DEV-0003 R3); the index by default. */
+  href?: FileHref;
 }) {
   const { t } = useTranslation();
   const [name, setName] = useState(initial);
+  const [theme, setTheme] = useMockupTheme();
+  const fileHref: FileHref = href ?? ((n, mode) => rawUrl(featureKey, area, n, mode));
   const file = pickFile(files, name);
   // an image is fitted to the screen; the button or a click shows it at its own size (R5)
   const [natural, setNatural] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
   // the parent passes a new function on every render; the dialog is set up once
-  const close = useRef(onClose);
+  const close = useRef(() => onClose(name));
   useEffect(() => {
-    close.current = onClose;
-  }, [onClose]);
+    close.current = () => onClose(name);
+  }, [onClose, name]);
 
   // A dialog: the focus starts on "✕", stays inside, Esc closes; the page under it does not scroll.
   useEffect(() => {
@@ -95,7 +136,7 @@ export function FileViewer({
   const view = viewHref(file);
   const isHtml = file.mimeType === "text/html";
   return createPortal(
-    <div className="fileviewer-scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fileviewer-scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose(name)}>
       <div className="fileviewer" role="dialog" aria-modal="true" aria-labelledby="fileviewer-name" ref={box}>
         <div className="fileviewer-h">
           <Icon name={isHtml ? "code" : "image"} size={16} />
@@ -111,11 +152,12 @@ export function FileViewer({
               }}
             >
               {files.map((f) => (
-                <option key={f.path} value={f.name}>{f.name}</option>
+                <option key={f.name} value={f.name}>{f.name}</option>
               ))}
             </select>
           )}
           <span className="fileviewer-grow" />
+          {isHtml && view && <ThemeSwitch theme={theme} onChange={setTheme} />}
           {!isHtml && (
             <button
               className="btn ghost sm"
@@ -130,37 +172,32 @@ export function FileViewer({
           {view && (
             <button
               className="btn ghost sm"
-              onClick={() => window.open(view, "_blank", "noopener,noreferrer")}
+              onClick={() => window.open(isHtml ? withTheme(view, theme) : view, "_blank", "noopener,noreferrer")}
               title={t("spec.openInNewTab")}
             >
               <Icon name="ext" size={14} />
               <span className="fileviewer-lbl">{t("spec.openInNewTab")}</span>
             </button>
           )}
-          <a className="btn ghost sm" href={rawUrl(featureKey, area, file.name)} title={t("spec.download")}>
+          <a className="btn ghost sm" href={fileHref(file.name)} title={t("spec.download")}>
             <Icon name="download" size={14} />
             <span className="fileviewer-lbl">{t("spec.download")}</span>
           </a>
-          <button ref={closeBtn} className="iconbtn" onClick={onClose} aria-label={t("common.close")}>
+          <button ref={closeBtn} className="iconbtn" onClick={() => onClose(name)} aria-label={t("common.close")}>
             <Icon name="x" />
           </button>
         </div>
         <div className="fileviewer-b">
           {isHtml ? (
             view ? (
-              <iframe
-                key={file.path}
-                className="fileviewer-frame"
-                title={file.name}
-                src={view}
-                sandbox="allow-scripts"
-                referrerPolicy="no-referrer"
-              />
+              <MockupFrame key={file.name} className="fileviewer-frame" title={file.name} href={view} theme={theme} />
+            ) : href ? (
+              <Failure text={t("spec.tooLarge")} href={fileHref(file.name)} />
             ) : (
-              <HtmlPreview key={file.path} featureKey={featureKey} area={area} file={file} />
+              <HtmlPreview key={file.name} featureKey={featureKey} area={area} file={file} />
             )
           ) : (
-            <ImageView key={file.path} featureKey={featureKey} area={area} file={file} natural={natural} onToggle={() => setNatural((v) => !v)} />
+            <ImageView key={file.name} file={file} href={fileHref} natural={natural} onToggle={() => setNatural((v) => !v)} />
           )}
         </div>
       </div>
@@ -174,7 +211,7 @@ function failure(t: TFunction, e: unknown): string {
 }
 
 /** An older core: the HTML as JSON for srcdoc (FTR.HMR.CMN-0005 arch §8). */
-function HtmlPreview({ featureKey, area, file }: { featureKey: string; area: string; file: SpecFile }) {
+function HtmlPreview({ featureKey, area, file }: { featureKey: string; area: string; file: ViewerFile }) {
   const { t } = useTranslation();
   const [html, setHtml] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -195,22 +232,25 @@ function HtmlPreview({ featureKey, area, file }: { featureKey: string; area: str
   return <iframe className="fileviewer-frame" title={file.name} sandbox="allow-scripts" srcDoc={html} />;
 }
 
-function ImageView({ featureKey, area, file, natural, onToggle }: {
-  featureKey: string;
-  area: string;
-  file: SpecFile;
+/** An image fetched with the session and shown from an object URL. */
+export function ImageView({ file, href, natural, onToggle }: {
+  file: ViewerFile;
+  href: FileHref;
   natural: boolean;
   onToggle: () => void;
 }) {
   const { t } = useTranslation();
   const [src, setSrc] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  // the address, not the function: the parent passes a new function on every render
+  const preview = href(file.name, "preview");
+  const download = href(file.name);
   useEffect(() => {
     let url: string | null = null;
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(rawUrl(featureKey, area, file.name, "preview"), { credentials: "include" });
+        const res = await fetch(preview, { credentials: "include" });
         if (!res.ok) {
           const body = (await res.json().catch(() => ({}))) as { code?: string; message?: string };
           throw new ApiError(res.status, body.code ?? "", body.message ?? String(res.status));
@@ -225,8 +265,8 @@ function ImageView({ featureKey, area, file, natural, onToggle }: {
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [featureKey, area, file, t]);
-  if (err) return <Failure text={err} href={rawUrl(featureKey, area, file.name)} />;
+  }, [preview, t]);
+  if (err) return <Failure text={err} href={download} />;
   if (!src) return <Loading />;
   return (
     <div className={`fileviewer-img${natural ? " natural" : ""}`}>
@@ -240,7 +280,7 @@ function ImageView({ featureKey, area, file, natural, onToggle }: {
   );
 }
 
-function Failure({ text, href }: { text: string; href: string }) {
+export function Failure({ text, href }: { text: string; href: string }) {
   const { t } = useTranslation();
   return (
     <div className="fileviewer-err">
