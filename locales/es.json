@@ -1341,7 +1341,17 @@
       "layouts": {
         "rows": "Filas",
         "free": "Libre"
-      }
+      },
+      "inWork": "en curso",
+      "layer": "Capa de vínculos",
+      "layers": {
+        "product": "Producto",
+        "arch": "Arquitectura",
+        "both": "Ambas"
+      },
+      "draftBanner": "La funcionalidad {key} está en curso: sus vínculos son un borrador",
+      "backToFeature": "Volver a la funcionalidad",
+      "edgeLegend": "Tipos de aristas"
     }
   },
   "specScan": {

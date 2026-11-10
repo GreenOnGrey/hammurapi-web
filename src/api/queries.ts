@@ -130,10 +130,11 @@ export const useSpecChanges = (key: string, area: "product" | "arch" = "product"
   });
 
 // FTR.HMR.DEV-0003 R6: the links of a feature in work from its branch.
-export const useDraftLinks = (id: string) =>
+export const useDraftLinks = (id: string, enabled = true) =>
   useQuery({
     queryKey: ["draft-links", id] as const,
     queryFn: () => api.get<{ layers: DraftLayer[] }>(`/api/v1/features/${id}/spec/links`),
+    enabled,
   });
 
 // FTR.HMR.DEV-0003 R8: the text of a requirement or a decision of the index.
@@ -174,8 +175,8 @@ export const useFeatures = (f: FeatureFilter) =>
     queryFn: () => api.get<List<FeatureSummary>>(`/api/v1/features${qs({ ...f, limit: 200 })}`),
   });
 
-export const useFeature = (id: string) =>
-  useQuery({ queryKey: keys.feature(id), queryFn: () => api.get<FeatureCard>(`/api/v1/features/${id}`), retry: false });
+export const useFeature = (id: string, enabled = true) =>
+  useQuery({ queryKey: keys.feature(id), queryFn: () => api.get<FeatureCard>(`/api/v1/features/${id}`), retry: false, enabled });
 
 export const useRequirements = (id: string) =>
   useQuery({ queryKey: keys.requirements(id), queryFn: () => api.get<RequirementRow[]>(`/api/v1/features/${id}/requirements`) });
