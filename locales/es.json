@@ -759,7 +759,8 @@
     "rate_limited": "Demasiadas solicitudes. Inténtelo de nuevo en un minuto.",
     "ci_check_exists": "El repositorio ya tiene el archivo de comprobación de CI o su PR abierto.",
     "provider_forbidden": "El proveedor de git se negó: {reason}",
-    "repo_not_in_catalog": "El repositorio {repository} no es el repositorio de ningún servicio en Hammurapi."
+    "repo_not_in_catalog": "El repositorio {repository} no es el repositorio de ningún servicio en Hammurapi.",
+    "spec_contract": "El documento incumple el contrato: servicios, diagrama C4 o archivos de contrato"
   },
   "stages": {
     "title": "Etapas",
@@ -1360,6 +1361,15 @@
       "draftBanner": "La funcionalidad {key} está en curso: sus vínculos son un borrador",
       "backToFeature": "Volver a la funcionalidad",
       "edgeLegend": "Tipos de aristas"
+    },
+    "c4": {
+      "loading": "Dibujando el diagrama…",
+      "preview": "Vista previa",
+      "error": "El diagrama no es válido: {message}",
+      "errorLine": "El diagrama no es válido: {message}, línea {line}",
+      "zoomIn": "Ampliar",
+      "zoomOut": "Reducir",
+      "fit": "Ajustar al ancho"
     }
   },
   "specScan": {
@@ -1664,7 +1674,8 @@
       "fullscreen": "Pantalla completa",
       "updated": "La maqueta se actualizó",
       "removed": "El archivo {name} se eliminó, se abrió {open}",
-      "narrow": "La maqueta se abre a pantalla completa."
+      "narrow": "La maqueta se abre a pantalla completa.",
+      "api": "API"
     }
   },
   "ciCheck": {
@@ -1713,5 +1724,26 @@
     "done": "Listo",
     "copied": "Copiado",
     "copyFailed": "No se pudo copiar: el token está seleccionado, cópielo a mano"
+  },
+  "contract": {
+    "outline": "Servicios y mensajes",
+    "line": "línea {line}",
+    "suggest": "¿Quiso decir {key}?",
+    "refused": {
+      "title": "El documento incumple el contrato",
+      "text": "{count, plural, one {Corrija este problema} other {Corrija estos # problemas}} antes del envío.",
+      "askAgent": "Pedir al agente que lo corrija",
+      "prompt": "Corrige la especificación para que cumpla el contrato: {list}"
+    },
+    "check": {
+      "arch-services-missing": "No hay tabla «Servicios y contratos afectados» con la clave del servicio en la primera columna",
+      "arch-service-unknown": "El servicio {subject} no está en el catálogo",
+      "c4-missing": "No hay sección «Diagrama C4» con un bloque mermaid C4Container",
+      "c4-invalid": "El diagrama C4 no es válido: {message}",
+      "c4-service-missing": "El servicio {subject} no está en el diagrama C4",
+      "tech-service-not-in-arch": "El servicio {subject} no está en la arquitectura",
+      "contract-file-service": "El servicio de {subject} no está entre los servicios de la funcionalidad",
+      "contract-file-invalid": "El contrato no es válido: {message}"
+    }
   }
 }

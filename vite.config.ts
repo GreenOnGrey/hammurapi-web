@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react";
+import type { Plugin } from "vite";
 
 // In development the SPA talks to a local api (hammurapi-core) through this proxy,
 // so cookies stay same-origin exactly as behind the production ingress.
@@ -18,8 +20,29 @@ const kitAlias = kit ? [
   { find: /^@green-on-grey\/ui-kit$/, replacement: `${kit}/index.ts` },
 ] : [];
 
+// FTR.HMR.SPEC-0004 R7: the viewer of OpenAPI (public/viewers/openapi.html) runs Swagger UI of the exact version
+// of package.json; its bundle and styles are served next to the page, never from a CDN.
+const swaggerFiles = ["swagger-ui-bundle.js", "swagger-ui.css"];
+function swaggerUI(): Plugin {
+  const read = (name: string) => readFileSync(path.resolve("node_modules/swagger-ui-dist", name));
+  return {
+    name: "hammurapi-swagger-ui",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const name = req.url?.split("?")[0].replace(/^\/viewers\//, "");
+        if (!name || !swaggerFiles.includes(name) || !req.url?.startsWith("/viewers/")) return next();
+        res.setHeader("Content-Type", name.endsWith(".js") ? "text/javascript" : "text/css");
+        res.end(read(name));
+      });
+    },
+    generateBundle() {
+      for (const name of swaggerFiles) this.emitFile({ type: "asset", fileName: `viewers/${name}`, source: read(name) });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), swaggerUI()],
   // one React for the product and the sources of the kit
   resolve: { alias: kitAlias, dedupe: ["react", "react-dom", "i18next", "react-i18next"] },
   server: {

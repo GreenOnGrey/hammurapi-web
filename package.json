@@ -17,13 +17,16 @@
     "@milkdown/kit": "^7.22.2",
     "@milkdown/react": "^7.22.2",
     "@tanstack/react-query": "^5.103.2",
+    "dompurify": "3.4.17",
     "i18next": "^26.4.2",
     "i18next-icu": "^2.4.4",
     "intl-messageformat": "^11.2.15",
+    "mermaid": "12.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-i18next": "^17.0.15",
-    "react-router-dom": "^7.18.4"
+    "react-router-dom": "^7.18.4",
+    "swagger-ui-dist": "5.34.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

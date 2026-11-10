@@ -759,7 +759,8 @@
     "rate_limited": "Too many requests. Try again in a minute.",
     "ci_check_exists": "The repository already has the CI check file or its open PR.",
     "provider_forbidden": "The git provider refused: {reason}",
-    "repo_not_in_catalog": "The repository {repository} is not the repository of any service in Hammurapi."
+    "repo_not_in_catalog": "The repository {repository} is not the repository of any service in Hammurapi.",
+    "spec_contract": "The document breaks the contract: services, the C4 diagram or the contract files"
   },
   "stages": {
     "title": "Stages",
@@ -1360,6 +1361,15 @@
       "draftBanner": "Feature {key} is in work: its links are a draft",
       "backToFeature": "Back to the feature",
       "edgeLegend": "Kinds of edges"
+    },
+    "c4": {
+      "loading": "Drawing the diagram…",
+      "preview": "Preview",
+      "error": "The diagram does not parse: {message}",
+      "errorLine": "The diagram does not parse: {message}, line {line}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit to width"
     }
   },
   "specScan": {
@@ -1664,7 +1674,8 @@
       "fullscreen": "Full screen",
       "updated": "The mockup is updated",
       "removed": "The file {name} is removed, {open} is open",
-      "narrow": "The mockup opens over the whole screen."
+      "narrow": "The mockup opens over the whole screen.",
+      "api": "API"
     }
   },
   "ciCheck": {
@@ -1713,5 +1724,26 @@
     "done": "Done",
     "copied": "Copied",
     "copyFailed": "Could not copy: the token is selected, copy it by hand"
+  },
+  "contract": {
+    "outline": "Services and messages",
+    "line": "line {line}",
+    "suggest": "Did you mean {key}?",
+    "refused": {
+      "title": "The document breaks the contract",
+      "text": "{count, plural, one {Fix this problem} other {Fix these # problems}} before the submission.",
+      "askAgent": "Ask the agent to fix",
+      "prompt": "Fix the specification so that it passes the contract: {list}"
+    },
+    "check": {
+      "arch-services-missing": "No table «Affected services and contracts» whose first column is the key of a service",
+      "arch-service-unknown": "Service {subject} is not in the catalog",
+      "c4-missing": "No section «C4 diagram» with a mermaid block C4Container",
+      "c4-invalid": "The C4 diagram does not parse: {message}",
+      "c4-service-missing": "Service {subject} is not on the C4 diagram",
+      "tech-service-not-in-arch": "Service {subject} is not in the architecture",
+      "contract-file-service": "The service of {subject} is not among the services of the feature",
+      "contract-file-invalid": "The contract does not parse: {message}"
+    }
   }
 }

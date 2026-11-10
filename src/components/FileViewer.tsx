@@ -8,6 +8,7 @@ import { apiUrl } from "../api/base";
 import type { SpecFile } from "../api/types";
 import { errorText } from "../lib/errors";
 import { useMockupTheme, withTheme, type MockupTheme } from "../lib/mockupTheme";
+import { ContractView, isContract } from "./ContractView";
 
 export function rawUrl(key: string, area: string, name: string, mode?: string) {
   return apiUrl(
@@ -121,11 +122,12 @@ export function FileViewer({
   if (!file) return null;
   const view = viewHref(file);
   const isHtml = file.mimeType === "text/html";
+  const contract = isContract(file.mimeType); // FTR.HMR.SPEC-0004 R7
   return createPortal(
     <div className="fileviewer-scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose(name)}>
       <div className="fileviewer" role="dialog" aria-modal="true" aria-labelledby="fileviewer-name" ref={box}>
         <div className="fileviewer-h">
-          <Icon name={isHtml ? "code" : "image"} size={16} />
+          <Icon name={isHtml || contract ? "code" : "image"} size={16} />
           <b id="fileviewer-name" className="fileviewer-name">{file.name}</b>
           {files.length > 1 && (
             <select
@@ -143,7 +145,7 @@ export function FileViewer({
             </select>
           )}
           <span className="fileviewer-grow" />
-          {!isHtml && (
+          {!isHtml && !contract && (
             <button
               className="btn ghost sm"
               onClick={() => setNatural((v) => !v)}
@@ -173,7 +175,9 @@ export function FileViewer({
           </button>
         </div>
         <div className="fileviewer-b">
-          {isHtml ? (
+          {contract ? (
+            <ContractView key={`${file.name}@${"blobSha" in file ? String(file.blobSha) : ""}`} file={file} href={fileHref} theme={theme} className="fileviewer-frame" />
+          ) : isHtml ? (
             view ? (
               <MockupFrame key={file.name} className="fileviewer-frame" title={file.name} href={view} theme={theme} />
             ) : href ? (
@@ -191,7 +195,7 @@ export function FileViewer({
   );
 }
 
-function failure(t: TFunction, e: unknown): string {
+export function failure(t: TFunction, e: unknown): string {
   return e instanceof ApiError && e.code === "spec_file_too_large" ? t("spec.tooLarge") : errorText(t, e);
 }
 

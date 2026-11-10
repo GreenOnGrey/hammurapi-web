@@ -1367,3 +1367,13 @@ export interface UnlinkedUser {
   user: { id: string; name: string; email: string | null; createdAt: string };
   candidates: { userId: string; name: string; gitLogin: string | null; emails: string[] }[];
 }
+
+/** A violation of the contract in 422 spec_contract (FTR.HMR.SPEC-0004 tech §3.1). */
+export interface ContractViolation {
+  check: string;
+  subject?: string;
+  message: string;
+  line?: number;
+  file?: string;
+  suggest?: string;
+}

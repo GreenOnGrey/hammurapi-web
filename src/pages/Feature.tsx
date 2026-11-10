@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, NavLink, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { ApiError, api } from "../api/client";
 import { invalidateFeature, keys, useFeature } from "../api/queries";
-import { AREAS, type Area, type CodegenPlan, type FeatureCard, type Gate, type HistoryItem, type List } from "../api/types";
+import { AREAS, type Area, type CodegenPlan, type ContractViolation, type FeatureCard, type Gate, type HistoryItem, type List } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { adminPath } from "./admin/paths";
 import { DocumentPane } from "../editor/DocumentPane";
@@ -12,7 +13,7 @@ import { errorText } from "../lib/errors";
 import { dateTime, relativeTime, shortSha } from "../lib/format";
 import { Avatar, Empty, Icon, Loading, Modal, useOutside, useToast } from "@green-on-grey/ui-kit";
 import { StatusBadge } from "../components/ui";
-import { AgentMark, KeyList, PhaseBadge } from "../components/cycle";
+import { KeyList, PhaseBadge } from "../components/cycle";
 import { ImplementationTab } from "./feature/Implementation";
 import { ValidationTab } from "./feature/Validation";
 import { ActivityTab } from "./feature/Activity";
@@ -120,6 +121,7 @@ type Dialog =
   | { kind: "unnumbered"; area: Area; list: string[]; decisions?: boolean }
   | { kind: "flag" }
   | { kind: "openQuestions"; area: Area; list: { id: string; title: string }[] }
+  | { kind: "contract"; area: Area; list: ContractViolation[] }
   | null;
 
 function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }) {
@@ -146,6 +148,10 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         return;
       }
       if (e instanceof ApiError && e.code === "changes_invalid") qc.invalidateQueries({ queryKey: keys.specChanges(f.uniqueId) }); // FTR.HMR.DEV-0002 R3: the rows show why
+      if (e instanceof ApiError && e.code === "spec_contract" && area) { // FTR.HMR.SPEC-0004 R2–R4, R6
+        setDialog({ kind: "contract", area, list: (e.details.violations as ContractViolation[]) ?? [] });
+        return;
+      }
       if (e instanceof ApiError && e.code === "open_questions" && area) { // FTR.HMR.DEV-0001 R14
         setDialog({ kind: "openQuestions", area, list: (e.details.questions as { id: string; title: string }[]) ?? [] });
         return;
@@ -257,6 +263,23 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
           <ul className="small">{dialog.list.map((x) => <li key={x}>{x}</li>)}</ul>
         </Modal>
       )}
+      {dialog?.kind === "contract" && (
+        <Modal title={t("contract.refused.title")} onClose={() => setDialog(null)} footer={
+          <>
+            <button className="btn ghost" onClick={() => setDialog(null)}>{t("common.close")}</button>
+            <button className="btn primary" onClick={() => {
+              const list = dialog.list;
+              setDialog(null);
+              chat.send(t("contract.refused.prompt", { list: list.map((v) => violationText(t, v, (k) => i18n.exists(k))).join("; ") }));
+            }}>{t("contract.refused.askAgent")}</button>
+          </>
+        }>
+          <p className="t2" style={{ marginTop: 0 }}>{t("contract.refused.text", { count: dialog.list.length })}</p>
+          <ul className="small contract-violations">
+            {dialog.list.map((v, i) => <li key={i}>{violationText(t, v, (k) => i18n.exists(k))}</li>)}
+          </ul>
+        </Modal>
+      )}
       {dialog?.kind === "openQuestions" && (
         <Modal title={t("writer.open.title")} onClose={() => setDialog(null)} footer={
           <>
@@ -346,7 +369,6 @@ function GateTabs({ f, current }: { f: FeatureCard; current?: Area }) {
             <span className="gico"><Icon name={GATE_ICONS[a]} size={20} /></span>
             <span className="lb">{name}</span>
             {!reachable || skipped ? null : <i className={`dot ${state}`} aria-hidden="true" />}
-            {a !== "product" && (a === "tech" || a === "qa") && <span className="ag"><AgentMark /></span>}
             {open > 0 && <span className="cnt">{open}</span>}
           </>
         );
@@ -522,4 +544,14 @@ function DeleteFeatureModal({ f, onClose }: { f: FeatureCard; onClose: () => voi
       {del.error && <div className="err-text">{errorText(t, del.error)}</div>}
     </Modal>
   );
+}
+
+/** A violation in the words of the language of the user: its check, the service or the file, the line. A check of
+ * a newer core than this web keeps the message of the core as it is (it is not a message of ICU). */
+function violationText(t: TFunction, v: ContractViolation, known: (key: string) => boolean): string {
+  const where = [v.file, v.line ? t("contract.line", { line: v.line }) : ""].filter(Boolean).join(", ");
+  const key = `contract.check.${v.check}`;
+  const text = known(key) ? t(key, { subject: v.subject ?? "", message: v.message }) : v.message;
+  const hint = v.suggest ? " " + t("contract.suggest", { key: v.suggest }) : "";
+  return where ? `${text}${hint} (${where})` : `${text}${hint}`;
 }
