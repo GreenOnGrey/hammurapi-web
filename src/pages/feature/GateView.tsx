@@ -6,7 +6,7 @@ import { apiUrl } from "../../api/base";
 import { qs } from "../../api/client";
 import { useGateFiles } from "../../api/queries";
 import type { Area, GateFile } from "../../api/types";
-import { Failure, FileViewer, ImageView, MockupFrame, ThemeSwitch, pickFile, viewHref, type FileHref } from "../../components/FileViewer";
+import { Failure, FileViewer, ImageView, MockupFrame, pickFile, viewHref, type FileHref } from "../../components/FileViewer";
 import { useMockupTheme } from "../../lib/mockupTheme";
 
 /** The phone and a narrow window: the mockup opens over the whole screen only (FTR.HMR.DEV-0003 R3). */
@@ -33,7 +33,7 @@ export function GateView({ featureId, area, children }: { featureId: string; are
   const list = (files.data?.files ?? []).filter((f) => f.previewable);
   const mockup = params.get("view") === "mockup" && list.length > 0;
   const file = pickFile(list, params.get("file") ?? "");
-  const [theme, setTheme] = useMockupTheme();
+  const theme = useMockupTheme();
   const [full, setFull] = useState(false);
   const narrow = useNarrow();
   const href: FileHref = (name, mode) => apiUrl(`/api/v1/features/${featureId}/gates/${area}/files/raw${qs({ name, mode })}`);
@@ -88,7 +88,6 @@ export function GateView({ featureId, area, children }: { featureId: string; are
               <span className="gateview-name mono">{file.name}</span>
             )}
             <span className="gateview-grow" />
-            {!narrow && file.mimeType === "text/html" && viewHref(file) && <ThemeSwitch theme={theme} onChange={setTheme} />}
             <button type="button" className="btn sm" onClick={() => setFull(true)}>
               <Icon name="ext" size={14} />
               {t("gate.view.fullscreen")}
@@ -115,7 +114,7 @@ export function GateView({ featureId, area, children }: { featureId: string; are
   );
 }
 
-function GateMockup({ file, href, theme }: { file: GateFile; href: FileHref; theme: ReturnType<typeof useMockupTheme>[0] }) {
+function GateMockup({ file, href, theme }: { file: GateFile; href: FileHref; theme: ReturnType<typeof useMockupTheme> }) {
   const { t } = useTranslation();
   const [natural, setNatural] = useState(false);
   const view = viewHref(file);

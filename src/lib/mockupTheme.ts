@@ -2,10 +2,6 @@ import { useSyncExternalStore } from "react";
 
 export type MockupTheme = "light" | "dark";
 
-const KEY = "hmr.mockupTheme";
-const listeners = new Set<() => void>();
-let picked: MockupTheme | null = null;
-
 /** The theme of the application now: the explicit one, or the one of the system. */
 function appTheme(): MockupTheme {
   const t = document.documentElement.getAttribute("data-theme");
@@ -13,37 +9,21 @@ function appTheme(): MockupTheme {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function current(): MockupTheme {
-  if (picked) return picked;
-  try {
-    const v = sessionStorage.getItem(KEY);
-    if (v === "light" || v === "dark") return v;
-  } catch {
-    /* storage is off */
-  }
-  return appTheme();
-}
-
-function set(t: MockupTheme) {
-  picked = t;
-  try {
-    sessionStorage.setItem(KEY, t);
-  } catch {
-    /* storage is off */
-  }
-  listeners.forEach((l) => l());
-}
-
 function subscribe(l: () => void) {
-  listeners.add(l);
-  return () => listeners.delete(l);
+  const mo = new MutationObserver(l);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  const mq = window.matchMedia?.("(prefers-color-scheme: dark)");
+  mq?.addEventListener("change", l);
+  return () => {
+    mo.disconnect();
+    mq?.removeEventListener("change", l);
+  };
 }
 
-/** The theme of a mockup (FTR.HMR.DEV-0003 R2, design §3.1): the theme of the application
- * until the user picks one; the pick lives for the session of the browser and is common to
- * every mockup — the one on the gate and the one in the viewer change together. */
-export function useMockupTheme(): [MockupTheme, (t: MockupTheme) => void] {
-  return [useSyncExternalStore(subscribe, current, () => "light" as MockupTheme), set];
+/** The theme of a mockup (FTR.HMR.DEV-0003 R2 1.1): the theme of the application. Hammurapi has no switch of
+ * its own — a mockup switches its theme itself (rules/design/template.md). */
+export function useMockupTheme(): MockupTheme {
+  return useSyncExternalStore(subscribe, appTheme, () => "light" as MockupTheme);
 }
 
 /** The address of a mockup in a theme: the fragment the mockup reads (rules/design/template.md). */
