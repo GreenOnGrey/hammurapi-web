@@ -54,8 +54,8 @@ export interface CiCheck {
   checkedAt: string | null;
 }
 
-/** The token of a service for CI as its card shows it (FTR.HMR.SPEC-0002 tech §3.2). */
-export interface ServiceToken {
+/** The installation token for CI without OIDC as Settings show it (FTR.HMR.SPEC-0003 tech §3.2). */
+export interface CiToken {
   issued: boolean;
   prefix: string | null;
   createdAt: string | null;

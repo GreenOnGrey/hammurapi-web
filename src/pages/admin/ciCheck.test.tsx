@@ -6,7 +6,7 @@ import { ToastProvider } from "@green-on-grey/ui-kit";
 import { keys } from "../../api/queries";
 import type { CiCheck } from "../../api/types";
 import { createI18n } from "../../lib/i18n";
-import { CiCheckRow, TokenModal } from "./CiCheck";
+import { CiCheckRow, CiTokenRow, TokenModal } from "./CiCheck";
 
 const render = (node: React.ReactNode, qc = new QueryClient()) =>
   renderToString(
@@ -39,8 +39,15 @@ describe("the check in CI", () => {
     expect(row(check({ status: "manual" }))).toContain("The version line was not found");
   });
   it("TOK-08: «Done» is disabled until «I saved the token»", () => {
-    const html = render(<TokenModal service="booking" repo="fleet/booking" provider="github" token="hmr_svc_x" onClose={() => {}} />);
-    expect(html).toContain("hmr_svc_x");
+    const html = render(<TokenModal provider="github" token="hmr_ci_x" onClose={() => {}} />);
+    expect(html).toContain("hmr_ci_x");
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Done<\/button>/);
+  });
+  it("FTR.HMR.SPEC-0003 INST-04: the CI token row says only CI without OIDC needs it", () => {
+    const qc = new QueryClient();
+    qc.setQueryData(keys.ciToken, { issued: false, prefix: null, createdAt: null, createdBy: null, lastUsedAt: null });
+    const html = render(<CiTokenRow provider="github" />, qc);
+    expect(html).toContain("CI token");
+    expect(html).toContain("Only CI without OIDC needs it");
   });
 });
