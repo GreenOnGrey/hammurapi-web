@@ -13,7 +13,7 @@ import { errorText } from "../lib/errors";
 import { dateTime, relativeTime, shortSha } from "../lib/format";
 import { Avatar, Empty, Icon, Loading, Modal, useOutside, useToast } from "@green-on-grey/ui-kit";
 import { StatusBadge } from "../components/ui";
-import { AgentMark, KeyList, PhaseBadge } from "../components/cycle";
+import { KeyList, PhaseBadge } from "../components/cycle";
 import { ImplementationTab } from "./feature/Implementation";
 import { ValidationTab } from "./feature/Validation";
 import { ActivityTab } from "./feature/Activity";
@@ -369,7 +369,6 @@ function GateTabs({ f, current }: { f: FeatureCard; current?: Area }) {
             <span className="gico"><Icon name={GATE_ICONS[a]} size={20} /></span>
             <span className="lb">{name}</span>
             {!reachable || skipped ? null : <i className={`dot ${state}`} aria-hidden="true" />}
-            {a !== "product" && (a === "tech" || a === "qa") && <span className="ag"><AgentMark /></span>}
             {open > 0 && <span className="cnt">{open}</span>}
           </>
         );

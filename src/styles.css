@@ -2124,7 +2124,6 @@ table.nabu-scenarios td {
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
-.gtabs .ag { order: 2; }
 .gtabs .cnt {
   order: 3;
   font-size: 11px;
@@ -2146,7 +2145,7 @@ table.nabu-scenarios td {
     box-sizing: border-box;
   }
   .gtabs .gico { display: flex; flex: none; }
-  .gtabs .g .lb, .gtabs .g .ag { display: none; }
+  .gtabs .g .lb { display: none; }
   .gtabs .g.fut, .gtabs .g.skip { opacity: .55; }
   .gtabs .g.skip::after {
     content: "";
