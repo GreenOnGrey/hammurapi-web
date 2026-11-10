@@ -1341,7 +1341,17 @@
       "layouts": {
         "rows": "Reihen",
         "free": "Frei"
-      }
+      },
+      "inWork": "in Arbeit",
+      "layer": "Ebene der Verknüpfungen",
+      "layers": {
+        "product": "Produkt",
+        "arch": "Architektur",
+        "both": "Beide"
+      },
+      "draftBanner": "Feature {key} ist in Arbeit: seine Verknüpfungen sind ein Entwurf",
+      "backToFeature": "Zurück zum Feature",
+      "edgeLegend": "Arten von Kanten"
     }
   },
   "specScan": {
