@@ -11,7 +11,10 @@ import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
 import type { Ctx } from "@milkdown/kit/ctx";
 import { callCommand, getMarkdown } from "@milkdown/kit/utils";
 import { Milkdown, MilkdownProvider, useEditor, useInstance } from "@milkdown/react";
+import { useTranslation } from "react-i18next";
 import { STRINGIFY_OPTIONS } from "../lib/markdown";
+import { useMockupTheme } from "../lib/mockupTheme";
+import { mermaidKey, mermaidPlugin, type MermaidTexts } from "./mermaidPlugin";
 
 export type EditorCommand = "h1" | "h2" | "paragraph" | "bold" | "italic" | "strike" | "bullet" | "ordered" | "quote" | "table";
 
@@ -47,10 +50,24 @@ function Inner({ value, readOnly, onChange, onReady, ariaLabel, handleRef }: Pro
   const ro = useRef(readOnly);
   const change = useRef(onChange);
   const ready = useRef(onReady);
+  // FTR.HMR.SPEC-0004 R5: mermaid blocks in the theme of the application, with the texts of its language
+  const { t, i18n } = useTranslation();
+  const theme = useMockupTheme();
+  const themeRef = useRef(theme);
+  const texts = useRef<MermaidTexts>(null as unknown as MermaidTexts);
   useLayoutEffect(() => {
     ro.current = readOnly;
     change.current = onChange;
     ready.current = onReady;
+    themeRef.current = theme;
+    texts.current = {
+      loading: t("spec.c4.loading"),
+      preview: t("spec.c4.preview"),
+      error: (message, line) => (line ? t("spec.c4.errorLine", { message, line }) : t("spec.c4.error", { message })),
+      zoomIn: t("spec.c4.zoomIn"),
+      zoomOut: t("spec.c4.zoomOut"),
+      fit: t("spec.c4.fit"),
+    };
   });
 
   useEditor((root) =>
@@ -72,7 +89,8 @@ function Inner({ value, readOnly, onChange, onReady, ariaLabel, handleRef }: Pro
       .use(gfm)
       .use(history)
       .use(clipboard)
-      .use(listener),
+      .use(listener)
+      .use(mermaidPlugin(() => themeRef.current, () => texts.current, () => !ro.current)),
   );
 
   const [loading, get] = useInstance();
@@ -84,14 +102,15 @@ function Inner({ value, readOnly, onChange, onReady, ariaLabel, handleRef }: Pro
     ready.current?.(editor.action(getMarkdown()));
   }, [loading, get]);
 
-  // Re-evaluate editability when readOnly flips (lock taken or released).
+  // Re-evaluate editability when readOnly flips (lock taken or released); the diagrams follow it and the theme.
   useEffect(() => {
     if (loading) return;
     get()?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
       view.setProps({ editable: () => !readOnly });
+      view.dispatch(view.state.tr.setMeta(mermaidKey, true).setMeta("addToHistory", false));
     });
-  }, [readOnly, loading, get]);
+  }, [readOnly, theme, i18n.language, loading, get]); // oxlint-disable-line react/exhaustive-effect-dependencies -- a new theme or language redraws the diagrams
 
   useImperativeHandle(handleRef, () => ({
     run: (cmd) => {

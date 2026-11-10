@@ -168,8 +168,27 @@ function specQuestions(state) {
 const featureDoc = { content: "# Продуктовая спецификация: Скидка за ранний возврат авто\n\n**R1.** Клиент, вернувший авто за 2 часа до конца аренды, получает скидку на следующую аренду (допущение, см. Q1).\n",
   sha: "s", fix: false, generated: false, warnings: [], unnumberedRequirements: [], lock: null, readOnly: false, files: [] };
 
+// FTR.HMR.SPEC-0004: arch with a C4 diagram (mock-c4=read — the reading, edit — the text and the preview,
+// error — a block that does not parse) and the contracts of tech
+const c4Arch = (block) => "# Архитектура: Скидка за ранний возврат авто\n\n## Затрагиваемые сервисы и контракты\n\n| Сервис | Роль в фиче | Меняющиеся контракты |\n|---|---|---|\n" +
+  "| `booking` | Бронь и возврат | `POST /bookings/{id}/return` |\n| `pricing` | Скидка | `GET /discounts` |\n\n## Схема C4\n\n```mermaid\n" + block + "\n```\n\n## Принятые решения\n\n| A | Решение | Обоснование |\n|---|---|---|\n| A1 | Скидка считается в pricing | Цены в одном месте |\n";
+const c4Block = "C4Container\n  Person(client, \"Клиент\")\n  System_Boundary(rent, \"Аренда\") {\n    Container(booking, \"Бронь\", \"Go\", \"Брони и возвраты\")\n" +
+  "    Container(pricing, \"Цены\", \"Go\", \"Тарифы и скидки\")\n  }\n  System_Ext(pay, \"Платёжный шлюз\")\n  Rel(client, booking, \"возвращает авто\", \"HTTPS\")\n" +
+  "  Rel(booking, pricing, \"скидка\", \"gRPC\")\n  Rel(pricing, pay, \"возврат разницы\", \"HTTPS\")";
+const contractYAML = "openapi: 3.0.3\ninfo:\n  title: booking\n  version: \"1.0\"\ntags:\n  - name: returns\npaths:\n  /bookings/{id}/return:\n    post:\n      tags: [returns]\n      summary: Вернуть авто\n" +
+  "      parameters:\n        - { name: id, in: path, required: true, schema: { type: string } }\n      responses:\n        \"200\":\n          description: Возврат принят\n          content:\n            application/json:\n              schema: { $ref: \"#/components/schemas/Return\" }\n" +
+  "components:\n  schemas:\n    Return:\n      type: object\n      properties:\n        discount: { type: number, description: Скидка на следующую аренду }\n";
+const contractProto = "syntax = \"proto3\";\n\npackage pricing.v1;\n\n// The discount for an early return.\nservice Discounts {\n  rpc Quote(QuoteRequest) returns (Quote);\n}\n\nmessage QuoteRequest {\n  string booking_id = 1;\n  int64 returned_at = 2;\n}\n\nmessage Quote {\n  double discount = 1;\n  repeated string reasons = 2;\n}\n\nenum Reason {\n  REASON_UNSPECIFIED = 0;\n  EARLY_RETURN = 1;\n}\n";
+
 function api(url, c) {
   const p = url.pathname;
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/tech/files") return c("mock-feature") !== "generated" ? { ref: "ftr", files: [] } : { ref: "ftr", files: [
+    { name: "booking.openapi.yaml", size: 900, mimeType: "application/vnd.oai.openapi", blobSha: "c1", previewable: true },
+    { name: "pricing.proto", size: 420, mimeType: "text/x-protobuf", blobSha: "c2", previewable: true },
+  ] };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/tech/files/raw") return { text: url.searchParams.get("name") === "pricing.proto" ? contractProto : contractYAML };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/arch/document" && c("mock-c4")) return { ...featureDoc, readOnly: c("mock-c4") === "read",
+    content: c4Arch(c("mock-c4") === "error" ? c4Block.replace("Rel(client, booking", "Rel(client, bookng").replace('"Клиент")', '"Клиент)') : c4Block) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
   // FTR.HMR.DEV-0002 R7: the block of changes with every state

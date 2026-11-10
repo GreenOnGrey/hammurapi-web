@@ -7,6 +7,7 @@ import { qs } from "../../api/client";
 import { useGateFiles } from "../../api/queries";
 import type { Area, GateFile } from "../../api/types";
 import { Failure, FileViewer, ImageView, MockupFrame, pickFile, viewHref, type FileHref } from "../../components/FileViewer";
+import { ContractView, contractLabel, isContract } from "../../components/ContractView";
 import { useMockupTheme } from "../../lib/mockupTheme";
 
 /** The phone and a narrow window: the mockup opens over the whole screen only (FTR.HMR.DEV-0003 R3). */
@@ -23,15 +24,20 @@ function useNarrow(): boolean {
   return narrow;
 }
 
-/** «Документ | Макет» on a gate with files (FTR.HMR.DEV-0003 R1–R4, design §3.1): the document stays
- * mounted and hidden while the mockup is shown, so an unsaved edit and the autosave go on. The mode and
- * the file are in the address; the theme is common to the mockups of the session. */
+/** «Документ | Макет» on a gate with files (FTR.HMR.DEV-0003 R1–R4, design §3.1), «Документ | API» on tech with
+ * contracts (FTR.HMR.SPEC-0004 R7): the document stays mounted and hidden while a file is shown, so an unsaved edit
+ * and the autosave go on. The mode and the file are in the address; the theme is the one of the application. */
 export function GateView({ featureId, area, children }: { featureId: string; area: Area; children: ReactNode }) {
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const files = useGateFiles(featureId, area);
-  const list = (files.data?.files ?? []).filter((f) => f.previewable);
-  const mockup = params.get("view") === "mockup" && list.length > 0;
+  // tech with contracts shows them as API; otherwise the previewable files are mockups
+  const previewable = (files.data?.files ?? []).filter((f) => f.previewable);
+  const contracts = previewable.filter((f) => isContract(f.mimeType));
+  const api = area === "tech" && contracts.length > 0;
+  const viewMode = api ? "api" : "mockup";
+  const list = api ? contracts : previewable.filter((f) => !isContract(f.mimeType));
+  const mockup = params.get("view") === viewMode && list.length > 0;
   const file = pickFile(list, params.get("file") ?? "");
   const theme = useMockupTheme();
   const [full, setFull] = useState(false);
@@ -74,18 +80,18 @@ export function GateView({ featureId, area, children }: { featureId: string; are
             {t("gate.view.document")}
           </button>
           <button type="button" aria-pressed={mockup}
-            onClick={() => set({ view: "mockup", file: file?.name ?? null })}>
-            {t("gate.view.mockup")}
+            onClick={() => set({ view: viewMode, file: file?.name ?? null })}>
+            {api ? t("gate.view.api") : t("gate.view.mockup")}
           </button>
         </div>
         {mockup && file && (
           <>
             {list.length > 1 ? (
               <select className="inp gateview-file" aria-label={t("gate.view.file")} value={file.name} onChange={(e) => set({ file: e.target.value })}>
-                {list.map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
+                {list.map((f) => <option key={f.name} value={f.name}>{api ? contractLabel(f) : f.name}</option>)}
               </select>
             ) : (
-              <span className="gateview-name mono">{file.name}</span>
+              <span className="gateview-name mono">{api ? contractLabel(file) : file.name}</span>
             )}
             <span className="gateview-grow" />
             <button type="button" className="btn sm" onClick={() => setFull(true)}>
@@ -118,6 +124,9 @@ function GateMockup({ file, href, theme }: { file: GateFile; href: FileHref; the
   const { t } = useTranslation();
   const [natural, setNatural] = useState(false);
   const view = viewHref(file);
+  if (isContract(file.mimeType)) {
+    return <ContractView key={`${file.name}@${file.blobSha}`} file={file} href={href} theme={theme} className="gateview-frame" />;
+  }
   if (file.mimeType === "text/html") {
     // an older core gives no viewUrl: the file is downloaded, never shown from the index
     return view

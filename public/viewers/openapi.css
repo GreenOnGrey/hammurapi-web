@@ -1,0 +1,29 @@
+/* Swagger UI in the tokens of Hammurapi, posted by the parent (FTR.HMR.SPEC-0004 design §1). */
+:root {
+  --bg: #ffffff;
+  --text: #1c1f23;
+  --muted: #5f6670;
+  --border: #e3e6ea;
+  --green: #2f7d4f;
+  --surface: #f6f7f9;
+}
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+.swagger-ui .topbar, .swagger-ui .scheme-container, .swagger-ui .try-out, .swagger-ui .auth-wrapper { display: none; }
+.swagger-ui, .swagger-ui .info .title, .swagger-ui .opblock-tag, .swagger-ui .opblock .opblock-summary-description,
+.swagger-ui table thead tr td, .swagger-ui table thead tr th, .swagger-ui .parameter__name, .swagger-ui .parameter__type,
+.swagger-ui .response-col_status, .swagger-ui .model-title, .swagger-ui .model, .swagger-ui .info p, .swagger-ui .info li,
+.swagger-ui .opblock-description-wrapper p, .swagger-ui .tab li, .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5,
+.swagger-ui .opblock .opblock-section-header h4, .swagger-ui label, .swagger-ui .prop-type, .swagger-ui section.models h4 {
+  color: var(--text);
+}
+.swagger-ui .opblock .opblock-section-header { background: var(--surface); box-shadow: none; }
+.swagger-ui section.models, .swagger-ui .opblock-tag { border-color: var(--border); }
+.swagger-ui section.models .model-container { background: var(--surface); }
+.swagger-ui .wrapper { padding: 0 16px; max-width: none; }
+.swagger-ui .info { margin: 16px 0; }
+.swagger-ui svg { fill: var(--muted); }
+/* the address of the text is a blob of this frame: not shown */
+.swagger-ui .info hgroup.main a, .swagger-ui .info .url { display: none; }
+.swagger-ui .opblock .opblock-summary-path, .swagger-ui .opblock .opblock-summary-path__deprecated,
+.swagger-ui .model-toggle::after, .swagger-ui .models-control, .swagger-ui .model .property { color: var(--text); }
+.swagger-ui .opblock .opblock-summary-path { opacity: 1; }

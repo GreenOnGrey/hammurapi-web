@@ -759,7 +759,8 @@
     "rate_limited": "请求过多。请一分钟后重试。",
     "ci_check_exists": "仓库中已有 CI 检查文件或其打开的 PR。",
     "provider_forbidden": "Git 提供方拒绝：{reason}",
-    "repo_not_in_catalog": "仓库 {repository} 不属于 Hammurapi 中的任何服务。"
+    "repo_not_in_catalog": "仓库 {repository} 不属于 Hammurapi 中的任何服务。",
+    "spec_contract": "文档违反了契约：服务、C4 图或契约文件"
   },
   "stages": {
     "title": "阶段",
@@ -1360,6 +1361,15 @@
       "draftBanner": "功能 {key} 正在进行中：其链接为草稿",
       "backToFeature": "返回功能",
       "edgeLegend": "边的类型"
+    },
+    "c4": {
+      "loading": "正在绘制图表…",
+      "preview": "预览",
+      "error": "图表无法解析：{message}",
+      "errorLine": "图表无法解析：{message}，第 {line} 行",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fit": "适应宽度"
     }
   },
   "specScan": {
@@ -1664,7 +1674,8 @@
       "fullscreen": "全屏",
       "updated": "原型已更新",
       "removed": "文件 {name} 已删除，已打开 {open}",
-      "narrow": "原型以全屏打开。"
+      "narrow": "原型以全屏打开。",
+      "api": "API"
     }
   },
   "ciCheck": {
@@ -1713,5 +1724,26 @@
     "done": "完成",
     "copied": "已复制",
     "copyFailed": "无法复制：令牌已选中，请手动复制"
+  },
+  "contract": {
+    "outline": "服务和消息",
+    "line": "第 {line} 行",
+    "suggest": "是否指 {key}？",
+    "refused": {
+      "title": "文档违反了契约",
+      "text": "提交前请修复 {count} 个问题。",
+      "askAgent": "让智能体修复",
+      "prompt": "修改规范使其通过契约检查：{list}"
+    },
+    "check": {
+      "arch-services-missing": "缺少首列为服务键的「受影响的服务和契约」表",
+      "arch-service-unknown": "服务 {subject} 不在目录中",
+      "c4-missing": "缺少含 mermaid C4Container 块的「C4 图」章节",
+      "c4-invalid": "C4 图无法解析：{message}",
+      "c4-service-missing": "服务 {subject} 不在 C4 图上",
+      "tech-service-not-in-arch": "服务 {subject} 不在架构中",
+      "contract-file-service": "{subject} 的服务不在该功能的服务中",
+      "contract-file-invalid": "契约无法解析：{message}"
+    }
   }
 }

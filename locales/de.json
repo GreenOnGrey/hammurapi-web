@@ -759,7 +759,8 @@
     "rate_limited": "Zu viele Anfragen. Versuchen Sie es in einer Minute erneut.",
     "ci_check_exists": "Das Repository hat bereits die CI-Prüfdatei oder deren offenen PR.",
     "provider_forbidden": "Der Git-Anbieter hat abgelehnt: {reason}",
-    "repo_not_in_catalog": "Das Repository {repository} gehört zu keinem Dienst in Hammurapi."
+    "repo_not_in_catalog": "Das Repository {repository} gehört zu keinem Dienst in Hammurapi.",
+    "spec_contract": "Das Dokument verletzt den Vertrag: Services, C4-Diagramm oder Vertragsdateien"
   },
   "stages": {
     "title": "Phasen",
@@ -1360,6 +1361,15 @@
       "draftBanner": "Feature {key} ist in Arbeit: seine Verknüpfungen sind ein Entwurf",
       "backToFeature": "Zurück zum Feature",
       "edgeLegend": "Arten von Kanten"
+    },
+    "c4": {
+      "loading": "Diagramm wird gezeichnet…",
+      "preview": "Vorschau",
+      "error": "Das Diagramm ist ungültig: {message}",
+      "errorLine": "Das Diagramm ist ungültig: {message}, Zeile {line}",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "fit": "An Breite anpassen"
     }
   },
   "specScan": {
@@ -1664,7 +1674,8 @@
       "fullscreen": "Vollbild",
       "updated": "Das Mockup wurde aktualisiert",
       "removed": "Die Datei {name} wurde entfernt, {open} ist geöffnet",
-      "narrow": "Das Mockup öffnet sich im Vollbild."
+      "narrow": "Das Mockup öffnet sich im Vollbild.",
+      "api": "API"
     }
   },
   "ciCheck": {
@@ -1713,5 +1724,26 @@
     "done": "Fertig",
     "copied": "Kopiert",
     "copyFailed": "Kopieren fehlgeschlagen: Das Token ist markiert, kopieren Sie es manuell"
+  },
+  "contract": {
+    "outline": "Services und Nachrichten",
+    "line": "Zeile {line}",
+    "suggest": "Meinten Sie {key}?",
+    "refused": {
+      "title": "Das Dokument verletzt den Vertrag",
+      "text": "{count, plural, one {Beheben Sie dieses Problem} other {Beheben Sie diese # Probleme}} vor der Einreichung.",
+      "askAgent": "Agent beheben lassen",
+      "prompt": "Korrigiere die Spezifikation, damit sie den Vertrag erfüllt: {list}"
+    },
+    "check": {
+      "arch-services-missing": "Keine Tabelle «Betroffene Services und Verträge» mit dem Service-Schlüssel in der ersten Spalte",
+      "arch-service-unknown": "Service {subject} ist nicht im Katalog",
+      "c4-missing": "Kein Abschnitt «C4-Diagramm» mit einem mermaid-Block C4Container",
+      "c4-invalid": "Das C4-Diagramm ist ungültig: {message}",
+      "c4-service-missing": "Service {subject} fehlt im C4-Diagramm",
+      "tech-service-not-in-arch": "Service {subject} ist nicht in der Architektur",
+      "contract-file-service": "Der Service von {subject} gehört nicht zu den Services des Features",
+      "contract-file-invalid": "Der Vertrag ist ungültig: {message}"
+    }
   }
 }
