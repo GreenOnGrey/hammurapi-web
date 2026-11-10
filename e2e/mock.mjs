@@ -19,7 +19,7 @@ const profile = (theme) => ({ language: "ru", theme, domains: ["NAB"], agentName
 const LOGIN = { github: { kind: "github", label: "GitHub", org: "GreenOnGrey", linksGit: true }, gitlab: { kind: "git", label: "GitLab", linksGit: true }, oidc: { kind: "oidc", label: "Keycloak" } };
 const config = (login) => ({ provider: login === "gitlab" ? "gitlab" : "github", login: LOGIN[login] ?? LOGIN.github,
   nabuWebUrl: "https://nabu.example.com",
-  uploadMaxBytes: 20000000, uploadAllowedTypes: ["image/png", "application/pdf"], importMaxBytes: 50000000, languages: ["en", "ru", "de", "es", "zh-CN"], defaultLanguage: "en", defaultBranch: "main" });
+  uploadMaxBytes: 20000000, uploadAllowedTypes: ["image/png", "application/pdf"], importMaxBytes: 50000000, languages: ["en", "ru", "de", "es", "zh-CN"], defaultLanguage: "en", defaultBranch: "main", contractVersion: "1.1.0" });
 const domains = [{ key: "NAB", name: "Nabu", approvalRequired: true, source: "manual", deletedInCatalog: false, createdAt: T("09:00", "01"), systems: [{ key: "CMN", name: "Common" }], experts: { product: [], technical: [] } }];
 const focus = {
   // titles of different lengths: on a phone the action badge must stay in its place whatever the title
@@ -210,7 +210,19 @@ function api(url, c) {
   if (p === "/api/v1/auth/me") return me(c("mock-theme") ?? "light");
   if (p === "/api/v1/profile") return profile(c("mock-theme") ?? "light");
   if (p === "/api/v1/domains") return domains;
-  if (p === "/api/v1/services") return [];
+  // FTR.HMR.SPEC-0002: the service card with the check in CI and the token; mock-ci=1
+  if (p === "/api/v1/services") return c("mock-ci") ? [{ key: "booking", name: "Booking", system: "NAB/CMN", domain: "NAB", repo: "fleet/booking", ownerRef: "user:ada",
+    owners: ["ada"], autonomy: "pr", deployOverride: null, overrideFromCatalog: false, source: "manual", catalogRef: null, deletedInCatalog: false, check: null }] : [];
+  if (p === "/api/v1/ci-checks/services/booking") return { status: "proposed", version: null, contractVersion: "1.1.0", path: ".github/workflows/speclint.yml", repo: "fleet/booking",
+    pr: { number: 12, url: "http://pr/12", kind: "propose" }, error: null, checkedAt: T("09:00", "05") };
+  if (p === "/api/v1/services/booking/token") return { issued: false, prefix: null, createdAt: null, createdBy: null, lastUsedAt: null };
+  if (p === "/api/v1/ci-checks/spec") return { status: "outdated", version: "1.0.1", contractVersion: "1.1.0", path: ".github/workflows/speclint.yml", repo: "org/specs",
+    pr: { number: 41, url: "http://pr/41", kind: "bump" }, error: null, checkedAt: T("09:00", "05") };
+  if (p === "/admin/api/v1/settings") return { attachmentRetentionDays: 90 };
+  if (p === "/admin/api/v1/spec-scan/settings") return { interval: "1h", branch: "main" };
+  if (p === "/admin/api/v1/spec-scan/runs") return { items: [{ id: "r1", trigger: "schedule", status: "succeeded", startedAt: T("09:00", "05"), finishedAt: T("09:00", "05"),
+    durationMs: 1800, found: 63, indexed: 63, issues: 0, error: null }], nextCursor: null };
+  if (p === "/admin/api/v1/spec-scan/issues") return { items: [] };
   if (p === "/api/v1/focus") return focus;
   if (p === "/api/v1/overview") return overview;
   if (p === "/api/v1/issues") return { items: issues, nextCursor: null };

@@ -47,6 +47,12 @@ export const SCREENS: Screen[] = [
   { name: "feature-arch-changes", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "dev3" },
     act: async (page) => { await page.locator(".chgchev").first().click(); await page.locator(".chgnow-text").waitFor(); await page.locator(".chgblock").scrollIntoViewIfNeeded(); } },
   { name: "admin-rules-contract", path: "/admin/rules", cookies: { "mock-rules": "broken" } },
+  // FTR.HMR.SPEC-0002 design §2, §3: the check in CI of the specifications and of a service
+  { name: "admin-settings-ci", path: "/admin/settings" },
+  { name: "admin-service-ci", path: "/admin/services", cookies: { "mock-ci": "1" }, act: async (page) => {
+    await click("Изменить")(page);
+    await page.getByText("Проверка тестов в CI").scrollIntoViewIfNeeded();
+  } },
   // FTR.HMR.DEV-0002 design §3.6: the graph, by domain, with the focus at depth 2
   { name: "spec-graph", path: "/spec/graph", only: "desktop" },
   { name: "spec-graph-free", path: "/spec/graph?layout=free", only: "desktop" },
