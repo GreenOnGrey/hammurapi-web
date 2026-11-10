@@ -195,7 +195,7 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
         <div className="banner" role="note">
           <span className="agentmark">{t("common.agent")}</span>
           <span className="grow">{t("editor.generated")}</span>
-          <button className="btn sm" onClick={() => chat.send(t("editor.askAgent", { area: t(`areas.${area}`) }))}>{t("editor.askAgentButton")}</button>
+          <button className="btn sm" onClick={() => chat.fill(t("editor.askAgent", { area: t(`areas.${area}`) }))}>{t("editor.askAgentButton")}</button>
         </div>
       )}
       {doc.data && doc.data.unnumberedRequirements.length > 0 && !doc.data.generated && (
