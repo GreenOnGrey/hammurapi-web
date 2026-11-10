@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
 import { invalidateCycle, keys, useDomains, useServices } from "../../api/queries";
-import type { ServiceDTO } from "../../api/types";
+import type { DeploySettings, ServiceDTO } from "../../api/types";
 import { useSession } from "../../app/session";
 import { errorText } from "../../lib/errors";
 import { Icon, Loading, Modal, useToast } from "@green-on-grey/ui-kit";
@@ -25,6 +25,9 @@ export function ServicesAdmin() {
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
   const managed = !!services.data?.some((s) => s.source === "backstage");
+  // FTR.HMR.CMN-0002 design §3: an override of a service changes the deploy of an environment; without one
+  // configured there is nothing to override
+  const deployEnvs = useConfiguredDeployEnvs(me.globalAdmin);
   return (
     <>
       <h1 className="ftitle" style={{ fontSize: 20 }}>{t("admin.services.title")}</h1>
@@ -46,7 +49,7 @@ export function ServicesAdmin() {
                 </td>
                 <td>
                   <div className="row" style={{ justifyContent: "flex-end" }}>
-                    {me.globalAdmin && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
+                    {me.globalAdmin && (deployEnvs.length > 0 || hasOverride(s)) && <button className="btn ghost sm" onClick={() => setOverride(s)} title={t("admin.deploy.override")}><Icon name="rocket" size={14} /></button>}
                     <button className="btn ghost sm" onClick={() => setEdit(s)}>{t("admin.services.edit")}</button>
                     {s.source === "manual" && <button className="btn ghost sm danger" disabled={del.isPending} onClick={() => del.mutate(s.key)}><Icon name="trash" size={14} /></button>}
                   </div>
@@ -59,7 +62,7 @@ export function ServicesAdmin() {
       {!managed && <button className="btn sm" style={{ marginTop: 12 }} onClick={() => setEdit("new")}><Icon name="plus" size={15} />{t("admin.services.add")}</button>}
       {managed && <p className="small muted">{t("admin.services.managed")}</p>}
       {edit && <ServiceModal s={edit === "new" ? null : edit} onClose={() => setEdit(null)} />}
-      {override && <OverrideModal s={override} onClose={() => setOverride(null)} />}
+      {override && <OverrideModal s={override} envs={deployEnvs} onClose={() => setOverride(null)} />}
     </>
   );
 }
@@ -122,12 +125,33 @@ function ServiceModal({ s, onClose }: { s: ServiceDTO | null; onClose: () => voi
   );
 }
 
-function OverrideModal({ s, onClose }: { s: ServiceDTO; onClose: () => void }) {
+type DeployEnv = "production" | "stage";
+
+const hasOverride = (s: ServiceDTO) => !!(s.deployOverride?.production || s.deployOverride?.stage);
+
+/** The environments whose deploy is configured: only they can be overridden for a service. */
+function useConfiguredDeployEnvs(enabled: boolean): DeployEnv[] {
+  const read = (env: DeployEnv) => ({
+    queryKey: keys.deploy(env), enabled,
+    queryFn: () => api.get<DeploySettings>(`/admin/api/v1/deploy/${env}`),
+  });
+  const production = useQuery(read("production"));
+  const stage = useQuery(read("stage"));
+  const out: DeployEnv[] = [];
+  if (production.data?.configured) out.push("production");
+  if (stage.data?.configured) out.push("stage");
+  return out;
+}
+
+function OverrideModal({ s, envs, onClose }: { s: ServiceDTO; envs: DeployEnv[]; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const [env, setEnv] = useState<"production" | "stage">("production");
-  const [workflow, setWorkflow] = useState(s.deployOverride?.production?.workflow ?? "");
-  const [ref, setRef] = useState(s.deployOverride?.production?.ref ?? "");
+  // the configured environments, and one with an override already: it can still be seen and cleared
+  const tabs = (["production", "stage"] as const).filter((e) => envs.includes(e) || !!s.deployOverride?.[e]);
+  const first = tabs[0] ?? "production";
+  const [env, setEnv] = useState<DeployEnv>(first);
+  const [workflow, setWorkflow] = useState(s.deployOverride?.[first]?.workflow ?? "");
+  const [ref, setRef] = useState(s.deployOverride?.[first]?.ref ?? "");
   const pick = (e: "production" | "stage") => {
     setEnv(e);
     setWorkflow(s.deployOverride?.[e]?.workflow ?? "");
@@ -146,7 +170,7 @@ function OverrideModal({ s, onClose }: { s: ServiceDTO; onClose: () => void }) {
     }>
       {s.overrideFromCatalog && <div className="banner info">{t("admin.deploy.fromAnnotation")}</div>}
       <div className="seg" style={{ marginBottom: 12 }}>
-        {(["production", "stage"] as const).map((e) => <button key={e} aria-pressed={env === e} onClick={() => pick(e)}>{t(`admin.deploy.env.${e}`)}</button>)}
+        {tabs.map((e) => <button key={e} aria-pressed={env === e} onClick={() => pick(e)}>{t(`admin.deploy.env.${e}`)}</button>)}
       </div>
       <div className="two">
         <div className="field"><label htmlFor="ov-wf">{t("admin.deploy.workflow")}</label>
