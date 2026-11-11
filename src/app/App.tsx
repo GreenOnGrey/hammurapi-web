@@ -105,6 +105,7 @@ function Authenticated() {
         qc.invalidateQueries({ queryKey: ["document", d.uniqueId] });
         qc.invalidateQueries({ queryKey: keys.specChanges(d.uniqueId) });
         qc.invalidateQueries({ queryKey: ["gate-files", d.uniqueId] }); // FTR.HMR.DEV-0003 R4
+        qc.invalidateQueries({ queryKey: keys.featureDiscovery(d.uniqueId) }); // FTR.HMR.DISC-0001 R30
         qc.invalidateQueries({ queryKey: ["draft-links", d.uniqueId] }); // R6
         qc.invalidateQueries({ queryKey: keys.requirements(d.uniqueId) });
         qc.invalidateQueries({ queryKey: keys.features() });

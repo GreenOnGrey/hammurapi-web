@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, DraftLayer, GateFiles, SpecChangeItem, SpecItemText, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, DraftLayer, FeatureDiscovery, GateFiles, SpecChangeItem, SpecItemText, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -23,6 +23,7 @@ export const keys = {
   specQuestions: (key: string) => ["spec-questions", key] as const,
   specChanges: (key: string) => ["spec-changes", key] as const,
   gateFiles: (id: string, area: string) => ["gate-files", id, area] as const,
+  featureDiscovery: (id: string) => ["feature-discovery", id] as const,
   features: (f?: object) => (f ? (["features", f] as const) : (["features"] as const)),
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
@@ -125,6 +126,14 @@ export const useGateFiles = (id: string, area: string) =>
   useQuery({
     queryKey: keys.gateFiles(id, area),
     queryFn: () => api.get<GateFiles>(`/api/v1/features/${id}/gates/${area}/files`),
+  });
+
+// FTR.HMR.DISC-0001 R30: discovery/ of the feature, in its branch until the release.
+export const useFeatureDiscovery = (id: string) =>
+  useQuery({
+    queryKey: keys.featureDiscovery(id),
+    queryFn: () => api.get<FeatureDiscovery>(`/api/v1/features/${id}/discovery`),
+    retry: false, // an older core answers 404: no tab
   });
 
 export const useSpecChanges = (key: string, area: "product" | "arch" = "product", enabled = true) =>
