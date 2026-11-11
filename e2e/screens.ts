@@ -33,6 +33,9 @@ export const SCREENS: Screen[] = [
   { name: "spec-tree", path: "/spec", only: "phone" },
   { name: "spec-chat-collapsed", path: "/spec/FTR.NAB.CMN-0005/product", only: "desktop", act: click("Свернуть чат") },
   { name: "spec-viewer", path: "/spec/FTR.NAB.CMN-0005/design", act: click("Открыть") },
+  // FTR.HMR.DISC-0001 design §3.7a: the tab «Анализ» of the navigator and of the feature, with the materials of the research
+  { name: "spec-discovery", path: "/spec/FTR.NAB.CMN-0005/discovery", cookies: { "mock-discovery": "1" } },
+  { name: "feature-discovery", path: "/features/FTR.FMS.CAR-0005/spec/discovery", cookies: { "mock-discovery": "1" } },
   // FTR.HMR.DEV-0001 design §4: the stages, the panel of the specifications, the questions of the writer, the gates as icons
   { name: "feature-spec", path: "/features/FTR.FMS.CAR-0005" },
   // FTR.HMR.DEV-0002 design §3.1, §3.5: the block of changes on product, the links in the header of a document

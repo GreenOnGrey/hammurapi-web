@@ -14,6 +14,7 @@
     "tokens": "{n} tokens"
   },
   "areas": {
+    "discovery": "Análisis",
     "product": "Producto",
     "design": "Diseño",
     "arch": "Arquitectura",
@@ -1368,6 +1369,10 @@
       "zoomOut": "Reducir",
       "fit": "Ajustar al ancho"
     }
+  },
+  "discovery": {
+    "materials": "Materiales",
+    "empty": "Sin documento de análisis ni materiales"
   },
   "specScan": {
     "title": "Revisión del repositorio",

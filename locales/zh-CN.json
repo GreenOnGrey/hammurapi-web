@@ -14,6 +14,7 @@
     "tokens": "{n} 个 token"
   },
   "areas": {
+    "discovery": "分析",
     "product": "产品",
     "design": "设计",
     "arch": "架构",
@@ -1368,6 +1369,10 @@
       "zoomOut": "缩小",
       "fit": "适应宽度"
     }
+  },
+  "discovery": {
+    "materials": "材料",
+    "empty": "没有分析文档和材料"
   },
   "specScan": {
     "title": "仓库检查",

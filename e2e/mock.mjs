@@ -132,9 +132,17 @@ const specGraph = { commit: "c1",
     gEdge("FTR.FMS.CAR-0002", "FTR.FMS.CAR-0001", "extends", [], "arch")] };
 const graphOf = (layer) => ({ ...specGraph, edges: specGraph.edges.filter((e) => layer === "both" || e.layer === (layer || "product")) });
 const viewUrl = (key, area, name) => `/api/v1/spec/files/${key}/${area}/raw?mode=view&name=${name}`;
-const specFiles = (key, area) => area !== "design" ? [] : [
+const specFiles = (key, area) => area === "discovery" ? discoveryFiles.map((f) => ({ ...f, path: `specs/NAB/CMN/${key}/discovery/${f.name}`,
+  viewUrl: f.viewUrl && viewUrl(key, area, f.name) })) : area !== "design" ? [] : [
   { path: `specs/NAB/CMN/${key}/design/mockups.html`, name: "mockups.html", size: 158_000, mimeType: "text/html", previewable: true, viewUrl: viewUrl(key, area, "mockups.html") },
   { path: `specs/NAB/CMN/${key}/design/flows.pdf`, name: "flows.pdf", size: 2_300_000, mimeType: "application/pdf", previewable: false },
+];
+// FTR.HMR.DISC-0001 R30: the materials of the research, by the cookie mock-discovery
+const discoveryMd = "# Скидка за ранний возврат\n\n## Проблема\n\nКлиенты возвращают машины раньше срока и не получают ничего за освобождённые часы.\n\n## Риски\n\n- Скидка съедает выручку выходных.\n";
+const discoveryFiles = [
+  { name: "interviews.pdf", size: 1_240_000, mimeType: "application/pdf", blobSha: "d2", previewable: false },
+  { name: "return-flow.png", size: 84_000, mimeType: "image/png", blobSha: "d1", previewable: true, viewUrl: "/api/v1/features/FTR.FMS.CAR-0005/discovery/files/raw?mode=view&name=return-flow.png&v=d1" },
+  { name: "roadmap.pptx", size: 3_400_000, mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation", blobSha: "d3", previewable: false },
 ];
 const MOCKUP = "<!doctype html><body style=\"margin:0;font:16px sans-serif;background:#eeedf3\"><div style=\"padding:24px 32px;background:#6d4aff;color:#fff\">Макеты</div><div style=\"display:grid;grid-template-columns:220px 1fr 300px;gap:16px;padding:24px\"><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div><div style=\"height:400px;background:#fff\"></div></div></body>";
 
@@ -190,6 +198,8 @@ function api(url, c) {
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/arch/document" && c("mock-c4")) return { ...featureDoc, readOnly: c("mock-c4") === "read",
     content: c4Arch(c("mock-c4") === "error" ? c4Block.replace("Rel(client, booking", "Rel(client, bookng").replace('"Клиент")', '"Клиент)') : c4Block) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/discovery") return !c("mock-discovery") ? { ref: "ftr", document: null, files: [] } : { ref: "ftr",
+    document: { path: "specs/FMS/CAR/FTR.FMS.CAR-0005/discovery/discovery.md", markdown: discoveryMd, blobSha: "d0" }, files: discoveryFiles };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
   // FTR.HMR.DEV-0002 R7: the block of changes with every state
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/changes" && url.searchParams.get("area") !== "arch") return c("mock-feature") !== "changes" ? { items: [] } : { items: [
@@ -259,6 +269,12 @@ function api(url, c) {
   if (p === "/api/v1/spec/tree") return specTree;
   if (p === "/api/v1/spec/graph") return graphOf(url.searchParams.get("layer"));
   let m = /^\/api\/v1\/spec\/documents\/([^/]+)\/([^/]+)$/.exec(p);
+  if (m && c("mock-discovery")) {
+    const d = specDoc(decodeURIComponent(m[1]), m[2]);
+    const areas = ["discovery", ...d.areas];
+    return m[2] !== "discovery" ? { ...d, areas } : { ...d, areas, path: `specs/NAB/CMN/${d.featureKey}/discovery/discovery.md`, title: d.feature.title,
+      markdown: discoveryMd, toc: [{ level: 2, text: "Проблема", slug: "problema" }, { level: 2, text: "Риски", slug: "riski" }] };
+  }
   if (m) {
     const d = specDoc(decodeURIComponent(m[1]), m[2]);
     return c("mock-links") ? { ...d, feature: { ...d.feature, links: specLinks } } : d;

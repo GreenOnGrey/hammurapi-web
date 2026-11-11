@@ -14,14 +14,14 @@ import { useTranslation } from "react-i18next";
 import { api, qs } from "../api/client";
 import { keys } from "../api/queries";
 import type {
-  SpecArea,
+  DocArea,
   SpecDocument,
   SpecFile,
   SpecSearchResult,
   SpecTree,
   SpecTreeFeature,
 } from "../api/types";
-import { SPEC_AREAS } from "../api/types";
+import { DISCOVERY, SPEC_AREAS, type SpecArea } from "../api/types";
 import { MarkdownEditor } from "../editor/MarkdownEditor";
 import { Empty, Icon, Loading, useToast } from "@green-on-grey/ui-kit";
 import { PhaseBadge } from "../components/cycle";
@@ -81,7 +81,7 @@ export function SpecPage() {
           {q ? (
             <SearchResults q={q} />
           ) : featureKey && area ? (
-            <DocumentView featureKey={featureKey} area={area as SpecArea} scrollRoot={bodyRef} />
+            <DocumentView featureKey={featureKey} area={area as DocArea} scrollRoot={bodyRef} />
           ) : featureKey ? (
             // FTR.HMR.SPEC-0001 R2: /spec/<ID> opens the first area of the feature
             tree.isLoading ? (
@@ -335,7 +335,7 @@ function DocumentView({
   scrollRoot,
 }: {
   featureKey: string;
-  area: SpecArea;
+  area: DocArea;
   /** The column of the document scrolls, not the page (FTR.HMR.SPEC-0001 R15). */
   scrollRoot: React.RefObject<HTMLElement | null>;
 }) {
@@ -443,7 +443,7 @@ function DocumentView({
   return (
     <div className="specdoc">
       <div className="specdoc-main">
-        <div className="small muted mono">{d.path}</div>
+        {d.path && <div className="small muted mono">{d.path}</div>}
         <div
           className="row"
           style={{ gap: 8, flexWrap: "wrap", margin: "4px 0 8px" }}
@@ -453,7 +453,8 @@ function DocumentView({
             {f.title}
           </h1>
         </div>
-        <DocStatus d={d} t={t} lng={i18n.language} />
+        {/* FTR.HMR.DISC-0001 R30: the materials of the research have no status of a document */}
+        {area !== DISCOVERY && <DocStatus d={d} t={t} lng={i18n.language} />}
         {f.issues.length > 0 && (
           <LinkRow label={t("spec.issues")}>
             {f.issues.map((i) => (
@@ -491,9 +492,10 @@ function DocumentView({
             ))}
           </LinkRow>
         )}
-        <SpecLinks links={f.links} featureKey={d.featureKey} area={d.area} />
+        {area !== DISCOVERY && <SpecLinks links={f.links} featureKey={d.featureKey} area={d.area as SpecArea} />}
         <div className="tabs spectabs" role="tablist" style={{ marginTop: 14 }}>
-          {SPEC_AREAS.filter((a) => d.areas.includes(a)).map((a) => (
+          {/* discovery first, then the gates in the order of the cycle (FTR.HMR.DISC-0001 design §3.7a) */}
+          {([DISCOVERY, ...SPEC_AREAS] as DocArea[]).filter((a) => d.areas.includes(a)).map((a) => (
             <Link
               key={a}
               role="tab"
@@ -511,7 +513,7 @@ function DocumentView({
             <span className="grow">{t("spec.readOnlyIndexed")}</span>
           </div>
         )}
-        <div
+        {(area !== DISCOVERY || d.markdown) && <div
           className="doc readonly specmd"
           ref={bodyRef}
           onMouseOver={onHover}
@@ -536,17 +538,20 @@ function DocumentView({
               <Icon name="copy" size={13} />
             </button>
           )}
-        </div>
+        </div>}
+        {/* FTR.HMR.DISC-0001 design §3.7a: neither the document nor materials */}
+        {area === DISCOVERY && !d.markdown && files.data?.files.length === 0 && <Empty icon="files" title={t("discovery.empty")} />}
         {files.data && files.data.files.length > 0 && (
           <section style={{ marginTop: 20 }}>
-            <h2 className="sec">{t("spec.files")}</h2>
+            <h2 className="sec">{t(area === DISCOVERY ? "discovery.materials" : "spec.files")}</h2>
             <table className="t">
               <tbody>
                 {files.data.files.map((x) => (
                   <tr key={x.path}>
                     <td className="mono small">{x.name}</td>
                     <td className="small muted">
-                      {bytes(x.size, i18n.language)}
+                      {/* GitLab gives no size in a tree: -1 */}
+                      {x.size >= 0 ? bytes(x.size, i18n.language) : "—"}
                     </td>
                     <td className="row" style={{ justifyContent: "flex-end" }}>
                       {x.previewable && (

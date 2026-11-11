@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { ApiError, api } from "../api/client";
-import { invalidateFeature, keys, useFeature } from "../api/queries";
-import { AREAS, type Area, type CodegenPlan, type ContractViolation, type FeatureCard, type Gate, type HistoryItem, type List } from "../api/types";
+import { invalidateFeature, keys, useFeature, useFeatureDiscovery } from "../api/queries";
+import { AREAS, DISCOVERY, type Area, type CodegenPlan, type ContractViolation, type FeatureCard, type Gate, type HistoryItem, type List } from "../api/types";
 import { useChatContext, useSession } from "../app/session";
 import { adminPath } from "./admin/paths";
 import { DocumentPane } from "../editor/DocumentPane";
@@ -21,6 +21,7 @@ import { BlockedBanner } from "../components/BlockedBanner";
 import { SpecQuestions } from "./feature/SpecQuestions";
 import { SpecChanges, useChangesInvalid } from "./feature/SpecChanges";
 import { GateView } from "./feature/GateView";
+import { DiscoveryPane, hasDiscovery } from "./feature/DiscoveryPane";
 import { FeatureLinks } from "./feature/FeatureLinks";
 import { useQuestionLinks } from "./IssueQuestions";
 
@@ -34,7 +35,9 @@ export function FeaturePage() {
   const chat = useChatContext();
   const f = feature.data;
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "spec";
-  const area = (areaParam && AREAS.includes(areaParam as Area) ? areaParam : f?.gates[0]?.area) as Area | undefined;
+  // FTR.HMR.DISC-0001 R30: discovery is a tab of the panel, not a gate
+  const discovery = areaParam === DISCOVERY;
+  const area = (discovery ? undefined : areaParam && AREAS.includes(areaParam as Area) ? areaParam : f?.gates[0]?.area) as Area | undefined;
 
   // Opening a feature switches the chat to it (tech spec §7).
   const { setSubject } = chat;
@@ -59,7 +62,7 @@ export function FeaturePage() {
   }
   // FTR.HMR.DEV-0001 R27: a link to a stage the feature has not reached opens the current one
   if (tab !== "history" && stageIndex(tab) > reachedStage(f)) return <Navigate to={stageLink(f.uniqueId, STAGES[reachedStage(f)].tab)} replace />;
-  return <FeatureView f={f} tab={tab} area={area} />;
+  return <FeatureView f={f} tab={tab} area={area} discovery={discovery} />;
 }
 
 function DeletedFeature({ error }: { error: ApiError }) {
@@ -124,7 +127,7 @@ type Dialog =
   | { kind: "contract"; area: Area; list: ContractViolation[] }
   | null;
 
-function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }) {
+function FeatureView({ f, tab, area, discovery = false }: { f: FeatureCard; tab: Tab; area?: Area; discovery?: boolean }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const toast = useToast();
@@ -237,7 +240,7 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
             </div>
           )}
 
-          <SpecPanel f={f} area={area} gate={gate} busy={act.isPending} onDialog={setDialog}
+          <SpecPanel f={f} area={area} discovery={discovery} gate={gate} busy={act.isPending} onDialog={setDialog}
             onSubmit={() => gate && submit(gate.area)}
             onApprove={() => gate && act.mutate({ path: `/gates/${gate.area}/approve` }, { onSuccess: () => toast({ kind: "ok", title: t("feature.approved") }) })}
             onAdvance={() => act.mutate({ path: "/spec/advance" })}
@@ -309,8 +312,8 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
 /** Icons of the gates: on a narrow panel only the chosen gate keeps its caption (FTR.HMR.DEV-0001 design §3.2a). */
 export const GATE_ICONS: Record<Area, "bulb" | "grid" | "server" | "code" | "flask"> = { product: "bulb", design: "grid", arch: "server", tech: "code", qa: "flask" };
 
-function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvance, onRetry }: {
-  f: FeatureCard; area?: Area; gate?: Gate; busy: boolean; onDialog: (d: Dialog) => void;
+function SpecPanel({ f, area, discovery, gate, busy, onDialog, onSubmit, onApprove, onAdvance, onRetry }: {
+  f: FeatureCard; area?: Area; discovery: boolean; gate?: Gate; busy: boolean; onDialog: (d: Dialog) => void;
   onSubmit: () => void; onApprove: () => void; onAdvance: () => void; onRetry: () => void;
 }) {
   const { t } = useTranslation();
@@ -321,10 +324,11 @@ function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvan
   const { me } = useSession();
   const skipped = !!area && f.skippedAreas.includes(area);
   const { highlighted, onClick } = useQuestionLinks();
+  const disc = useFeatureDiscovery(f.uniqueId);
   return (
     <section className="specpanel" aria-label={t("feature.specifications")} onClick={onClick}>
       <div className="ttl">{t("feature.specifications")}</div>
-      <GateTabs f={f} current={area} />
+      <GateTabs f={f} current={area} discovery={discovery ? "on" : hasDiscovery(disc.data) ? "shown" : "none"} />
       {run && (
         <div className="banner run">
           <span className="ring" />
@@ -340,7 +344,9 @@ function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvan
       {skipped && <div className="actionbar"><span className="st none">{t("writer.skipped")}</span><span className="grow ab-grow">{t("writer.skippedHint")}</span></div>}
       {gate && <ActionBar f={f} gate={gate} busy={busy} onSubmit={onSubmit} onApprove={onApprove} onAdvance={onAdvance} onHistory={() => onDialog({ kind: "history", area: gate.area })} />}
       {area && f.phase === "spec" && <SpecQuestions featureKey={f.uniqueId} area={area} highlighted={highlighted} />}
-      {area && gate ? (
+      {discovery ? (
+        <DiscoveryPane featureId={f.uniqueId} data={disc.data} loading={disc.isLoading} error={disc.error} />
+      ) : area && gate ? (
         <GateView featureId={f.uniqueId} area={area}>
           <DocumentPane key={`${f.uniqueId}-${area}`} feature={f} area={area} />
         </GateView>
@@ -353,11 +359,19 @@ function SpecPanel({ f, area, gate, busy, onDialog, onSubmit, onApprove, onAdvan
 }
 
 /** The gates of the feature, a level under the stages (FTR.HMR.DEV-0001 R28). */
-function GateTabs({ f, current }: { f: FeatureCard; current?: Area }) {
+function GateTabs({ f, current, discovery }: { f: FeatureCard; current?: Area; discovery: "on" | "shown" | "none" }) {
   const { t } = useTranslation();
   const byArea = new Map(f.gates.map((g) => [g.area, g]));
   return (
     <div className="gtabs" role="tablist" aria-label={t("feature.specifications")}>
+      {/* FTR.HMR.DISC-0001 R30, design §3.7a: the materials of the research first, without a state of a gate */}
+      {discovery !== "none" && (
+        <NavLink role="tab" aria-selected={discovery === "on"} aria-label={t("areas.discovery")} title={t("areas.discovery")}
+          className={() => `g${discovery === "on" ? " on" : ""}`} to={`/features/${f.uniqueId}/spec/${DISCOVERY}`}>
+          <span className="gico"><Icon name="files" size={20} /></span>
+          <span className="lb">{t("areas.discovery")}</span>
+        </NavLink>
+      )}
       {AREAS.map((a) => {
         const g = byArea.get(a);
         const skipped = f.skippedAreas.includes(a);

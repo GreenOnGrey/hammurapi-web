@@ -1007,6 +1007,9 @@ export interface UsageReport {
 
 export type SpecArea = "product" | "design" | "arch" | "tech" | "qa";
 export const SPEC_AREAS: SpecArea[] = ["product", "design", "arch", "tech", "qa"];
+/** The folder of the materials of the research beside the areas: a tab of a document, not a gate (FTR.HMR.DISC-0001 R30). */
+export const DISCOVERY = "discovery";
+export type DocArea = SpecArea | typeof DISCOVERY;
 
 export interface SpecTreeFeature {
   key: string;
@@ -1039,8 +1042,9 @@ export interface SpecPR {
 
 export interface SpecDocument {
   featureKey: string;
-  area: SpecArea;
-  areas: SpecArea[];
+  area: DocArea;
+  /** discovery comes first when the feature has its materials (FTR.HMR.DISC-0001 R30). */
+  areas: DocArea[];
   path: string;
   title: string;
   markdown: string;
@@ -1198,6 +1202,13 @@ export interface GateFile {
 
 export interface GateFiles {
   ref: string;
+  files: GateFile[];
+}
+
+/** GET /features/{id}/discovery: the Discovery document and the materials beside it (FTR.HMR.DISC-0001 tech §3.6). */
+export interface FeatureDiscovery {
+  ref: string;
+  document: { path: string; markdown: string; blobSha: string } | null;
   files: GateFile[];
 }
 
