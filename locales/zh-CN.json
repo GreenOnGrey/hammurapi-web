@@ -1744,6 +1744,19 @@
       "tech-service-not-in-arch": "服务 {subject} 不在架构中",
       "contract-file-service": "{subject} 的服务不在该功能的服务中",
       "contract-file-invalid": "契约无法解析：{message}"
+    },
+    "openapi": {
+      "invalid": "无法解析契约：{message}",
+      "parameters": "参数",
+      "requestBody": "请求体",
+      "responses": "响应",
+      "schemas": "模式",
+      "required": "必填",
+      "deprecated": "已弃用",
+      "name": "名称",
+      "in": "位置",
+      "type": "类型",
+      "description": "说明"
     }
   }
 }

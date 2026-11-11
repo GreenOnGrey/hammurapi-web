@@ -61,7 +61,7 @@ export const SCREENS: Screen[] = [
   { name: "feature-c4-error", path: "/features/FTR.FMS.CAR-0005/spec/arch", only: "desktop", cookies: { "mock-feature": "dev3", "mock-c4": "error" },
     act: async (page) => { await page.locator(".mermaid-error").waitFor(); await page.locator(".mermaid-error").scrollIntoViewIfNeeded(); } },
   { name: "feature-api-openapi", path: "/features/FTR.FMS.CAR-0005/spec/tech?view=api&file=booking.openapi.yaml", only: "desktop", cookies: { "mock-feature": "generated" },
-    act: async (page) => { await page.frameLocator("iframe.gateview-frame").locator(".opblock").first().waitFor(); } },
+    act: async (page) => { await page.locator(".oa-op-head").nth(1).click(); await page.locator(".oa-ref").first().click(); await page.locator(".oa-model.open").waitFor(); } },
   { name: "feature-api-proto", path: "/features/FTR.FMS.CAR-0005/spec/tech?view=api&file=pricing.proto", only: "desktop", cookies: { "mock-feature": "generated" },
     act: async (page) => { await page.locator(".protoview-code").waitFor(); } },
   // FTR.HMR.DEV-0002 design §3.6: the graph, by domain, with the focus at depth 2

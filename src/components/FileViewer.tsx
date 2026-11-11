@@ -176,7 +176,7 @@ export function FileViewer({
         </div>
         <div className="fileviewer-b">
           {contract ? (
-            <ContractView key={`${file.name}@${"blobSha" in file ? String(file.blobSha) : ""}`} file={file} href={fileHref} theme={theme} className="fileviewer-frame" />
+            <ContractView key={`${file.name}@${"blobSha" in file ? String(file.blobSha) : ""}`} file={file} href={fileHref} className="fileviewer-frame" />
           ) : isHtml ? (
             view ? (
               <MockupFrame key={file.name} className="fileviewer-frame" title={file.name} href={view} theme={theme} />

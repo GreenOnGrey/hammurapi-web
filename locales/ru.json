@@ -1744,6 +1744,19 @@
       "tech-service-not-in-arch": "Сервиса {subject} нет в архитектуре",
       "contract-file-service": "Сервиса файла {subject} нет среди сервисов решения",
       "contract-file-invalid": "Контракт не разбирается: {message}"
+    },
+    "openapi": {
+      "invalid": "Контракт не разбирается: {message}",
+      "parameters": "Параметры",
+      "requestBody": "Тело запроса",
+      "responses": "Ответы",
+      "schemas": "Схемы",
+      "required": "обязательно",
+      "deprecated": "Устарело",
+      "name": "Имя",
+      "in": "Где",
+      "type": "Тип",
+      "description": "Описание"
     }
   }
 }
