@@ -102,9 +102,10 @@ export function graphView(data: SpecGraphData, f: { domain: string; system: stri
     return f.draft?.key === k ? { ...placed, label: `${placed.label} · ${f.draft.label}` } : placed;
   });
   // design §1: "changes" — a dashed line, "extends" — a solid one; the arrow points at the feature built on or changed;
-  // FTR.HMR.DEV-0003 design §1: a link of arch — a double line; the links of a feature in work are dashed (R9)
+  // FTR.HMR.DEV-0003 design §1: a link of arch — a double line; the links of a feature in work are drawn by their kind
+  // like any other (R9 1.2): a dash means «changes» only, the node and the strip tell the feature is in work
   const gEdges: GraphEdge[] = edges.map((e) => ({ source: e.source, target: e.target, directed: true,
-    dashed: e.kind === "changes" || e.source === f.draft?.key, double: layerOf(e) === "arch",
+    dashed: e.kind === "changes", double: layerOf(e) === "arch",
     title: e.requirements.length > 0 ? e.requirements.join(", ") : undefined }));
   const list = keysSorted.map((k) => ({ node: byKey.get(k)!, out: out.get(k) ?? [], in: inc.get(k) ?? [] }));
   // the keys are sorted, and a key begins with its domain and system: the rows come in their order

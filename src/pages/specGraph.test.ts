@@ -84,7 +84,7 @@ describe("the graph of DEV-0003", () => {
     expect(graphView(d, all, tip).edges.map((e) => e.target)).toEqual(["FTR.NAB.CMN-0005"]); // the default layer is product
     expect(graphView(d, { ...all, layer: "arch" }, tip).edges.map((e) => e.target)).toEqual(["FTR.HMR.CMN-0001"]);
   });
-  it("DRAFT-13: the feature in work is a dashed node «in work» with dashed edges, in the row of its system", () => {
+  it("DRAFT-13: the feature in work is a dashed node «in work» in the row of its system; its edges are drawn by kind", () => {
     const v = graphView(withDraft(data, draft.key, "W", layers, "both"), { ...all, layer: "both", draft }, tip);
     const n = v.nodes.find((x) => x.id === draft.key)!;
     expect(n.dashed).toBe(true);
@@ -92,7 +92,7 @@ describe("the graph of DEV-0003", () => {
     expect(n.row).toBe("HMR.DEV");
     const mine = v.edges.filter((e) => e.source === draft.key);
     expect(mine.map((e) => [e.target, e.dashed, !!e.double, e.title])).toEqual([
-      ["FTR.HMR.CMN-0001", true, false, undefined], ["FTR.HMR.DEV-0002", true, true, "A5"], ["FTR.HMR.SPEC-0009", true, true, undefined]]);
+      ["FTR.HMR.CMN-0001", false, false, undefined], ["FTR.HMR.DEV-0002", true, true, "A5"], ["FTR.HMR.SPEC-0009", true, true, undefined]]); // «extends» solid, «changes» dashed (R9 1.2)
     expect(v.nodes.find((x) => x.id === "FTR.HMR.SPEC-0009")?.dashed).toBe(true); // a target outside the default branch
   });
   it("ARCH-16: the links of a feature in work follow the layer", () => {
