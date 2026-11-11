@@ -1047,8 +1047,6 @@
       "revert": "回滚 PR",
       "ci_setup": "CI 步骤"
     },
-    "runInNabu": "在 Nabu 中运行",
-    "runLink": "运行",
     "error": {
       "sandbox_start": "沙箱未启动：{text}",
       "workspace_too_large": "工作副本过大：{text}",

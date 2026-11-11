@@ -1047,8 +1047,6 @@
       "revert": "Revert-PR",
       "ci_setup": "CI-Schritt"
     },
-    "runInNabu": "Läuft in Nabu",
-    "runLink": "Lauf",
     "error": {
       "sandbox_start": "Die Sandbox ist nicht gestartet: {text}",
       "workspace_too_large": "Die Arbeitskopie ist zu groß: {text}",

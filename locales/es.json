@@ -1047,8 +1047,6 @@
       "revert": "PR de revert",
       "ci_setup": "paso de CI"
     },
-    "runInNabu": "Se ejecuta en Nabu",
-    "runLink": "Ejecución",
     "error": {
       "sandbox_start": "El sandbox no se inició: {text}",
       "workspace_too_large": "La copia de trabajo es demasiado grande: {text}",
