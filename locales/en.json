@@ -1744,6 +1744,19 @@
       "tech-service-not-in-arch": "Service {subject} is not in the architecture",
       "contract-file-service": "The service of {subject} is not among the services of the feature",
       "contract-file-invalid": "The contract does not parse: {message}"
+    },
+    "openapi": {
+      "invalid": "The contract does not parse: {message}",
+      "parameters": "Parameters",
+      "requestBody": "Request body",
+      "responses": "Responses",
+      "schemas": "Schemas",
+      "required": "required",
+      "deprecated": "Deprecated",
+      "name": "Name",
+      "in": "In",
+      "type": "Type",
+      "description": "Description"
     }
   }
 }

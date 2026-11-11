@@ -1744,6 +1744,19 @@
       "tech-service-not-in-arch": "El servicio {subject} no está en la arquitectura",
       "contract-file-service": "El servicio de {subject} no está entre los servicios de la funcionalidad",
       "contract-file-invalid": "El contrato no es válido: {message}"
+    },
+    "openapi": {
+      "invalid": "El contrato no se puede leer: {message}",
+      "parameters": "Parámetros",
+      "requestBody": "Cuerpo de la petición",
+      "responses": "Respuestas",
+      "schemas": "Esquemas",
+      "required": "obligatorio",
+      "deprecated": "Obsoleto",
+      "name": "Nombre",
+      "in": "Dónde",
+      "type": "Tipo",
+      "description": "Descripción"
     }
   }
 }

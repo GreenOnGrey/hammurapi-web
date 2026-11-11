@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loading } from "@green-on-grey/ui-kit";
 import { ApiError } from "../api/client";
-import type { MockupTheme } from "../lib/mockupTheme";
 import { Failure, failure, type FileHref, type ViewerFile } from "./FileViewer";
 
-// FTR.HMR.SPEC-0004 R7: the contracts of a service next to tech — OpenAPI in a sandboxed frame, proto as
+// FTR.HMR.SPEC-0004 R7: the contracts of a service next to tech — OpenAPI drawn by the site (arch A14), proto as
 // highlighted text with a table of contents.
+
+// the parser of YAML comes with the view, only for contracts
+const OpenApiView = lazy(() => import("./OpenApiView"));
 
 export const MIME_OPENAPI_YAML = "application/vnd.oai.openapi";
 export const MIME_OPENAPI_JSON = "application/vnd.oai.openapi+json";
@@ -50,47 +52,13 @@ function useContractText(file: ViewerFile, href: FileHref): { text: string | nul
 }
 
 /** A contract by its type. */
-export function ContractView({ file, href, theme, className }: { file: ViewerFile; href: FileHref; theme: MockupTheme; className?: string }) {
+export function ContractView({ file, href, className }: { file: ViewerFile; href: FileHref; className?: string }) {
   const { text, error } = useContractText(file, href);
   if (error) return <Failure text={error} href={href(file.name)} />;
   if (text === null) return <Loading />;
   return file.mimeType === MIME_PROTO
     ? <ProtoView text={text} className={className} />
-    : <OpenApiFrame text={text} theme={theme} title={file.name} className={className} />;
-}
-
-const themeVars = ["--bg", "--surface", "--surface-2", "--text", "--text-2", "--muted", "--border", "--green"];
-
-/** Swagger UI of the page /viewers/openapi.html in a frame without allow-same-origin: it gets the text by
- * postMessage, sends no requests and has no «Try it out» (arch §3.3, §6). */
-export function OpenApiFrame({ text, theme, title, className }: { text: string; theme: MockupTheme; title: string; className?: string }) {
-  const frame = useRef<HTMLIFrameElement>(null);
-  const post = useRef<() => void>(() => {});
-  // the viewer keeps its links from navigating it; if the frame loads another page anyway, it gets nothing more
-  const loads = useRef(0);
-  useEffect(() => {
-    post.current = () => {
-      if (loads.current > 1) return;
-      const style = getComputedStyle(document.documentElement);
-      const vars: Record<string, string> = {};
-      for (const v of themeVars) vars[v] = style.getPropertyValue(v).trim();
-      // an opaque origin cannot be named: the frame is told by its window, and takes messages of its parent only
-      frame.current?.contentWindow?.postMessage({ type: "openapi", text, theme, vars }, "*");
-    };
-    post.current();
-  }, [text, theme]);
-  useEffect(() => {
-    const on = (e: MessageEvent) => {
-      if (e.source === frame.current?.contentWindow && (e.data as { type?: string })?.type === "openapi-loaded") post.current();
-    };
-    window.addEventListener("message", on);
-    return () => window.removeEventListener("message", on);
-  }, []);
-  return (
-    <iframe ref={frame} className={className ?? "contract-frame"} title={title} src="/viewers/openapi.html"
-      sandbox="allow-scripts" referrerPolicy="no-referrer" style={{ colorScheme: theme }}
-      onLoad={() => { loads.current += 1; }} />
-  );
+    : <Suspense fallback={<Loading />}><OpenApiView text={text} className={className} /></Suspense>;
 }
 
 const protoKeywords = new Set(["syntax", "package", "import", "option", "service", "rpc", "returns", "message", "enum", "oneof", "map",

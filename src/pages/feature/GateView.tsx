@@ -125,7 +125,7 @@ function GateMockup({ file, href, theme }: { file: GateFile; href: FileHref; the
   const [natural, setNatural] = useState(false);
   const view = viewHref(file);
   if (isContract(file.mimeType)) {
-    return <ContractView key={`${file.name}@${file.blobSha}`} file={file} href={href} theme={theme} className="gateview-frame" />;
+    return <ContractView key={`${file.name}@${file.blobSha}`} file={file} href={href} className="gateview-frame" />;
   }
   if (file.mimeType === "text/html") {
     // an older core gives no viewUrl: the file is downloaded, never shown from the index
