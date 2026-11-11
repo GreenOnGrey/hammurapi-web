@@ -163,6 +163,9 @@ function feature(state) {
   // FTR.HMR.DEV-0003: the mockup on the gate design, the block of arch, the links of the feature in work
   if (state === "dev3") return { ...base, specStage: "arch", gates: [featureGate("product", "approved"), featureGate("design", "draft"), featureGate("arch", "draft")],
     permissions: { ...base.permissions, edit: ["design", "arch"], submit: ["design", "arch"] } };
+  // FTR.HMR.DEV-0004 R1, R2: the stage «Code generation» — a failed task and a task with its PR
+  if (state === "codegen") return { ...base, phase: "codegen", specStage: "done", pendingGates: [], services: ["booking", "pricing"],
+    gates: ["product", "design", "arch", "tech", "qa"].map((a) => featureGate(a, "approved")), permissions: { ...base.permissions, edit: [], submit: [], codegen: true, retry: true } };
   if (state === "running") return { ...base, gates: [featureGate("product", "draft")], writerRun: { mode: "write", state: "generating", areas: ["product"], waitingLock: false }, permissions: { ...base.permissions, edit: [], submit: [] } };
   return { ...base, gates: [featureGate("product", "draft")], openQuestions: { product: 2 } };
 }
@@ -188,6 +191,21 @@ const contractYAML = "openapi: 3.0.3\ninfo:\n  title: booking — возврат
   "components:\n  schemas:\n    Return:\n      type: object\n      properties:\n        discount: { type: number, description: Скидка на следующую аренду }\n";
 const contractProto = "syntax = \"proto3\";\n\npackage pricing.v1;\n\n// The discount for an early return.\nservice Discounts {\n  rpc Quote(QuoteRequest) returns (Quote);\n}\n\nmessage QuoteRequest {\n  string booking_id = 1;\n  int64 returned_at = 2;\n}\n\nmessage Quote {\n  double discount = 1;\n  repeated string reasons = 2;\n}\n\nenum Reason {\n  REASON_UNSPECIFIED = 0;\n  EARLY_RETURN = 1;\n}\n";
 
+// FTR.HMR.DEV-0004 R1–R3: the services of a feature in code generation
+const codeTask = (id, service, status, extra = {}) => ({ id, type: "implement", status, service, result: null, progress: null, error: null, tokensIn: 0, tokensOut: 0,
+  createdAt: "2026-11-11T06:38:00Z", startedAt: "2026-11-11T06:38:00Z", finishedAt: "2026-11-11T07:34:00Z", errorClass: null, nabuRunId: "run-" + id, ...extra });
+const implementation = { phase: "codegen", workflow: { state: "blocked", step: "codegen", lastError: "the task for booking failed" }, matrix: [], humanPrs: [], tokensIn: 93177574, tokensOut: 0, canStart: false,
+  services: [
+    { service: "booking", repo: "GreenOnGrey/booking", autonomy: "pr", check: { command: "go test ./...", timeoutSec: 600 }, pr: null, plan: null,
+      tasks: [codeTask("t1", "booking", "failed", { tokensIn: 72854239, errorClass: "git",
+        error: "commit to hammurapi/FTR.FMS.CAR-0005/booking: create the tree: git provider: not found (HTTP 404)",
+        result: { check: { status: "passed", command: "go test ./...", attempts: 1, maxAttempts: 3, outputTail: "" } } })] },
+    { service: "pricing", repo: "GreenOnGrey/pricing", autonomy: "pr", check: { command: "npm test", timeoutSec: 600 }, plan: null,
+      tasks: [codeTask("t2", "pricing", "succeeded", { tokensIn: 20323335, result: { prNumber: 15, check: { status: "passed", command: "npm test", attempts: 1, maxAttempts: 3, outputTail: "" } } })],
+      pr: { id: "pr15", repo: "GreenOnGrey/pricing", number: 15, url: "http://pr/15", title: "FTR.FMS.CAR-0005 pricing: Скидка за ранний возврат авто", branch: "hammurapi/FTR.FMS.CAR-0005/pricing",
+        kind: "service", service: "pricing", byAgent: true, state: "open", review: "required", headSha: "h", ciStatus: "pending", mergeSha: null, mergedAt: null, requirements: [], createdAt: "2026-11-11T06:56:00Z" } },
+  ] };
+
 function api(url, c) {
   const p = url.pathname;
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/tech/files") return c("mock-feature") !== "generated" ? { ref: "ftr", files: [] } : { ref: "ftr", files: [
@@ -198,6 +216,7 @@ function api(url, c) {
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/gates/arch/document" && c("mock-c4")) return { ...featureDoc, readOnly: c("mock-c4") === "read",
     content: c4Arch(c("mock-c4") === "error" ? c4Block.replace("Rel(client, booking", "Rel(client, bookng").replace('"Клиент")', '"Клиент)') : c4Block) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/implementation") return implementation;
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/discovery") return !c("mock-discovery") ? { ref: "ftr", document: null, files: [] } : { ref: "ftr",
     document: { path: "specs/FMS/CAR/FTR.FMS.CAR-0005/discovery/discovery.md", markdown: discoveryMd, blobSha: "d0" }, files: discoveryFiles };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));

@@ -1047,8 +1047,6 @@
       "revert": "revert-PR",
       "ci_setup": "шаг CI"
     },
-    "runInNabu": "Выполняется в Nabu",
-    "runLink": "Запуск",
     "error": {
       "sandbox_start": "Песочница не запустилась: {text}",
       "workspace_too_large": "Превышен лимит рабочей копии: {text}",

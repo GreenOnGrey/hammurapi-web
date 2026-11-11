@@ -77,6 +77,7 @@ export const SCREENS: Screen[] = [
   { name: "feature-writer-running", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "running" } },
   { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },
   { name: "feature-no-approval", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "noapproval" } },
+  { name: "feature-codegen", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" } },
   { name: "feature-generated", path: "/features/FTR.FMS.CAR-0005/spec/tech", cookies: { "mock-feature": "generated" } },
   { name: "admin", path: "/admin" },
   // FTR.HMR.CMN-0007 design §3.6: the connection and the binding; Nabu does not answer
