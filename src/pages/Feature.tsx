@@ -205,6 +205,10 @@ function FeatureView({ f, tab, area }: { f: FeatureCard; tab: Tab; area?: Area }
         {f.parent && <span>{t("feature.fixOf")} <Link to={`/features/${f.parent}`}>{f.parent}</Link></span>}
         <span className="muted">{t("feature.createdBy", { name: f.createdBy, when: relativeTime(f.createdAt, i18n.language) })}</span>
         {/* FTR.HMR.DEV-0001 R29: the history is not a stage */}
+        {/* FTR.HMR.CMN-0002 design 2.7: the changes of the open gate, a small button beside the history */}
+        {tab === "spec" && area && f.gates.some((g) => g.area === area) && (
+          <Link to={`/features/${f.uniqueId}/spec/${area}/diff`} className="btn ghost sm metachanges"><Icon name="files" size={14} />{t("feature.viewChanges")}</Link>
+        )}
         <NavLink to={`/features/${f.uniqueId}/history`} className={`btn ghost sm metahist${tab === "history" ? " on" : ""}`}><Icon name="clock" size={14} />{t("feature.tabs.history")}</NavLink>
       </div>
 
@@ -407,6 +411,8 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
   if (running) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.readOnly")}</span>;
   else if (invalid && (submitChecked || f.permissions.advance)) text = <span className="wait"><Icon name="lock" size={14} />{invalidHint}</span>;
   else if (waits) text = <span className="wait"><Icon name="lock" size={14} />{t("writer.waitsFor", { area: t(`areas.${before}`) })}</span>;
+  // FTR.HMR.CMN-0002 design 2.7: without approval and with nothing to do or to wait for, there is no bar
+  else if (!f.approvalRequired && !f.permissions.advance && !canSubmit && !canApprove) return null;
   else if (!f.approvalRequired) text = t("feature.bar.noApproval");
   else if (gate.status === "in_review") text = t("feature.bar.inReview", { when: gate.submittedAt ? relativeTime(gate.submittedAt, i18n.language) : "" });
   else if (gate.status === "approved") text = t("feature.bar.approved", { name: gate.approvedBy ?? "", when: gate.approvedAt ? relativeTime(gate.approvedAt, i18n.language) : "" });
@@ -416,7 +422,6 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
     <div className="actionbar">
       <StatusBadge status={gate.status} approvalRequired={f.approvalRequired} />
       <span className="grow ab-grow">{text}</span>
-      <Link className="btn sm" to={`/features/${f.uniqueId}/spec/${gate.area}/diff`}>{t("feature.viewChanges")}</Link>
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
       {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun || rows.product || rows.arch} title={rows.product || rows.arch ? invalidHint : undefined} onClick={onAdvance}>{t("writer.advance")}</button>}
       {canSubmit && <button className="btn primary sm abmain" disabled={busy || (submitChecked && submitInvalid)} title={submitChecked && submitInvalid ? invalidHint : undefined} onClick={onSubmit}>{t("feature.submit")}</button>}

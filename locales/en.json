@@ -215,9 +215,6 @@
     "staleText": "Someone saved a newer version. Reload to see it; your unsaved text will be discarded.",
     "retry": "Retry",
     "discard": "Discard changes",
-    "generated": "The agent writes this gate. Comment in the chat and the agent regenerates it.",
-    "askAgentButton": "Ask the agent",
-    "askAgent": "Regenerate the {area} gate taking my comment into account: ",
     "unnumbered": "{count, plural, one {# requirement has no ID.} other {# requirements have no ID.}}",
     "unnumberedHint": "Start each one with its number: R1, R2."
   },

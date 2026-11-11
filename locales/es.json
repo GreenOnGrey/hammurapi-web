@@ -215,9 +215,6 @@
     "staleText": "Alguien guardó una versión más reciente. Recárgala; tu texto sin guardar se descartará.",
     "retry": "Reintentar",
     "discard": "Descartar cambios",
-    "generated": "El agente escribe esta puerta. Comente en el chat y la regenerará.",
-    "askAgentButton": "Pedir al agente",
-    "askAgent": "Regenera la puerta {area} teniendo en cuenta mi comentario: ",
     "unnumbered": "{count, plural, one {# requisito sin ID.} other {# requisitos sin ID.}}",
     "unnumberedHint": "Empiece cada uno con su número: R1, R2."
   },

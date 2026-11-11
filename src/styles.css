@@ -2071,6 +2071,8 @@ table.nabu-scenarios td {
 }
 .stages .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .metahist { margin-left: auto; }
+.metachanges { margin-left: auto; }
+.metachanges + .metahist { margin-left: 0; }
 .metahist.on { color: var(--violet-text); }
 
 .specpanel {
@@ -2175,7 +2177,7 @@ table.nabu-scenarios td {
   .specpanel { border: 0; background: none; padding: 0; }
   .specpanel > .actionbar { flex-wrap: wrap; }
   .specpanel > .actionbar .abmain { flex: 1 1 100%; justify-content: center; }
-  .metahist { margin-left: 0; }
+  .metahist, .metachanges { margin-left: 0; }
 }
 .taskgates { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
 .taskgate { font-size: 12px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; }

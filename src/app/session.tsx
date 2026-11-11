@@ -99,10 +99,6 @@ export interface ChatContextValue {
   outbox: string | null;
   send: (text: string) => void;
   takeOutbox: () => string | null;
-  /** FTR.HMR.CMN-0002 design §3 п. 10: a text put into the field of the chat from outside; the user finishes and sends it. */
-  draft: { text: string; seq: number } | null;
-  fill: (text: string) => void;
-  clearDraft: () => void;
 }
 
 const ChatCtx = createContext<ChatContextValue | null>(null);
@@ -115,8 +111,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const collapsedRef = useRef(collapsed);
   const [unread, setUnread] = useState(false);
   const [outbox, setOutbox] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ text: string; seq: number } | null>(null);
-  const draftSeq = useRef(0);
   // setCollapsed and markUnread do not change between renders: the adapters
   // name markUnread in their event handlers without subscribing again.
   const setCollapsed = useCallback((v: boolean) => {
@@ -145,14 +139,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setOpen(true);
     setCollapsed(false);
   }, [setCollapsed]);
-  const fill = useCallback((text: string) => {
-    // the chat takes a draft once per seq: a cleared draft does not start the count again
-    draftSeq.current += 1;
-    setDraft({ text, seq: draftSeq.current });
-    setOpen(true);
-    setCollapsed(false);
-  }, [setCollapsed]);
-  const clearDraft = useCallback(() => setDraft(null), []);
   const value = useMemo<ChatContextValue>(
     () => ({
       subject,
@@ -166,16 +152,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       outbox,
       setSubject,
       send,
-      draft,
-      fill,
-      clearDraft,
       takeOutbox: () => {
         const o = outbox;
         if (o !== null) setOutbox(null);
         return o;
       },
     }),
-    [subject, area, open, collapsed, setCollapsed, unread, markUnread, outbox, setSubject, send, draft, fill, clearDraft],
+    [subject, area, open, collapsed, setCollapsed, unread, markUnread, outbox, setSubject, send],
   );
   return <ChatCtx.Provider value={value}>{children}</ChatCtx.Provider>;
 }

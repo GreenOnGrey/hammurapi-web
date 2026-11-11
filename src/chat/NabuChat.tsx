@@ -103,7 +103,6 @@ export function NabuChatPanel() {
 function Conversation({ convId, topic, agentName }: { convId: string | null; topic?: TopicRef; agentName: string }) {
   const { t } = useTranslation();
   const chat = useNabuConversation(convId, topic);
-  const ctx = useChatContext(); // FTR.HMR.CMN-0002 design §3 п. 10: «Ask the agent» fills the field
   const { isExpertOf } = useSession();
   const issueKey = topic?.kind === "issue" ? topic.key : undefined;
   const featureKey = topic?.kind === "feature" ? topic.key : undefined;
@@ -117,7 +116,7 @@ function Conversation({ convId, topic, agentName }: { convId: string | null; top
     : featureKey ? <FeatureTopicDraft featureKey={featureKey} onPick={pick} />
     : undefined;
   const placeholder = is?.status === "verification" && isExpertOf(is.domain) ? t("disc.composer") : undefined;
-  return <Chat {...chat} draft={ctx.draft ?? undefined} onDraftTaken={ctx.clearDraft} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} empty={draft} placeholder={placeholder} />;
+  return <Chat {...chat} agentName={agentName} emptyHint={t("nabu.empty", { name: agentName })} empty={draft} placeholder={placeholder} />;
 }
 
 /** The suggestions of the draft by the open gate and the role (FTR.HMR.DEV-0001 design §3.3). */

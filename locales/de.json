@@ -215,9 +215,6 @@
     "staleText": "Jemand hat eine neuere Version gespeichert. Laden Sie sie neu; Ihr ungespeicherter Text wird verworfen.",
     "retry": "Wiederholen",
     "discard": "Änderungen verwerfen",
-    "generated": "Dieses Gate schreibt der Agent. Kommentieren Sie im Chat, der Agent erstellt es neu.",
-    "askAgentButton": "Agent fragen",
-    "askAgent": "Erstelle das Gate {area} unter Berücksichtigung meines Kommentars neu: ",
     "unnumbered": "{count, plural, one {# Anforderung ohne ID.} other {# Anforderungen ohne ID.}}",
     "unnumberedHint": "Beginnen Sie jede mit ihrer Nummer: R1, R2."
   },
