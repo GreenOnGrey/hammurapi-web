@@ -1,0 +1,18 @@
+# Known errors of speclint (FTR.HMR.SPEC-0002); the file only shrinks.
+# The index projects the test cases of indexed features (R15): IDs of tests that name another feature or a feature
+# not linked to hammurapi-web, and feature numbers of the mock read as IDs, until the specifications and tests are fixed.
+unknown-test-id e2e/mock.mjs CHAT-000
+unknown-test-id e2e/mock.mjs HMR-0001
+unknown-test-id e2e/mock.mjs NAB-0001
+unknown-test-id e2e/mock.mjs NAB-0002
+unknown-test-id e2e/mock.mjs NAB-0003
+unknown-test-id e2e/mock.mjs NAB-0006
+unknown-test-id e2e/mock.mjs NAB-0007
+unknown-test-id e2e/mock.mjs NAB-0008
+unknown-test-id e2e/screens.ts NAB-0007
+unknown-test-id src/pages/Spec.tsx SRC-05
+unknown-test-id src/pages/feature/check.test.tsx CHK-38
+unknown-test-id src/pages/specLinks.test.tsx VIEW-01
+unknown-test-id src/pages/specLinks.test.tsx VIEW-02
+unknown-test-id src/pages/specLinks.test.tsx VIEW-03
+unknown-test-id src/pages/specLinks.test.tsx VIEW-05
