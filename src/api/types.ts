@@ -661,7 +661,8 @@ export interface RequirementRow {
   id: string;
   text: string;
   services: string[];
-  testCases: { id: string; level: string; title: string }[];
+  /** FTR.HMR.SPEC-0005 R6: services — the column «Сервисы» of qa; empty or missing (an older core) — every service. */
+  testCases: { id: string; level: string; title: string; services?: string[] }[];
   prs: { service: string | null; number: number; url: string; byAgent: boolean; state: string }[];
 }
 
