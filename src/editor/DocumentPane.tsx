@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ApiError, api } from "../api/client";
 import { keys, useDocument } from "../api/queries";
 import type { Area, FeatureCard, LockInfo } from "../api/types";
-import { useChatContext, useSession } from "../app/session";
+import { useSession } from "../app/session";
 import { errorText } from "../lib/errors";
 import { joinFrontMatter, normalizeEnding, splitFrontMatter } from "../lib/markdown";
 import { useEvent } from "../lib/sse";
@@ -19,7 +19,6 @@ const HEARTBEAT = 5 * 60 * 1000;
 export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Area }) {
   const { t } = useTranslation();
   const { me, config } = useSession();
-  const chat = useChatContext();
   const toast = useToast();
   const qc = useQueryClient();
   const doc = useDocument(feature.uniqueId, area);
@@ -189,13 +188,6 @@ export function DocumentPane({ feature, area }: { feature: FeatureCard; area: Ar
         <div className="banner" role="status">
           <Icon name="lock" />
           <span><b>{t("editor.lockedBy", { name: lockedBy?.userName })}</b> {t("editor.lockedText", { name: lockedBy?.userName })}</span>
-        </div>
-      )}
-      {doc.data?.generated && (
-        <div className="banner" role="note">
-          <span className="agentmark">{t("common.agent")}</span>
-          <span className="grow">{t("editor.generated")}</span>
-          <button className="btn sm" onClick={() => chat.fill(t("editor.askAgent", { area: t(`areas.${area}`) }))}>{t("editor.askAgentButton")}</button>
         </div>
       )}
       {doc.data && doc.data.unnumberedRequirements.length > 0 && !doc.data.generated && (
