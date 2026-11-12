@@ -22,10 +22,10 @@ describe("COST-14 money and tokens", () => {
   });
 });
 
-// LOG-02, LOG-13, LOG-14, LOG-16: the entries of the log.
+// LOG-13, LOG-14, LOG-16: the entries of the log.
 describe("the log of a run", () => {
   const call: RunLogEntry = { id: "tc1", kind: "tool", tool: "bash", command: "go test ./...", at: "2026-11-11T06:52:14Z", result: null };
-  it("LOG-02 puts the result of a tool into the entry of its call", () => {
+  it("puts the result of a tool into the entry of its call", () => {
     const list = mergeEntry([call], { id: "tc1", kind: "tool", tool: "bash", isError: true, result: "exit 1" });
     expect(list).toHaveLength(1);
     expect(list[0]).toMatchObject({ command: "go test ./...", result: "exit 1", isError: true, at: call.at });
