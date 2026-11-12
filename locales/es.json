@@ -1781,7 +1781,7 @@
       "cacheRead": "Lectura de caché",
       "cacheWrite": "Escritura en caché"
     },
-    "cacheHint": "Una lectura de caché cuesta diez veces menos que la entrada o menos",
+    "cacheHint": "Una lectura de caché cuesta varias veces menos que la entrada: el precio del modelo en Nabu",
     "shared": "compartido con {areas}",
     "wholeRun": "La ejecución entera: {amount} · gates {areas}",
     "tokensLine": "ent {in} · sal {out} · caché {read} / {write}",
@@ -1809,6 +1809,7 @@
   },
   "log": {
     "open": "Registro",
+    "download": "Descargar el registro",
     "openLive": "Registro · en curso",
     "unavailable": "El registro se eliminó al vencer su plazo",
     "title": "Registro · {subject}",

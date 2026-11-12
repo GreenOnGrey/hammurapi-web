@@ -80,9 +80,17 @@ export const SCREENS: Screen[] = [
   { name: "feature-codegen", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" } },
   // FTR.HMR.DEV-0004 design §3.2, §3.4: the popover of the cost of a service and the panel of the log of a task
   { name: "feature-cost", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
-    act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша дешевле").waitFor(); } },
+    act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша в несколько раз дешевле").waitFor(); } },
   { name: "feature-log", path: "/features/FTR.FMS.CAR-0005/implementation?log=run-t1", cookies: { "mock-feature": "codegen" },
     act: async (page) => { await page.locator(".runlog").getByText("create the tree").waitFor(); } },
+  // qa LOG-24: the switcher of runs is the Select of the kit, its list in the theme
+  { name: "feature-log-runs", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
+    act: async (page) => {
+      await page.getByRole("button", { name: "Лог", exact: true }).first().click();
+      await page.locator(".runlog").getByText("create the tree").waitFor();
+      await page.locator(".runlog").getByRole("button", { name: "Запуски задачи" }).click();
+      await page.getByRole("listbox", { name: "Запуски задачи" }).waitFor();
+    } },
   { name: "feature-generated", path: "/features/FTR.FMS.CAR-0005/spec/tech", cookies: { "mock-feature": "generated" } },
   { name: "admin", path: "/admin" },
   // FTR.HMR.CMN-0007 design §3.6: the connection and the binding; Nabu does not answer

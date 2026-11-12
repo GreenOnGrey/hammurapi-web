@@ -2420,6 +2420,9 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 .runlog-c pre { background: var(--surface-2); border-radius: var(--r-s); padding: 8px 10px; margin: 6px 0 0; white-space: pre-wrap;
   overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
 .runlog-msg { font-size: 13.5px; }
+.runlog-arg { margin-top: 6px; }
+.runlog-arg pre { margin-top: 2px; max-height: 260px; }
+.runlog-runs { max-width: 100%; }
 .runlog-warn { color: var(--amber); }
 .runlog-t { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .runlog-empty { padding: 24px 16px; text-align: center; }

@@ -217,6 +217,10 @@ const runLog = [
   ["entry", "3", { id: "ta", kind: "tool", at: T("06:39"), tool: "bash", command: "cd /work && ls migrations/", result: "0001_init.sql … 0018_discounts.sql" }],
   ["entry", "4", { id: "tb", kind: "tool", at: T("06:52"), tool: "bash", command: "curl -sI https://proxy.golang.org/github.com/klauspost/compress/@v/v1.19.2.zip", isError: true, result: "bash: curl: command not found\nexit 127" }],
   ["entry", "5", { id: "tc", kind: "tool", at: T("06:53"), tool: "mcp__hammurapi__spec_read", args: { featureKey: "FTR.FMS.CAR-0005", area: "design" }, result: "в работе · из ветки feature/FTR.FMS.CAR-0005" }],
+  // the arguments as the text of JSON, as Nabu passes them after masking (design §3.4: by field, with line breaks)
+  ["entry", "5.1", { id: "td", kind: "tool", at: T("07:02"), tool: "write",
+    args: JSON.stringify({ path: "migrations/0019_returns.sql", content: "-- +goose Up\nALTER TABLE returns ADD COLUMN returned_at TIMESTAMPTZ;\n\n-- +goose Down\nALTER TABLE returns DROP COLUMN returned_at;" }),
+    result: "wrote 4 lines" }],
   ["entry", "6", { id: "c6", kind: "check", at: T("07:20"), status: "finished", data: { command: "go test ./...", status: "passed" } }],
   ["entry", "7", { id: "done", kind: "done", at: T("07:34"), data: { status: "failed", usage: { costUsd: 35.18 } } }],
   ["entry", "7.1", { id: "s1", kind: "step", at: T("07:34"), step: "branch", status: "ok", detail: "created hammurapi/FTR.FMS.CAR-0005/booking" }],
@@ -240,7 +244,10 @@ const implementation = { phase: "codegen", workflow: { state: "blocked", step: "
     { service: "booking", repo: "GreenOnGrey/booking", autonomy: "pr", check: { command: "go test ./...", timeoutSec: 600 }, pr: null, plan: null,
       tasks: [codeTask("t1", "booking", "failed", { tokensIn: 72854239, errorClass: "git", retry: "commit",
         error: "commit to hammurapi/FTR.FMS.CAR-0005/booking: create the tree: git provider: not found (HTTP 404)",
-        result: { check: { status: "passed", command: "go test ./...", attempts: 1, maxAttempts: 3, outputTail: "" } } })] },
+        result: { check: { status: "passed", command: "go test ./...", attempts: 1, maxAttempts: 3, outputTail: "" } } }),
+        // an earlier run of the service: the log has a switcher of runs (qa LOG-24)
+        codeTask("t0", "booking", "failed", { createdAt: "2026-11-10T09:10:00Z", startedAt: "2026-11-10T09:10:00Z", finishedAt: "2026-11-10T09:40:00Z",
+          errorClass: "agent", error: "the agent made no changes" })] },
     { service: "pricing", repo: "GreenOnGrey/pricing", autonomy: "pr", check: { command: "npm test", timeoutSec: 600 }, plan: null,
       tasks: [codeTask("t2", "pricing", "succeeded", { tokensIn: 20323335, result: { prNumber: 15, check: { status: "passed", command: "npm test", attempts: 1, maxAttempts: 3, outputTail: "" } } })],
       // FTR.HMR.DEV-0004 qa PCI-08: a repository without checks — «CI: нет проверок»

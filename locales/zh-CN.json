@@ -1781,7 +1781,7 @@
       "cacheRead": "缓存读取",
       "cacheWrite": "缓存写入"
     },
-    "cacheHint": "缓存读取的价格是输入的十分之一甚至更低",
+    "cacheHint": "缓存读取比输入便宜数倍：价格以 Nabu 中的模型为准",
     "shared": "与 {areas} 共享",
     "wholeRun": "整次运行：{amount} · 关口 {areas}",
     "tokensLine": "入 {in} · 出 {out} · 缓存 {read} / {write}",
@@ -1809,6 +1809,7 @@
   },
   "log": {
     "open": "日志",
+    "download": "下载日志",
     "openLive": "日志 · 进行中",
     "unavailable": "日志已按保存期限删除",
     "title": "日志 · {subject}",

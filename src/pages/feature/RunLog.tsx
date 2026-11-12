@@ -3,10 +3,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Icon, Markdown } from "@green-on-grey/ui-kit";
+import { Icon, Markdown, Select } from "@green-on-grey/ui-kit";
 import { apiUrl } from "../../api/base";
 import type { RunLogEntry } from "../../api/types";
-import { appendDelta, atBottom, filterLog, mergeEntry, money, toolLine, type LogFilter } from "../../lib/cost";
+import { appendDelta, argFields, atBottom, filterLog, logFile, logFileName, mergeEntry, money, toolLine, type LogFilter } from "../../lib/cost";
 
 export type LogRun = { runId: string; label?: string };
 type Open = (o: { runId: string; runs?: LogRun[]; title?: string }) => void;
@@ -40,7 +40,7 @@ type State = "loading" | "live" | "done" | "expired" | "error";
 function RunLogPanel({ featureId, runId, runs, title, onClose, onSwitch }: {
   featureId: string; runId: string; runs?: LogRun[]; title?: string; onClose: () => void; onSwitch: (id: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [entries, setEntries] = useState<RunLogEntry[]>([]);
   const [state, setState] = useState<State>("loading");
   const [reconnecting, setReconnecting] = useState(false);
@@ -88,6 +88,20 @@ function RunLogPanel({ featureId, runId, runs, title, onClose, onSwitch }: {
   }, [entries]);
 
   const shown = useMemo(() => filterLog(entries, filter), [entries, filter]);
+  const heading = t("log.title", { subject: title ?? t("log.run") });
+  // R8, design §3.4: every entry as a text file, whatever the filter; a live run — as far as it has come
+  const download = () => {
+    const time = (e: RunLogEntry) => (e.at ? logTime(e.at, i18n.language) : "");
+    const label = runs?.find((r) => r.runId === runId)?.label;
+    const text = logFile(entries, label ? `${heading} · ${label}` : heading, time, (e) => entryText(e, t, i18n.language));
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = logFileName(title ?? "run", runId);
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 30_000); // a browser may start the download later
+
+  };
   const toLatest = () => {
     const el = body.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -95,18 +109,20 @@ function RunLogPanel({ featureId, runId, runs, title, onClose, onSwitch }: {
     setUnseen(0);
   };
   return (
-    <aside className="runlog" aria-label={t("log.title", { subject: title ?? t("log.run") })}>
+    <aside className="runlog" aria-label={heading}>
       <div className="runlog-h">
         <div className="runlog-row">
-          <b className="grow">{t("log.title", { subject: title ?? t("log.run") })}</b>
+          <b className="grow">{heading}</b>
           {state === "live" && <><span className="ring" /><span className="small">{t("log.live")}</span></>}
+          <button className="btn ghost sm" title={t("log.download")} aria-label={t("log.download")} disabled={entries.length === 0} onClick={download}>
+            <Icon name="download" size={15} />
+          </button>
           <button className="btn ghost sm" aria-label={t("common.close")} onClick={onClose}><Icon name="x" size={15} /></button>
         </div>
         <div className="runlog-row">
           {runs && runs.length > 1 && (
-            <select value={runId} onChange={(e) => onSwitch(e.target.value)} aria-label={t("log.runs")}>
-              {runs.map((r) => <option key={r.runId} value={r.runId}>{r.label ?? r.runId}</option>)}
-            </select>
+            <Select small className="runlog-runs" label={t("log.runs")} value={runId} onChange={onSwitch}
+              options={runs.map((r) => ({ value: r.runId, label: r.label ?? r.runId }))} />
           )}
           <span className="grow" />
           <div className="seg" role="group" aria-label={t("log.filter.label")}>
@@ -132,14 +148,44 @@ function RunLogPanel({ featureId, runId, runs, title, onClose, onSwitch }: {
 
 const ICONS: Record<string, string> = { message: "msg", tool: "code", check: "check", step: "branch", done: "flag", stalled: "alert", error: "alert" };
 
+const logTime = (at: string, lng: string) =>
+  new Intl.DateTimeFormat(lng, { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(at));
+
+type T = (k: string, o?: Record<string, unknown>) => string;
+
+/** The text of an entry that is not a tool, as the panel says it — the file of the log says the same. */
+function entryText(e: RunLogEntry, t: T, lng: string): string {
+  const d = e.data ?? {};
+  switch (e.kind) {
+    case "message":
+      return e.text ?? "";
+    case "expired":
+      return t("log.expired", { days: (d.days as number) ?? 30 });
+    case "check":
+      return t(`log.check.${e.status === "finished" ? "finished" : "started"}`, { command: String(d.command ?? ""), status: String(d.status ?? ""),
+        attempt: Number(d.attempt ?? 0), max: Number(d.maxAttempts ?? 0) });
+    case "stalled":
+      return t("log.stalled", { reason: String(d.reason ?? "") });
+    case "error":
+      return String(d.message ?? d.errorClass ?? "");
+    case "step":
+      return t(`log.step.${e.step}`, { defaultValue: e.step }) + (e.detail ? ": " + e.detail : "") + (e.retry ? " · " + t("log.step.retry") : "");
+    case "done": {
+      const usage = (d.usage ?? {}) as { costUsd?: number; costKnown?: boolean };
+      return t("log.done", { status: String(d.status ?? ""), amount: usage.costKnown === false ? t("cost.unknownPrice") : money(usage.costUsd ?? 0, lng) });
+    }
+  }
+  return "";
+}
+
 function LogEntry({ e }: { e: RunLogEntry }) {
   const { t, i18n } = useTranslation();
-  const time = e.at ? new Intl.DateTimeFormat(i18n.language, { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(e.at)) : "";
+  const time = e.at ? logTime(e.at, i18n.language) : "";
   const bad = e.isError || e.status === "failed" || e.kind === "error";
   let content: ReactNode;
   switch (e.kind) {
     case "expired":
-      return <div className="small muted runlog-empty">{t("log.expired", { days: (e.data?.days as number) ?? 30 })}</div>;
+      return <div className="small muted runlog-empty">{entryText(e, t, i18n.language)}</div>;
     case "message":
       content = <div className="runlog-msg"><Markdown text={e.text ?? ""} /></div>;
       break;
@@ -147,31 +193,26 @@ function LogEntry({ e }: { e: RunLogEntry }) {
       content = (
         <details open={bad}>
           <summary className="mono runlog-cmd">{toolLine(e)}</summary>
-          {e.result != null && <pre className="mono small">{e.result}</pre>}
+          {argFields(e).map(([k, v]) => (
+            <div key={k} className="runlog-arg">{k && <div className="small muted mono">{k}</div>}<pre className="mono small">{v}</pre></div>
+          ))}
+          {e.result != null && (argFields(e).length
+            ? <div className="runlog-arg"><div className="small muted mono">result</div><pre className="mono small">{e.result}</pre></div>
+            : <pre className="mono small">{e.result}</pre>)}
         </details>
       );
       break;
-    case "check": {
-      const d = e.data ?? {};
-      content = <span>{t(`log.check.${e.status === "finished" ? "finished" : "started"}`, { command: String(d.command ?? ""), status: String(d.status ?? ""),
-        attempt: Number(d.attempt ?? 0), max: Number(d.maxAttempts ?? 0) })}</span>;
-      break;
-    }
     case "stalled":
-      content = <span className="runlog-warn">{t("log.stalled", { reason: String(e.data?.reason ?? "") })}</span>;
+      content = <span className="runlog-warn">{entryText(e, t, i18n.language)}</span>;
       break;
     case "error":
-      content = <span className="err-text">{String(e.data?.message ?? e.data?.errorClass ?? "")}</span>;
+      content = <span className="err-text">{entryText(e, t, i18n.language)}</span>;
       break;
-    case "step":
-      content = <span className={bad ? "err-text" : ""}>{t(`log.step.${e.step}`, { defaultValue: e.step })}{e.detail ? ": " + e.detail : ""}{e.retry ? " · " + t("log.step.retry") : ""}</span>;
+    case "done":
+      content = <b>{entryText(e, t, i18n.language)}</b>;
       break;
-    case "done": {
-      const d = e.data ?? {};
-      const usage = (d.usage ?? {}) as { costUsd?: number; costKnown?: boolean };
-      content = <b>{t("log.done", { status: String(d.status ?? ""), amount: usage.costKnown === false ? t("cost.unknownPrice") : money(usage.costUsd ?? 0, i18n.language) })}</b>;
-      break;
-    }
+    default: // check, step: the same words as in the file of the log
+      content = <span className={bad ? "err-text" : ""}>{entryText(e, t, i18n.language)}</span>;
   }
   return (
     <div className={`runlog-e${bad ? " bad" : ""}`}>

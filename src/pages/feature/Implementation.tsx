@@ -13,7 +13,7 @@ import { useRunLog, type LogRun } from "./RunLog";
 import { dateTime } from "../../lib/format";
 
 import { Empty, Icon, Loading, Markdown, useToast } from "@green-on-grey/ui-kit";
-import { AgentMark, Dot } from "../../components/cycle";
+import { Dot } from "../../components/cycle";
 import { BlockedBanner } from "../../components/BlockedBanner";
 
 /** Implementation tab (R21): PRs by service with CI and review, and the traceability matrix. */
@@ -94,7 +94,6 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
       {autonomy && <AutonomyModal service={{ key: s.service, autonomy: s.autonomy, check: s.check }} onClose={() => setAutonomy(false)} />}
       {latest && (
         <div className="row small" style={{ marginBottom: 6 }}>
-          <AgentMark />
           <span className={`st ${latest.status === "failed" ? "blocked" : latest.status === "succeeded" ? "approved" : "disc"}`}>{t(`task.status.${latest.status}`)}</span>
           {/* FTR.HMR.DEV-0004 R1: the stage names the generation; other kinds of a task keep their label */}
           {latest.type !== "implement" && <span className="t2">{t(`task.type.${latest.type}`)}</span>}
@@ -152,7 +151,8 @@ export function PRRow({ pr }: { pr: PRDTO }) {
     <div className="pr">
       <Icon name={pr.state === "merged" ? "merge" : "branch"} size={16} />
       <a href={pr.url} target="_blank" rel="noreferrer" className="ellipsis">
-        #{pr.number} {pr.title || pr.branch} {pr.byAgent ? <AgentMark /> : <span className="tag-fix">{t("impl.byHuman")}</span>}
+        {/* FTR.HMR.DEV-0004 R1: the stage is the work of the agent — only a PR of a person is marked */}
+        #{pr.number} {pr.title || pr.branch} {!pr.byAgent && <span className="tag-fix">{t("impl.byHuman")}</span>}
       </a>
       <span className={`st ${ci === "success" ? "approved" : ci === "failure" ? "blocked" : "draft"}`}>CI: {t(`ci.${ci}`, { defaultValue: ci })}</span>
       <span className={`st ${pr.state === "merged" ? "handed" : pr.review === "approved" || pr.review === "not_required" ? "approved" : pr.review === "changes_requested" ? "blocked" : "in_review"}`}>
