@@ -758,7 +758,10 @@
     "ci_check_exists": "The repository already has the CI check file or its open PR.",
     "provider_forbidden": "The git provider refused: {reason}",
     "repo_not_in_catalog": "The repository {repository} is not the repository of any service in Hammurapi.",
-    "spec_contract": "The document breaks the contract: services, the C4 diagram or the contract files"
+    "spec_contract": "The document breaks the contract: services, the C4 diagram or the contract files",
+    "retry_commit_unavailable": "The commit cannot be repeated: run the agent again",
+    "run_not_found": "The run is not a run of this feature",
+    "too_many_streams": "Too many logs are open: close one"
   },
   "stages": {
     "title": "Stages",
@@ -1053,8 +1056,12 @@
       "limit": "The agent exceeded its time or token limit",
       "no_changes": "The agent made no changes",
       "git": "Git provider error: {text}",
-      "unbound": "The scenario is not bound to a Nabu agent"
-    }
+      "unbound": "The scenario is not bound to a Nabu agent",
+      "branch_moved": "The branch changed after the run of the agent"
+    },
+    "retryCommit": "Retry the commit",
+    "retryCommitHint": "Without a new run of the agent",
+    "rerunAgent": "Run the agent again"
   },
   "ci": {
     "pending": "pending",
@@ -1758,5 +1765,79 @@
       "type": "Type",
       "description": "Description"
     }
+  },
+  "cost": {
+    "button": "Cost: {amount}",
+    "title": "Cost · {subject}",
+    "back": "Feature",
+    "runs": "{count, plural, one {# run} other {# runs}} · {tokens} tokens",
+    "unknownPrice": "price unknown",
+    "withoutUnknown": "without {count, plural, one {# run} other {# runs}}",
+    "running": "and {count, plural, one {# run is} other {# runs are}} still going",
+    "kind": {
+      "in": "Input",
+      "out": "Output",
+      "cacheRead": "Cache read",
+      "cacheWrite": "Cache write"
+    },
+    "cacheHint": "A cache read costs ten times less than input and below",
+    "shared": "shared with {areas}",
+    "wholeRun": "The whole run: {amount} · gates {areas}",
+    "tokensLine": "in {in} · out {out} · cache {read} / {write}",
+    "legacy": "Before the attribution by gate",
+    "otherRuns": "Checks and reviews",
+    "priceSource": "Prices are those of Nabu at the time of a run",
+    "error": "The cost could not be loaded",
+    "reason": {
+      "generate": "first generation",
+      "regenerate": "regeneration",
+      "request": "instruction",
+      "answers": "answers",
+      "impact": "check of the gates below",
+      "first": "first generation",
+      "retry": "retry",
+      "review": "PR review",
+      "update_pr": "PR update",
+      "revert": "revert",
+      "check": "conformance check"
+    },
+    "status": {
+      "failed": "error",
+      "cancelled": "cancelled"
+    }
+  },
+  "log": {
+    "open": "Log",
+    "openLive": "Log · live",
+    "unavailable": "The log was deleted after its term",
+    "title": "Log · {subject}",
+    "run": "run",
+    "runs": "Runs of the task",
+    "runOf": "Run {n} of {total} · {at} · {status}",
+    "filter": {
+      "label": "Show",
+      "all": "All",
+      "commands": "Commands",
+      "messages": "Messages"
+    },
+    "live": "live",
+    "toLatest": "To the latest · {count, plural, one {# new} other {# new}}",
+    "reconnecting": "Connection lost, reconnecting…",
+    "empty": "The agent has not started yet",
+    "error": "The log could not be loaded",
+    "expired": "The log of the run was deleted after its term ({days} days). The cost of the run is kept.",
+    "stalled": "The agent was stopped: {reason}",
+    "check": {
+      "started": "Check: {command}, attempt {attempt} of {max}",
+      "finished": "Check: {command} — {status}"
+    },
+    "step": {
+      "branch": "Branch",
+      "commit": "Commit",
+      "pr": "PR",
+      "comment": "Comment in the PR",
+      "retry": "retry of the commit"
+    },
+    "done": "The run ended: {status} · {amount}"
   }
 }

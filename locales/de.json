@@ -758,7 +758,10 @@
     "ci_check_exists": "Das Repository hat bereits die CI-Prüfdatei oder deren offenen PR.",
     "provider_forbidden": "Der Git-Anbieter hat abgelehnt: {reason}",
     "repo_not_in_catalog": "Das Repository {repository} gehört zu keinem Dienst in Hammurapi.",
-    "spec_contract": "Das Dokument verletzt den Vertrag: Services, C4-Diagramm oder Vertragsdateien"
+    "spec_contract": "Das Dokument verletzt den Vertrag: Services, C4-Diagramm oder Vertragsdateien",
+    "retry_commit_unavailable": "Der Commit kann nicht wiederholt werden: starten Sie den Agenten neu",
+    "run_not_found": "Der Lauf gehört nicht zu dieser Feature",
+    "too_many_streams": "Zu viele Protokolle geöffnet: schließen Sie eines"
   },
   "stages": {
     "title": "Phasen",
@@ -1053,8 +1056,12 @@
       "limit": "Der Agent hat sein Zeit- oder Token-Limit überschritten",
       "no_changes": "Der Agent hat nichts geändert",
       "git": "Fehler des Git-Anbieters: {text}",
-      "unbound": "Das Szenario ist keinem Nabu-Agenten zugeordnet"
-    }
+      "unbound": "Das Szenario ist keinem Nabu-Agenten zugeordnet",
+      "branch_moved": "Der Branch hat sich nach dem Lauf des Agenten geändert"
+    },
+    "retryCommit": "Commit wiederholen",
+    "retryCommitHint": "Ohne neuen Lauf des Agenten",
+    "rerunAgent": "Agenten neu starten"
   },
   "ci": {
     "pending": "ausstehend",
@@ -1758,5 +1765,79 @@
       "type": "Typ",
       "description": "Beschreibung"
     }
+  },
+  "cost": {
+    "button": "Kosten: {amount}",
+    "title": "Kosten · {subject}",
+    "back": "Feature",
+    "runs": "{count, plural, one {# Lauf} other {# Läufe}} · {tokens} Tokens",
+    "unknownPrice": "Preis unbekannt",
+    "withoutUnknown": "ohne {count, plural, one {# Lauf} other {# Läufe}}",
+    "running": "und {count, plural, one {# Lauf läuft} other {# Läufe laufen}} noch",
+    "kind": {
+      "in": "Eingabe",
+      "out": "Ausgabe",
+      "cacheRead": "Cache gelesen",
+      "cacheWrite": "Cache geschrieben"
+    },
+    "cacheHint": "Ein Cache-Lesezugriff kostet zehnmal weniger als Eingabe oder noch weniger",
+    "shared": "geteilt mit {areas}",
+    "wholeRun": "Der ganze Lauf: {amount} · Gates {areas}",
+    "tokensLine": "ein {in} · aus {out} · Cache {read} / {write}",
+    "legacy": "Vor der Zuordnung nach Gates",
+    "otherRuns": "Prüfungen und Reviews",
+    "priceSource": "Preise von Nabu zum Zeitpunkt des Laufs",
+    "error": "Die Kosten konnten nicht geladen werden",
+    "reason": {
+      "generate": "erste Generierung",
+      "regenerate": "Neugenerierung",
+      "request": "Auftrag",
+      "answers": "Antworten",
+      "impact": "Prüfung der betroffenen Gates",
+      "first": "erste Generierung",
+      "retry": "Wiederholung",
+      "review": "PR-Review",
+      "update_pr": "PR-Aktualisierung",
+      "revert": "Revert",
+      "check": "Konformitätsprüfung"
+    },
+    "status": {
+      "failed": "Fehler",
+      "cancelled": "abgebrochen"
+    }
+  },
+  "log": {
+    "open": "Protokoll",
+    "openLive": "Protokoll · läuft",
+    "unavailable": "Das Protokoll wurde nach Ablauf gelöscht",
+    "title": "Protokoll · {subject}",
+    "run": "Lauf",
+    "runs": "Läufe der Aufgabe",
+    "runOf": "Lauf {n} von {total} · {at} · {status}",
+    "filter": {
+      "label": "Anzeigen",
+      "all": "Alles",
+      "commands": "Befehle",
+      "messages": "Nachrichten"
+    },
+    "live": "läuft",
+    "toLatest": "Zu den neuesten · {count, plural, one {# neu} other {# neu}}",
+    "reconnecting": "Verbindung verloren, neu verbinden…",
+    "empty": "Der Agent hat noch nicht begonnen",
+    "error": "Das Protokoll konnte nicht geladen werden",
+    "expired": "Das Protokoll des Laufs wurde nach Ablauf gelöscht ({days} Tage). Die Kosten bleiben erhalten.",
+    "stalled": "Der Agent wurde gestoppt: {reason}",
+    "check": {
+      "started": "Prüfung: {command}, Versuch {attempt} von {max}",
+      "finished": "Prüfung: {command} — {status}"
+    },
+    "step": {
+      "branch": "Branch",
+      "commit": "Commit",
+      "pr": "PR",
+      "comment": "Kommentar im PR",
+      "retry": "Wiederholung des Commits"
+    },
+    "done": "Der Lauf endete: {status} · {amount}"
   }
 }

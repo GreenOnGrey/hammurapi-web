@@ -1,3 +1,5 @@
+import { CostButton } from "./feature/Cost";
+import { RunLogProvider } from "./feature/RunLog";
 import { useEffect, useState } from "react";
 import { Link, Navigate, NavLink, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -166,6 +168,7 @@ function FeatureView({ f, tab, area, discovery = false }: { f: FeatureCard; tab:
     act.mutate({ path: `/gates/${a}/submit`, body }, { onSuccess: () => toast({ kind: "ok", title: t("feature.submitted") }) });
 
   return (
+    <RunLogProvider featureId={f.uniqueId}>
     <main className="main">
       <div className="crumbs">
         <Link to="/development" aria-label={t("common.back")}><Icon name="back" size={16} /></Link>
@@ -178,6 +181,8 @@ function FeatureView({ f, tab, area, discovery = false }: { f: FeatureCard; tab:
         <h1 className="ftitle" style={{ flex: 1 }}>{f.title}</h1>
         {/* centered on the first line of the title, whatever its length */}
         <div style={{ display: "flex", alignItems: "center", height: 36 }}><PhaseBadge phase={f.phase} /></div>
+        {/* FTR.HMR.DEV-0004 R7: the cost of the whole feature */}
+        <div style={{ display: "flex", alignItems: "center", height: 36 }}><CostButton featureId={f.uniqueId} subject={null} align="end" /></div>
         {(f.permissions.delete || f.permissions.setFlag) && (
           <div style={{ position: "relative" }} ref={menuRef}>
             <button className="iconbtn" aria-label={t("feature.actions")} aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
@@ -304,6 +309,7 @@ function FeatureView({ f, tab, area, discovery = false }: { f: FeatureCard; tab:
         </Modal>
       )}
     </main>
+    </RunLogProvider>
   );
 }
 
@@ -436,6 +442,8 @@ function ActionBar({ f, gate, onSubmit, onApprove, onAdvance, onHistory, busy }:
     <div className="actionbar">
       <StatusBadge status={gate.status} approvalRequired={f.approvalRequired} />
       <span className="grow ab-grow">{text}</span>
+      {/* FTR.HMR.DEV-0004 R4: the cost of the gate, before its history (design §2.1) */}
+      <CostButton featureId={f.uniqueId} subject={{ kind: "area", key: gate.area }} align="end" />
       <button className="btn sm" onClick={onHistory}>{t("feature.history")}</button>
       {f.permissions.advance && <button className="btn primary sm abmain" disabled={busy || !!f.writerRun || rows.product || rows.arch} title={rows.product || rows.arch ? invalidHint : undefined} onClick={onAdvance}>{t("writer.advance")}</button>}
       {canSubmit && <button className="btn primary sm abmain" disabled={busy || (submitChecked && submitInvalid)} title={submitChecked && submitInvalid ? invalidHint : undefined} onClick={onSubmit}>{t("feature.submit")}</button>}

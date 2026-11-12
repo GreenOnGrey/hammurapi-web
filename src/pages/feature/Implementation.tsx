@@ -2,12 +2,15 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
-import { invalidateFeature, useImplementation } from "../../api/queries";
+import { invalidateFeature, useFeatureCost, useImplementation } from "../../api/queries";
 import type { TFunction } from "i18next";
 import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl, TaskDTO, TaskCheck } from "../../api/types";
 import { errorText } from "../../lib/errors";
 import { useSession } from "../../app/session";
 import { AutonomyModal } from "./Autonomy";
+import { CostButton } from "./Cost";
+import { useRunLog, type LogRun } from "./RunLog";
+import { dateTime } from "../../lib/format";
 
 import { Empty, Icon, Loading, Markdown, useToast } from "@green-on-grey/ui-kit";
 import { AgentMark, Dot } from "../../components/cycle";
@@ -56,11 +59,20 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   const latest = s.tasks[0];
   const { owns } = useSession();
   const [autonomy, setAutonomy] = useState(false);
+  // FTR.HMR.DEV-0004 R12–R14: «Повторить коммит» repeats the steps of Hammurapi, the other retries run the agent again
   const retry = useMutation({
-    mutationFn: (id: string) => api.post(`/api/v1/features/${f.uniqueId}/codegen/tasks/${id}/retry`),
+    mutationFn: ({ id, commit }: { id: string; commit: boolean }) =>
+      api.post(`/api/v1/features/${f.uniqueId}/codegen/tasks/${id}/${commit ? "retry-commit" : "retry"}`),
     onSuccess: () => invalidateFeature(qc, f.uniqueId),
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
+  const cost = useFeatureCost(f.uniqueId);
+  const openLog = useRunLog();
+  const runs: LogRun[] = s.tasks.filter((x) => x.nabuRunId).map((x, i, all) => ({
+    runId: x.nabuRunId!,
+    label: t("log.runOf", { n: all.length - i, total: all.length, at: dateTime(x.startedAt ?? x.createdAt, i18n.language), status: t(`task.status.${x.status}`) }),
+  }));
+  const retryLabel = latest?.retry === "commit" ? t("task.retryCommit") : latest?.retry === "rerun" ? t("task.rerunAgent") : t("task.retry");
   return (
     <section className="svc">
       <div className="h">
@@ -81,9 +93,18 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
           {latest.type !== "implement" && <span className="t2">{t(`task.type.${latest.type}`)}</span>}
           {latest.status === "running" && <><span className="ring" /><span className="t2">{latest.progress ?? t("task.working")}</span></>}
           {latest.error && <span className="err-text" style={{ margin: 0 }}>{taskError(t, latest)}</span>}
-          {(latest.tokensIn + latest.tokensOut) > 0 && <span className="muted">{t("common.tokens", { n: (latest.tokensIn + latest.tokensOut).toLocaleString(i18n.language) })}</span>}
+          {/* FTR.HMR.DEV-0004 R1, R4, R8, R10: the cost of the service and the log of the task, for its experts */}
+          <CostButton featureId={f.uniqueId} subject={{ kind: "service", key: s.service }} />
+          {cost.data?.canViewLog && latest.nabuRunId && (
+            <button className="btn ghost sm" title={latest.status === "running" ? t("log.openLive") : t("log.open")}
+              aria-label={latest.status === "running" ? t("log.openLive") : t("log.open")}
+              onClick={() => openLog({ runId: latest.nabuRunId!, runs, title: s.service })}>
+              <Icon name="terminal" size={16} />
+            </button>
+          )}
           {(latest.status === "failed" || latest.status === "cancelled") && (
-            <button className="btn sm" disabled={retry.isPending} onClick={() => retry.mutate(latest.id)}>{t("task.retry")}</button>
+            <button className="btn sm" disabled={retry.isPending} title={latest.retry === "commit" ? t("task.retryCommitHint") : undefined}
+              onClick={() => retry.mutate({ id: latest.id, commit: latest.retry === "commit" })}>{retryLabel}</button>
           )}
         </div>
       )}

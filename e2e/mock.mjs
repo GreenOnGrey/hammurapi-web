@@ -191,13 +191,45 @@ const contractYAML = "openapi: 3.0.3\ninfo:\n  title: booking — возврат
   "components:\n  schemas:\n    Return:\n      type: object\n      properties:\n        discount: { type: number, description: Скидка на следующую аренду }\n";
 const contractProto = "syntax = \"proto3\";\n\npackage pricing.v1;\n\n// The discount for an early return.\nservice Discounts {\n  rpc Quote(QuoteRequest) returns (Quote);\n}\n\nmessage QuoteRequest {\n  string booking_id = 1;\n  int64 returned_at = 2;\n}\n\nmessage Quote {\n  double discount = 1;\n  repeated string reasons = 2;\n}\n\nenum Reason {\n  REASON_UNSPECIFIED = 0;\n  EARLY_RETURN = 1;\n}\n";
 
+// FTR.HMR.DEV-0004 R4–R11: the cost of the feature and the log of a run
+const tk = (i, o, r, w) => ({ in: i, out: o, cacheRead: r, cacheWrite: w });
+const costRun = (id, at, reason, costUsd, tokens, extra = {}) => ({ id, runId: "run-" + id, at: T(at), reason, status: "succeeded", model: "sonnet-5",
+  costUsd, costKnown: costUsd !== null, tokens, logAvailable: true, ...extra });
+const costItems = {
+  "area:tech": { kind: "area", key: "tech", costUsd: 4.12, unknownRuns: 1, runs: 4, running: 0, tokens: tk(214880, 61402, 3090115, 40220), list: [
+    costRun("w4", "06:09", "regenerate", 1.5, tk(60000, 18000, 900000, 12000), { shared: { areas: ["tech", "qa"], costUsd: 3, tokens: tk(120000, 36000, 1800000, 24000) } }),
+    costRun("w3", "05:00", "request", null, tk(40000, 9000, 0, 0), { model: "gigachat-max" }),
+    costRun("w2", "04:52", "regenerate", 1.4, tk(70000, 20000, 1100000, 16000)),
+    costRun("w1", "03:30", "generate", 1.22, tk(45000, 14000, 1000000, 12000), { logAvailable: false }),
+  ] },
+  "service:booking": { kind: "service", key: "booking", costUsd: 41.2, unknownRuns: 0, runs: 2, running: 0, tokens: tk(1942117, 486310, 78103552, 812044), list: [
+    costRun("t1b", "08:10", "retry", 6.02, tk(300000, 52000, 8100000, 100000)),
+    costRun("t1", "06:38", "first", 35.18, tk(1600000, 434000, 70000000, 700000), { status: "failed" }),
+  ] },
+  "service:pricing": { kind: "service", key: "pricing", costUsd: 11.85, unknownRuns: 0, runs: 1, running: 0, tokens: tk(320000, 90000, 19900000, 13000) },
+};
+const featureCost = (detail) => {
+  const items = Object.entries(costItems).map(([k, it]) => (k === detail ? it : { ...it, list: undefined }));
+  return { total: { costUsd: 57.17, unknownRuns: 1, runs: 7, running: 0, tokens: tk(2477000, 637712, 101093667, 865264) }, items, canViewLog: true };
+};
+const runLog = [
+  ["entry", "2", { id: "m1", kind: "message", at: T("06:38"), text: "Читаю спецификацию и код `booking`: миграции, `internal/returns`." }],
+  ["entry", "3", { id: "ta", kind: "tool", at: T("06:39"), tool: "bash", command: "cd /work && ls migrations/", result: "0001_init.sql … 0018_discounts.sql" }],
+  ["entry", "4", { id: "tb", kind: "tool", at: T("06:52"), tool: "bash", command: "curl -sI https://proxy.golang.org/github.com/klauspost/compress/@v/v1.19.2.zip", isError: true, result: "bash: curl: command not found\nexit 127" }],
+  ["entry", "5", { id: "tc", kind: "tool", at: T("06:53"), tool: "mcp__hammurapi__spec_read", args: { featureKey: "FTR.FMS.CAR-0005", area: "design" }, result: "в работе · из ветки feature/FTR.FMS.CAR-0005" }],
+  ["entry", "6", { id: "c6", kind: "check", at: T("07:20"), status: "finished", data: { command: "go test ./...", status: "passed" } }],
+  ["entry", "7", { id: "done", kind: "done", at: T("07:34"), data: { status: "failed", usage: { costUsd: 35.18 } } }],
+  ["entry", "7.1", { id: "s1", kind: "step", at: T("07:34"), step: "branch", status: "ok", detail: "created hammurapi/FTR.FMS.CAR-0005/booking" }],
+  ["entry", "7.2", { id: "s2", kind: "step", at: T("07:34"), step: "commit", status: "failed", detail: "commit to hammurapi/FTR.FMS.CAR-0005/booking: create the tree: git provider: not found (HTTP 404)" }],
+];
+
 // FTR.HMR.DEV-0004 R1–R3: the services of a feature in code generation
 const codeTask = (id, service, status, extra = {}) => ({ id, type: "implement", status, service, result: null, progress: null, error: null, tokensIn: 0, tokensOut: 0,
   createdAt: "2026-11-11T06:38:00Z", startedAt: "2026-11-11T06:38:00Z", finishedAt: "2026-11-11T07:34:00Z", errorClass: null, nabuRunId: "run-" + id, ...extra });
 const implementation = { phase: "codegen", workflow: { state: "blocked", step: "codegen", lastError: "the task for booking failed" }, matrix: [], humanPrs: [], tokensIn: 93177574, tokensOut: 0, canStart: false,
   services: [
     { service: "booking", repo: "GreenOnGrey/booking", autonomy: "pr", check: { command: "go test ./...", timeoutSec: 600 }, pr: null, plan: null,
-      tasks: [codeTask("t1", "booking", "failed", { tokensIn: 72854239, errorClass: "git",
+      tasks: [codeTask("t1", "booking", "failed", { tokensIn: 72854239, errorClass: "git", retry: "commit",
         error: "commit to hammurapi/FTR.FMS.CAR-0005/booking: create the tree: git provider: not found (HTTP 404)",
         result: { check: { status: "passed", command: "go test ./...", attempts: 1, maxAttempts: 3, outputTail: "" } } })] },
     { service: "pricing", repo: "GreenOnGrey/pricing", autonomy: "pr", check: { command: "npm test", timeoutSec: 600 }, plan: null,
@@ -217,6 +249,7 @@ function api(url, c) {
     content: c4Arch(c("mock-c4") === "error" ? c4Block.replace("Rel(client, booking", "Rel(client, bookng").replace('"Клиент")', '"Клиент)') : c4Block) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005") return { ...feature(c("mock-feature")) };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/implementation") return implementation;
+  if (p === "/api/v1/features/FTR.FMS.CAR-0005/cost") return featureCost(url.searchParams.get("detail"));
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/discovery") return !c("mock-discovery") ? { ref: "ftr", document: null, files: [] } : { ref: "ftr",
     document: { path: "specs/FMS/CAR/FTR.FMS.CAR-0005/discovery/discovery.md", markdown: discoveryMd, blobSha: "d0" }, files: discoveryFiles };
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/spec/questions") return specQuestions(c("mock-feature"));
@@ -320,6 +353,11 @@ http.createServer((req, res) => {
     return res.end(`<!doctype html><body style="margin:0;background:#888"><script>try{localStorage.setItem("hmr-theme","${theme}")}catch(e){}</script><iframe src="${q.get("p") ?? "/"}" width="${q.get("w") ?? 1280}" height="${q.get("h") ?? 860}" style="border:0;display:block"></iframe></body>`);
   }
   if (url.pathname === "/config.json") { res.writeHead(404); return res.end(); }
+  // FTR.HMR.DEV-0004 R8: the log of a run — the entries at once, then the stream ends
+  if (/^\/api\/v1\/features\/[^/]+\/runs\/[^/]+\/log$/.test(url.pathname)) {
+    res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache" });
+    return res.end("retry: 600000\n\n" + runLog.map(([ev, id, d]) => `id: ${id}\nevent: ${ev}\ndata: ${JSON.stringify(d)}\n\n`).join(""));
+  }
   if (url.pathname === "/api/v1/events") {
     res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache" });
     // closed at once and not to be retried soon: an open stream would keep a page from settling

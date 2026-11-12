@@ -135,12 +135,15 @@ function Authenticated() {
       }),
       onEvent("feature.updated", (d: { uniqueId?: string; phase?: string }) => {
         invalidateCycle(qc);
+        qc.invalidateQueries({ queryKey: ["feature-cost"] });
         // FTR.HMR.DEV-0001 R20: the specification ended — the topics are archived, a return starts a draft
         if (d.uniqueId && d.phase) qc.invalidateQueries({ queryKey: keys.topic(d.uniqueId) });
       }),
-      onEvent("task.progress", () =>
-        qc.invalidateQueries({ queryKey: ["implementation"] }),
-      ),
+      onEvent("task.progress", () => {
+        qc.invalidateQueries({ queryKey: ["implementation"] });
+        qc.invalidateQueries({ queryKey: ["feature-cost"] }); // FTR.HMR.DEV-0004 R4: a run adds to the cost
+      }),
+      onEvent("task.step", () => qc.invalidateQueries({ queryKey: ["implementation"] })),
       onEvent("validation.updated", () => {
         qc.invalidateQueries({ queryKey: ["validation"] });
         qc.invalidateQueries({ queryKey: keys.focus });

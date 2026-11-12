@@ -2379,3 +2379,49 @@ button.oa-prop-name .oa-caret { margin-left: 0; }
 .protoview .pt-com { color: var(--muted); font-style: italic; }
 .protoview .pt-num { color: var(--amber); }
 @media (max-width: 767px) { .protoview-toc { display: none; } }
+
+/* FTR.HMR.DEV-0004 design §2.2, §3.2–§3.3: the popover of the cost */
+.cost-anchor { position: relative; display: inline-flex; }
+.cost-anchor.end .cost-pop { left: auto; right: 0; }
+.cost-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: 420px; max-height: 70vh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-m); box-shadow: var(--shadow);
+  text-align: left; font-size: 14px; color: var(--text); }
+.cost-pop-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.cost-pop-b { display: grid; gap: 12px; padding: 12px; }
+.cost-total { font-size: 26px; font-weight: 650; line-height: 1.1; }
+.cost-kinds { display: grid; gap: 2px; font-size: 13px; }
+.cost-items { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cost-items td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
+.cost-items tr.click { cursor: pointer; }
+.cost-items tr.click:hover { background: var(--surface-2); }
+.cost-pop .num { font-variant-numeric: tabular-nums; text-align: right; }
+.cost-runs { display: grid; border-top: 1px solid var(--border); }
+.cost-run { display: grid; gap: 2px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.cost-full { background: var(--surface-2); border-radius: var(--r-s); padding: 6px 10px; }
+.chip-s { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-2); background: none; }
+.chip-s.bad { color: var(--red); border-color: var(--red); }
+button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cursor: pointer; }
+@media (max-width: 767px) {
+  .cost-pop { position: fixed; top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: 80vh; border-radius: var(--r-m) var(--r-m) 0 0; }
+}
+
+/* FTR.HMR.DEV-0004 design §2.3, §3.4: the side panel of the log of a run */
+.runlog { position: fixed; z-index: 40; top: 0; right: 0; bottom: 0; width: min(640px, 50vw); display: flex; flex-direction: column;
+  background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow); }
+.runlog-h { display: grid; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.runlog-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.runlog-b { flex: 1; overflow: auto; padding: 6px 0; position: relative; }
+.runlog-e { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; padding: 5px 16px; align-items: start; }
+.runlog-e:hover { background: var(--surface-2); }
+.runlog-e.bad .runlog-ic { color: var(--red); }
+.runlog-ic { color: var(--text-2); text-align: center; font-size: 13px; }
+.runlog-c { min-width: 0; }
+.runlog-cmd { cursor: pointer; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 12.5px; }
+.runlog-c pre { background: var(--surface-2); border-radius: var(--r-s); padding: 8px 10px; margin: 6px 0 0; white-space: pre-wrap;
+  overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+.runlog-msg { font-size: 13.5px; }
+.runlog-warn { color: var(--amber); }
+.runlog-t { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.runlog-empty { padding: 24px 16px; text-align: center; }
+.runlog-latest { position: sticky; bottom: 8px; display: flex; justify-content: center; }
+@media (max-width: 767px) { .runlog { width: 100vw; } }

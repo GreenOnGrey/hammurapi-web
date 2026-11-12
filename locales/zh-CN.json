@@ -758,7 +758,10 @@
     "ci_check_exists": "仓库中已有 CI 检查文件或其打开的 PR。",
     "provider_forbidden": "Git 提供方拒绝：{reason}",
     "repo_not_in_catalog": "仓库 {repository} 不属于 Hammurapi 中的任何服务。",
-    "spec_contract": "文档违反了契约：服务、C4 图或契约文件"
+    "spec_contract": "文档违反了契约：服务、C4 图或契约文件",
+    "retry_commit_unavailable": "无法重试提交：请重新运行代理",
+    "run_not_found": "该运行不属于此功能",
+    "too_many_streams": "打开的日志太多：请关闭一个"
   },
   "stages": {
     "title": "阶段",
@@ -1053,8 +1056,12 @@
       "limit": "智能体超出了时间或令牌限制",
       "no_changes": "智能体未做任何更改",
       "git": "Git 提供方错误：{text}",
-      "unbound": "该场景未绑定 Nabu 智能体"
-    }
+      "unbound": "该场景未绑定 Nabu 智能体",
+      "branch_moved": "代理运行后分支已变化"
+    },
+    "retryCommit": "重试提交",
+    "retryCommitHint": "无需重新运行代理",
+    "rerunAgent": "重新运行代理"
   },
   "ci": {
     "pending": "等待中",
@@ -1758,5 +1765,79 @@
       "type": "类型",
       "description": "说明"
     }
+  },
+  "cost": {
+    "button": "费用：{amount}",
+    "title": "费用 · {subject}",
+    "back": "功能",
+    "runs": "{count} 次运行 · {tokens} 个令牌",
+    "unknownPrice": "价格未知",
+    "withoutUnknown": "不含 {count} 次运行",
+    "running": "还有 {count} 次运行进行中",
+    "kind": {
+      "in": "输入",
+      "out": "输出",
+      "cacheRead": "缓存读取",
+      "cacheWrite": "缓存写入"
+    },
+    "cacheHint": "缓存读取的价格是输入的十分之一甚至更低",
+    "shared": "与 {areas} 共享",
+    "wholeRun": "整次运行：{amount} · 关口 {areas}",
+    "tokensLine": "入 {in} · 出 {out} · 缓存 {read} / {write}",
+    "legacy": "按关口统计之前",
+    "otherRuns": "检查与评审",
+    "priceSource": "价格按运行时 Nabu 的价格计算",
+    "error": "无法加载费用",
+    "reason": {
+      "generate": "首次生成",
+      "regenerate": "重新生成",
+      "request": "指令",
+      "answers": "回答",
+      "impact": "检查受影响的关口",
+      "first": "首次生成",
+      "retry": "重试",
+      "review": "PR 评审",
+      "update_pr": "PR 更新",
+      "revert": "回滚",
+      "check": "一致性检查"
+    },
+    "status": {
+      "failed": "错误",
+      "cancelled": "已取消"
+    }
+  },
+  "log": {
+    "open": "日志",
+    "openLive": "日志 · 进行中",
+    "unavailable": "日志已按保存期限删除",
+    "title": "日志 · {subject}",
+    "run": "运行",
+    "runs": "任务的运行",
+    "runOf": "第 {n} 次运行（共 {total} 次）· {at} · {status}",
+    "filter": {
+      "label": "显示",
+      "all": "全部",
+      "commands": "命令",
+      "messages": "消息"
+    },
+    "live": "进行中",
+    "toLatest": "到最新 · {count} 条新记录",
+    "reconnecting": "连接中断，正在重新连接…",
+    "empty": "代理尚未开始",
+    "error": "无法加载日志",
+    "expired": "运行日志已按保存期限（{days} 天）删除，费用记录保留。",
+    "stalled": "代理已停止：{reason}",
+    "check": {
+      "started": "检查：{command}，第 {attempt} 次（共 {max} 次）",
+      "finished": "检查：{command} — {status}"
+    },
+    "step": {
+      "branch": "分支",
+      "commit": "提交",
+      "pr": "PR",
+      "comment": "PR 评论",
+      "retry": "重试提交"
+    },
+    "done": "运行结束：{status} · {amount}"
   }
 }
