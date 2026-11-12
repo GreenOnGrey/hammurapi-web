@@ -58,9 +58,81 @@ export function atBottom(el: { scrollTop: number; clientHeight: number; scrollHe
   return el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
 }
 
-/** The shell command of a tool or its name with the arguments in one line. */
+/** The arguments of a tool: an object, or a string when they are not JSON. Nabu may pass them as the text of
+ * JSON (after masking); read once more, or `JSON.stringify` would escape it twice — «\\n» in the log. */
+export function argsOf(e: RunLogEntry): Record<string, unknown> | string | undefined {
+  let a: unknown = e.args;
+  if (typeof e.args === "string") {
+    try {
+      a = JSON.parse(e.args);
+    } catch {
+      return e.args;
+    }
+  }
+  if (a === undefined || a === null) return undefined;
+  return typeof a === "object" && !Array.isArray(a) ? (a as Record<string, unknown>) : JSON.stringify(a);
+}
+
+/** A value in one line (design §3.4): up to the first line break and 80 characters. */
+function brief(v: unknown): string {
+  const s = text(v);
+  const line = s.split("\n")[0];
+  return line.length > 80 ? line.slice(0, 80) + "…" : line === s ? line : line + " …";
+}
+
+/** The shell command of a tool, or its name with the arguments in one line. */
 export function toolLine(e: RunLogEntry): string {
   if (e.command) return "$ " + e.command;
-  const args = e.args === undefined ? "" : " " + JSON.stringify(e.args);
-  return (e.tool ?? "") + args;
+  const a = argsOf(e);
+  const args = a === undefined ? "" : typeof a === "string" ? brief(a) : Object.entries(a).map(([k, v]) => `${k}=${brief(v)}`).join(" ");
+  return (e.tool ?? "") + (args ? " " + args : "");
+}
+
+/** A value as text: a string as it is, anything else as JSON; `undefined` — nothing. */
+function text(v: unknown, space?: number): string {
+  return typeof v === "string" ? v : (JSON.stringify(v, null, space) ?? "");
+}
+
+/** The arguments of a tool by field, a text value as it is — with its line breaks (design §3.4). */
+export function argFields(e: RunLogEntry): [string, string][] {
+  if (e.command) return [];
+  const a = argsOf(e);
+  if (a === undefined) return [];
+  if (typeof a === "string") return [["", a]];
+  return Object.entries(a).map(([k, v]) => [k, text(v, 2)]);
+}
+
+const indent = (s: string, by = "    ") => s.split("\n").map((l) => by + l).join("\n");
+
+/** The log as a text file (R8, design §3.4): every entry whatever the filter, a paragraph each. `time` and `text`
+ * come from the panel, so the file says what the panel shows. */
+export function logFile(entries: RunLogEntry[], title: string, time: (e: RunLogEntry) => string, text: (e: RunLogEntry) => string): string {
+  const out = [title, ""];
+  for (const e of entries) {
+    const at = time(e);
+    const head = at ? at + "  " : "";
+    if (e.kind === "tool") {
+      const lines = [head + (e.isError ? "✗ " : "") + (e.command ? "$ " + e.command : e.tool ?? "")];
+      const fields = argFields(e);
+      for (const [k, v] of fields) {
+        if (k) lines.push(`  ${k}:`);
+        lines.push(indent(v));
+      }
+      if (e.result != null && e.result !== "") {
+        if (fields.length) lines.push("  result:"); // after the arguments the output is told apart
+        lines.push(indent(e.result));
+      }
+      out.push(lines.join("\n"), "");
+    } else {
+      const s = text(e);
+      if (s) out.push(head + s, "");
+    }
+  }
+  return out.join("\n");
+}
+
+/** The name of the file of a log: «booking-1a2b3c4d.log». */
+export function logFileName(subject: string, runId: string): string {
+  const safe = subject.replace(/[^\p{L}\p{N}._-]+/gu, "-").replace(/^-+|-+$/g, "") || "run";
+  return `${safe}-${runId.replace(/-/g, "").slice(0, 8)}.log`;
 }

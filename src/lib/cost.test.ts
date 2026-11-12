@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { RunLogEntry } from "../api/types";
-import { appendDelta, atBottom, costDetail, filterLog, mergeEntry, money, tokensFull, tokensShort, toolLine } from "./cost";
+import { appendDelta, argFields, atBottom, costDetail, filterLog, logFile, logFileName, mergeEntry, money, tokensFull, tokensShort, toolLine } from "./cost";
 
 // FTR.HMR.DEV-0004 qa COST-14: money and tokens in the locale of the interface.
 describe("COST-14 money and tokens", () => {
@@ -22,10 +22,10 @@ describe("COST-14 money and tokens", () => {
   });
 });
 
-// LOG-02, LOG-13, LOG-14, LOG-16: the entries of the log.
+// LOG-13, LOG-14, LOG-16: the entries of the log.
 describe("the log of a run", () => {
   const call: RunLogEntry = { id: "tc1", kind: "tool", tool: "bash", command: "go test ./...", at: "2026-11-11T06:52:14Z", result: null };
-  it("LOG-02 puts the result of a tool into the entry of its call", () => {
+  it("puts the result of a tool into the entry of its call", () => {
     const list = mergeEntry([call], { id: "tc1", kind: "tool", tool: "bash", isError: true, result: "exit 1" });
     expect(list).toHaveLength(1);
     expect(list[0]).toMatchObject({ command: "go test ./...", result: "exit 1", isError: true, at: call.at });
@@ -46,6 +46,27 @@ describe("the log of a run", () => {
   });
   it("shows a command or a tool with its arguments", () => {
     expect(toolLine(call)).toBe("$ go test ./...");
-    expect(toolLine({ id: "t2", kind: "tool", tool: "spec_read", args: { area: "qa" } })).toBe('spec_read {"area":"qa"}');
+    expect(toolLine({ id: "t2", kind: "tool", tool: "spec_read", args: { area: "qa" } })).toBe("spec_read area=qa");
+  });
+  // design §3.4: arguments that come as the text of JSON are read once, a long value is cut in the line
+  const write: RunLogEntry = { id: "w", kind: "tool", tool: "write", at: "2026-11-11T07:02:00Z", result: "wrote 2 lines",
+    args: JSON.stringify({ path: "m/0019.sql", content: "-- +goose Up\nALTER TABLE r ADD c int;" }) };
+  it("LOG-23 reads the arguments of a tool by field, with their line breaks", () => {
+    expect(toolLine(write)).toBe("write path=m/0019.sql content=-- +goose Up …");
+    expect(argFields(write)).toEqual([["path", "m/0019.sql"], ["content", "-- +goose Up\nALTER TABLE r ADD c int;"]]);
+    expect(toolLine({ id: "x", kind: "tool", tool: "t", args: { q: "a".repeat(100) } })).toBe("t q=" + "a".repeat(80) + "…");
+  });
+  it("LOG-23 writes every entry into the file, whatever the filter", () => {
+    const entries: RunLogEntry[] = [{ id: "m1", kind: "message", text: "Читаю код" },
+      { ...call, result: "ok\nPASS" }, write, { id: "s1", kind: "step", step: "commit", status: "failed", detail: "HTTP 404" }];
+    const text = logFile(entries, "Лог · booking", (e) => (e.at ? "07:02:00" : ""), (e) => (e.kind === "step" ? "Коммит: " + e.detail : e.text ?? ""));
+    expect(text).toBe([
+      "Лог · booking", "",
+      "Читаю код", "",
+      "07:02:00  $ go test ./...\n    ok\n    PASS", "",
+      "07:02:00  write\n  path:\n    m/0019.sql\n  content:\n    -- +goose Up\n    ALTER TABLE r ADD c int;\n  result:\n    wrote 2 lines", "",
+      "Коммит: HTTP 404", "",
+    ].join("\n"));
+    expect(logFileName("nabu-core", "1a2b3c4d-5e6f-7a8b")).toBe("nabu-core-1a2b3c4d.log");
   });
 });

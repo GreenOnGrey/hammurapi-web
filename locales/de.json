@@ -1781,7 +1781,7 @@
       "cacheRead": "Cache gelesen",
       "cacheWrite": "Cache geschrieben"
     },
-    "cacheHint": "Ein Cache-Lesezugriff kostet zehnmal weniger als Eingabe oder noch weniger",
+    "cacheHint": "Ein Cache-Lesezugriff kostet ein Vielfaches weniger als Eingabe: der Preis des Modells in Nabu",
     "shared": "geteilt mit {areas}",
     "wholeRun": "Der ganze Lauf: {amount} · Gates {areas}",
     "tokensLine": "ein {in} · aus {out} · Cache {read} / {write}",
@@ -1809,6 +1809,7 @@
   },
   "log": {
     "open": "Protokoll",
+    "download": "Log herunterladen",
     "openLive": "Protokoll · läuft",
     "unavailable": "Das Protokoll wurde nach Ablauf gelöscht",
     "title": "Protokoll · {subject}",
