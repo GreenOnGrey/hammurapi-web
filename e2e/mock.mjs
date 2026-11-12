@@ -243,8 +243,9 @@ const implementation = { phase: "codegen", workflow: { state: "blocked", step: "
         result: { check: { status: "passed", command: "go test ./...", attempts: 1, maxAttempts: 3, outputTail: "" } } })] },
     { service: "pricing", repo: "GreenOnGrey/pricing", autonomy: "pr", check: { command: "npm test", timeoutSec: 600 }, plan: null,
       tasks: [codeTask("t2", "pricing", "succeeded", { tokensIn: 20323335, result: { prNumber: 15, check: { status: "passed", command: "npm test", attempts: 1, maxAttempts: 3, outputTail: "" } } })],
+      // FTR.HMR.DEV-0004 qa PCI-08: a repository without checks — «CI: нет проверок»
       pr: { id: "pr15", repo: "GreenOnGrey/pricing", number: 15, url: "http://pr/15", title: "FTR.FMS.CAR-0005 pricing: Скидка за ранний возврат авто", branch: "hammurapi/FTR.FMS.CAR-0005/pricing",
-        kind: "service", service: "pricing", byAgent: true, state: "open", review: "required", headSha: "h", ciStatus: "pending", mergeSha: null, mergedAt: null, requirements: [], createdAt: "2026-11-11T06:56:00Z" } },
+        kind: "service", service: "pricing", byAgent: true, state: "open", review: "required", headSha: "h", ciStatus: "none", mergeSha: null, mergedAt: null, requirements: [], createdAt: "2026-11-11T06:56:00Z" } },
   ] };
 
 function api(url, c) {

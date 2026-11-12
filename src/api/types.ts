@@ -700,7 +700,8 @@ export interface PRDTO {
   state: "open" | "merged" | "closed";
   review: "none" | "required" | "changes_requested" | "approved" | "not_required";
   headSha: string;
-  ciStatus: string | null;
+  /** FTR.HMR.DEV-0004 R17: the checks of the provider on the head; none — no checks, null — not asked yet */
+  ciStatus: "pending" | "success" | "failure" | "none" | null;
   mergeSha: string | null;
   mergedAt: string | null;
   requirements: string[];
