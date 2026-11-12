@@ -168,7 +168,16 @@ export function Matrix({ rows }: { rows: RequirementRow[] }) {
             <tr key={r.id} className={gap ? "gap" : undefined}>
               <td><Dot tone={tone} /><b>{r.id}</b> <span className="t2">{r.text}</span></td>
               <td className="small">{r.services.join(", ") || "—"}</td>
-              <td className="small mono">{r.testCases.map((c) => c.id).join(", ") || <span className="err-text">{t("impl.noTest")}</span>}</td>
+              <td className="small mono">
+                {r.testCases.length === 0 && <span className="err-text">{t("impl.noTest")}</span>}
+                {/* FTR.HMR.SPEC-0005 R6: the services a case is marked with */}
+                {r.testCases.map((c, i) => (
+                  <span key={c.id} className="tc-ref">
+                    {i > 0 && ", "}{c.id}
+                    {c.services?.map((s) => <span key={s} className="tc-svc">{s}</span>)}
+                  </span>
+                ))}
+              </td>
               <td className="small">
                 {r.prs.length ? r.prs.map((p) => <a key={p.url} href={p.url} target="_blank" rel="noreferrer">{p.service} #{p.number} </a>) : <span className="err-text">{t("impl.noPrShort")}</span>}
               </td>

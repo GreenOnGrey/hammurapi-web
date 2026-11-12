@@ -2425,3 +2425,8 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 .runlog-empty { padding: 24px 16px; text-align: center; }
 .runlog-latest { position: sticky; bottom: 8px; display: flex; justify-content: center; }
 @media (max-width: 767px) { .runlog { width: 100vw; } }
+
+/* FTR.HMR.SPEC-0005 R6: the services a test case is marked with, in the matrix */
+.tc-ref { white-space: nowrap; }
+.tc-svc { display: inline-block; margin-left: 4px; padding: 0 6px; border: 1px solid var(--border); border-radius: 999px;
+  font-size: 11px; line-height: 16px; color: var(--text-2); }
