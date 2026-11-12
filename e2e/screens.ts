@@ -78,6 +78,11 @@ export const SCREENS: Screen[] = [
   { name: "feature-return", path: "/features/FTR.FMS.CAR-0005/spec/arch", cookies: { "mock-feature": "return" } },
   { name: "feature-no-approval", path: "/features/FTR.FMS.CAR-0005", cookies: { "mock-feature": "noapproval" } },
   { name: "feature-codegen", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" } },
+  // FTR.HMR.DEV-0004 design §3.2, §3.4: the popover of the cost of a service and the panel of the log of a task
+  { name: "feature-cost", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
+    act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша дешевле").waitFor(); } },
+  { name: "feature-log", path: "/features/FTR.FMS.CAR-0005/implementation?log=run-t1", cookies: { "mock-feature": "codegen" },
+    act: async (page) => { await page.locator(".runlog").getByText("create the tree").waitFor(); } },
   { name: "feature-generated", path: "/features/FTR.FMS.CAR-0005/spec/tech", cookies: { "mock-feature": "generated" } },
   { name: "admin", path: "/admin" },
   // FTR.HMR.CMN-0007 design §3.6: the connection and the binding; Nabu does not answer

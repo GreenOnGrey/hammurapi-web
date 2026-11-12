@@ -635,6 +635,56 @@ export interface TaskDTO {
   /** FTR.HMR.CMN-0007 R11: the class of the error and the run of Nabu. */
   errorClass?: string | null;
   nabuRunId?: string | null;
+  /** FTR.HMR.DEV-0004 R12–R14: what «Повторить» does; missing with an older core — a new run of the agent. */
+  retry?: "agent" | "commit" | "rerun";
+}
+
+// ─── FTR.HMR.DEV-0004: the cost of a feature and the log of a run ───
+
+export interface CostTokens { in: number; out: number; cacheRead: number; cacheWrite: number }
+
+export interface CostRun {
+  id: string;
+  runId: string | null;
+  at: string;
+  reason: string | null;
+  status: "succeeded" | "failed" | "cancelled" | "running";
+  model: string;
+  /** null — the price of the model is unknown (R6) */
+  costUsd: number | null;
+  costKnown: boolean;
+  tokens: CostTokens;
+  /** a run of the writer for several gates: its whole figures (R4a) */
+  shared?: { areas: string[]; costUsd: number | null; tokens: CostTokens };
+  logAvailable: boolean;
+}
+
+export interface CostSum { costUsd: number; unknownRuns: number; runs: number; running: number; tokens: CostTokens }
+
+export interface CostItem extends CostSum {
+  kind: "area" | "service" | "checks" | "legacy";
+  key: string | null;
+  list?: CostRun[];
+}
+
+export interface FeatureCost { total: CostSum; items: CostItem[]; canViewLog: boolean }
+
+export interface RunLogEntry {
+  id: string;
+  kind: "message" | "tool" | "check" | "stalled" | "error" | "done" | "step" | "expired";
+  at?: string;
+  text?: string;
+  tool?: string;
+  args?: unknown;
+  command?: string;
+  isError?: boolean;
+  /** null while the tool runs */
+  result?: string | null;
+  data?: Record<string, unknown>;
+  step?: string;
+  status?: string;
+  detail?: string;
+  retry?: boolean;
 }
 
 export interface PRDTO {

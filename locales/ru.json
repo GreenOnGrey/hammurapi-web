@@ -758,7 +758,10 @@
     "ci_check_exists": "В репозитории уже есть файл проверки CI или его открытый PR.",
     "provider_forbidden": "Git-провайдер отказал: {reason}",
     "repo_not_in_catalog": "Репозиторий {repository} не связан ни с одним сервисом в Hammurapi.",
-    "spec_contract": "Документ нарушает контракт: сервисы, схема C4 или файлы контрактов"
+    "spec_contract": "Документ нарушает контракт: сервисы, схема C4 или файлы контрактов",
+    "retry_commit_unavailable": "Повторить коммит нельзя: запустите агента заново",
+    "run_not_found": "Запуск не относится к этому решению",
+    "too_many_streams": "Открыто слишком много логов: закройте один"
   },
   "stages": {
     "title": "Этапы",
@@ -1053,8 +1056,12 @@
       "limit": "Превышен лимит времени или токенов агента",
       "no_changes": "Агент не внёс изменений",
       "git": "Ошибка git-провайдера: {text}",
-      "unbound": "Сценарий не привязан к агенту Nabu"
-    }
+      "unbound": "Сценарий не привязан к агенту Nabu",
+      "branch_moved": "Ветка изменилась после запуска агента"
+    },
+    "retryCommit": "Повторить коммит",
+    "retryCommitHint": "Без нового запуска агента",
+    "rerunAgent": "Запустить агента заново"
   },
   "ci": {
     "pending": "ожидается",
@@ -1758,5 +1765,79 @@
       "type": "Тип",
       "description": "Описание"
     }
+  },
+  "cost": {
+    "button": "Стоимость: {amount}",
+    "title": "Стоимость · {subject}",
+    "back": "Решение",
+    "runs": "{count, plural, one {# запуск} few {# запуска} many {# запусков} other {# запуска}} · {tokens} токенов",
+    "unknownPrice": "цена неизвестна",
+    "withoutUnknown": "без учёта {count, plural, one {# запуска} other {# запусков}}",
+    "running": "и идёт ещё {count, plural, one {# запуск} other {# запуска}}",
+    "kind": {
+      "in": "Входные",
+      "out": "Выходные",
+      "cacheRead": "Чтение кэша",
+      "cacheWrite": "Запись в кэш"
+    },
+    "cacheHint": "Чтение кэша дешевле входных в 10 раз и больше",
+    "shared": "общий с {areas}",
+    "wholeRun": "Весь запуск: {amount} · разделы {areas}",
+    "tokensLine": "вх {in} · вых {out} · кэш {read} / {write}",
+    "legacy": "До учёта по разделам",
+    "otherRuns": "Проверки и ревью",
+    "priceSource": "Цены — по Nabu на момент запуска",
+    "error": "Не удалось загрузить стоимость",
+    "reason": {
+      "generate": "первая генерация",
+      "regenerate": "перегенерация",
+      "request": "поручение",
+      "answers": "ответы",
+      "impact": "проверка затронутых",
+      "first": "первая генерация",
+      "retry": "повтор",
+      "review": "ревью PR",
+      "update_pr": "обновление PR",
+      "revert": "revert",
+      "check": "проверка соответствия"
+    },
+    "status": {
+      "failed": "ошибка",
+      "cancelled": "отменён"
+    }
+  },
+  "log": {
+    "open": "Лог",
+    "openLive": "Лог · идёт",
+    "unavailable": "Лог удалён по сроку хранения",
+    "title": "Лог · {subject}",
+    "run": "запуск",
+    "runs": "Запуски задачи",
+    "runOf": "Запуск {n} из {total} · {at} · {status}",
+    "filter": {
+      "label": "Показать",
+      "all": "Всё",
+      "commands": "Команды",
+      "messages": "Сообщения"
+    },
+    "live": "идёт",
+    "toLatest": "К последним · {count, plural, one {# новая} few {# новые} many {# новых} other {# новых}}",
+    "reconnecting": "Соединение потеряно, переподключаемся…",
+    "empty": "Агент ещё не начал работу",
+    "error": "Не удалось загрузить лог",
+    "expired": "Лог запуска удалён по сроку хранения ({days} дней). Стоимость запуска сохранена.",
+    "stalled": "Агент остановлен: {reason}",
+    "check": {
+      "started": "Проверка: {command}, попытка {attempt} из {max}",
+      "finished": "Проверка: {command} — {status}"
+    },
+    "step": {
+      "branch": "Ветка",
+      "commit": "Коммит",
+      "pr": "PR",
+      "comment": "Комментарий в PR",
+      "retry": "повтор коммита"
+    },
+    "done": "Запуск завершён: {status} · {amount}"
   }
 }

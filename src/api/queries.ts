@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api, qs } from "./client";
 import type {
-  Area, DraftLayer, FeatureDiscovery, GateFiles, SpecChangeItem, SpecItemText, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
+  Area, DraftLayer, FeatureDiscovery, GateFiles, SpecChangeItem, SpecItemText, SpecGateQuestions, SpecRequest, DiscoveryRequest, DiscoveryView, DomainDTO, IssueTopic, FeatureCard, FeatureCost, FeatureSummary, Focus, GateDocument, Implementation, IssueCard, IssueDTO, List,
   Me, Overview, PendingApproval, Profile, PublicConfig, ReleaseCard, ReleaseDTO, RequirementRow, Revision, ServiceDTO, ValidationSummary,
 } from "./types";
 
@@ -28,6 +28,7 @@ export const keys = {
   feature: (id: string) => ["feature", id] as const,
   requirements: (id: string) => ["requirements", id] as const,
   implementation: (id: string) => ["implementation", id] as const,
+  cost: (id: string, detail?: string) => (detail ? (["feature-cost", id, detail] as const) : (["feature-cost", id] as const)),
   validation: (id: string) => ["validation", id] as const,
   releases: (f?: object) => (f ? (["releases", f] as const) : (["releases"] as const)),
   release: (key: string) => ["release", key] as const,
@@ -197,6 +198,10 @@ export const useRequirements = (id: string) =>
 
 export const useImplementation = (id: string) =>
   useQuery({ queryKey: keys.implementation(id), queryFn: () => api.get<Implementation>(`/api/v1/features/${id}/implementation`) });
+
+/** FTR.HMR.DEV-0004 R4–R7: the cost of a feature; detail adds the runs of one item («area:tech», «service:booking»). */
+export const useFeatureCost = (id: string, detail?: string, enabled = true) =>
+  useQuery({ queryKey: keys.cost(id, detail), queryFn: () => api.get<FeatureCost>(`/api/v1/features/${id}/cost${qs({ detail })}`), enabled });
 
 export const useValidation = (id: string) =>
   useQuery({ queryKey: keys.validation(id), queryFn: () => api.get<ValidationSummary>(`/api/v1/features/${id}/validation`) });
