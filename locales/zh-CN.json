@@ -1066,7 +1066,8 @@
   "ci": {
     "pending": "等待中",
     "success": "通过",
-    "failure": "失败"
+    "failure": "失败",
+    "none": "无检查"
   },
   "review": {
     "none": "无评审",

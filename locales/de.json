@@ -1066,7 +1066,8 @@
   "ci": {
     "pending": "ausstehend",
     "success": "grün",
-    "failure": "rot"
+    "failure": "rot",
+    "none": "keine Checks"
   },
   "review": {
     "none": "kein Review",
