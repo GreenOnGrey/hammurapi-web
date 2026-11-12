@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/client";
@@ -59,11 +59,18 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   const latest = s.tasks[0];
   const { owns } = useSession();
   const [autonomy, setAutonomy] = useState(false);
+  // The attempt a retry was accepted for — the task and its end: the button stays off until another attempt ends,
+  // a new task or the same task again after «Повторить коммит» (it clears finished_at and sets it at the next end).
+  const [retried, setRetried] = useState<string | null>(null);
+  const attempt = (x: Pick<TaskDTO, "id" | "finishedAt">) => `${x.id}@${x.finishedAt ?? ""}`;
   // FTR.HMR.DEV-0004 R12–R14: «Повторить коммит» repeats the steps of Hammurapi, the other retries run the agent again
   const retry = useMutation({
-    mutationFn: ({ id, commit }: { id: string; commit: boolean }) =>
-      api.post(`/api/v1/features/${f.uniqueId}/codegen/tasks/${id}/${commit ? "retry-commit" : "retry"}`),
-    onSuccess: () => invalidateFeature(qc, f.uniqueId),
+    mutationFn: ({ task, commit }: { task: TaskDTO; commit: boolean }) =>
+      api.post(`/api/v1/features/${f.uniqueId}/codegen/tasks/${task.id}/${commit ? "retry-commit" : "retry"}`),
+    onSuccess: (_, { task }) => {
+      setRetried(attempt(task));
+      invalidateFeature(qc, f.uniqueId);
+    },
     onError: (e) => toast({ kind: "error", title: errorText(t, e) }),
   });
   const cost = useFeatureCost(f.uniqueId);
@@ -103,8 +110,8 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
             </button>
           )}
           {(latest.status === "failed" || latest.status === "cancelled") && (
-            <button className="btn sm" disabled={retry.isPending} title={latest.retry === "commit" ? t("task.retryCommitHint") : undefined}
-              onClick={() => retry.mutate({ id: latest.id, commit: latest.retry === "commit" })}>{retryLabel}</button>
+            <button className="btn sm" disabled={retry.isPending || retried === attempt(latest)} title={latest.retry === "commit" ? t("task.retryCommitHint") : undefined}
+              onClick={() => retry.mutate({ task: latest, commit: latest.retry === "commit" })}>{retryLabel}</button>
           )}
         </div>
       )}
@@ -158,34 +165,39 @@ export function PRRow({ pr }: { pr: PRDTO }) {
 export function Matrix({ rows }: { rows: RequirementRow[] }) {
   const { t } = useTranslation();
   return (
-    <table className="cov">
-      <thead><tr><th>{t("impl.requirement")}</th><th>{t("impl.services")}</th><th>{t("impl.testCases")}</th><th>PR</th></tr></thead>
-      <tbody>
-        {rows.map((r) => {
-          const gap = r.testCases.length === 0 || r.prs.length === 0;
-          const tone = r.testCases.length && r.prs.length ? "g" : r.testCases.length || r.prs.length ? "a" : "r";
-          return (
-            <tr key={r.id} className={gap ? "gap" : undefined}>
-              <td><Dot tone={tone} /><b>{r.id}</b> <span className="t2">{r.text}</span></td>
-              <td className="small">{r.services.join(", ") || "—"}</td>
-              <td className="small mono">
-                {r.testCases.length === 0 && <span className="err-text">{t("impl.noTest")}</span>}
-                {/* FTR.HMR.SPEC-0005 R6: the services a case is marked with */}
-                {r.testCases.map((c, i) => (
-                  <span key={c.id} className="tc-ref">
-                    {i > 0 && ", "}{c.id}
-                    {c.services?.map((s) => <span key={s} className="tc-svc">{s}</span>)}
-                  </span>
-                ))}
-              </td>
-              <td className="small">
-                {r.prs.length ? r.prs.map((p) => <a key={p.url} href={p.url} target="_blank" rel="noreferrer">{p.service} #{p.number} </a>) : <span className="err-text">{t("impl.noPrShort")}</span>}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="cov-wrap">
+      <table className="cov">
+        <thead><tr><th>{t("impl.requirement")}</th><th>{t("impl.services")}</th><th>{t("impl.testCases")}</th><th>PR</th></tr></thead>
+        <tbody>
+          {rows.map((r) => {
+            const gap = r.testCases.length === 0 || r.prs.length === 0;
+            const tone = r.testCases.length && r.prs.length ? "g" : r.testCases.length || r.prs.length ? "a" : "r";
+            return (
+              <tr key={r.id} className={gap ? "gap" : undefined}>
+                <td><Dot tone={tone} /><b>{r.id}</b> <span className="t2">{r.text}</span></td>
+                <td className="small cov-svc">
+                  {r.services.length ? r.services.map((s, i) => <Fragment key={s}>{i > 0 && ", "}<span>{s}</span></Fragment>) : "—"}
+                </td>
+                <td className="small mono cov-tc">
+                  {r.testCases.length === 0 && <span className="err-text">{t("impl.noTest")}</span>}
+                  {/* FTR.HMR.SPEC-0005 R6: the services a case is marked with */}
+                  {r.testCases.map((c, i) => (
+                    // the separator stays outside the case: the list breaks between cases, never inside one
+                    <Fragment key={c.id}>
+                      {i > 0 && ", "}
+                      <span className="tc-ref">{c.id}{c.services?.map((s) => <span key={s} className="tc-svc">{s}</span>)}</span>
+                    </Fragment>
+                  ))}
+                </td>
+                <td className="small cov-pr">
+                  {r.prs.length ? r.prs.map((p) => <Fragment key={p.url}>{" "}<a href={p.url} target="_blank" rel="noreferrer">{p.service} #{p.number}</a></Fragment>) : <span className="err-text cov-none">{t("impl.noPrShort")}</span>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

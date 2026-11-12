@@ -231,6 +231,10 @@ const implementation = { phase: "codegen", workflow: { state: "blocked", step: "
       testCases: [{ id: "RET-01", level: "I", title: "Возврат", services: ["booking"] }, { id: "UI-01", level: "E", title: "Экран возврата", services: [] }] },
     { id: "R2", text: "Скидка на следующую аренду", services: ["pricing"], prs: [],
       testCases: [{ id: "DSC-01", level: "U", title: "Расчёт скидки", services: ["pricing"] }, { id: "CTR-01", level: "I", title: "Контракт", services: ["booking", "pricing"] }] },
+    // a long list of cases wraps inside the matrix (DEV-0004 design §1)
+    { id: "R3", text: "Отчёт по возвратам с разрезом по филиалам", services: ["booking", "pricing"],
+      prs: [{ service: "booking", number: 15, url: "https://github.com/GreenOnGrey/booking/pull/15" }],
+      testCases: Array.from({ length: 18 }, (_, i) => ({ id: `AGG-${String(i + 1).padStart(2, "0")}`, level: "U", title: "Агрегат", services: [] })) },
   ], humanPrs: [], tokensIn: 93177574, tokensOut: 0, canStart: false,
   services: [
     { service: "booking", repo: "GreenOnGrey/booking", autonomy: "pr", check: { command: "go test ./...", timeoutSec: 600 }, pr: null, plan: null,
