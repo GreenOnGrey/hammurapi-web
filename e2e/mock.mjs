@@ -194,7 +194,12 @@ const contractProto = "syntax = \"proto3\";\n\npackage pricing.v1;\n\n// The dis
 // FTR.HMR.DEV-0004 R1–R3: the services of a feature in code generation
 const codeTask = (id, service, status, extra = {}) => ({ id, type: "implement", status, service, result: null, progress: null, error: null, tokensIn: 0, tokensOut: 0,
   createdAt: "2026-11-11T06:38:00Z", startedAt: "2026-11-11T06:38:00Z", finishedAt: "2026-11-11T07:34:00Z", errorClass: null, nabuRunId: "run-" + id, ...extra });
-const implementation = { phase: "codegen", workflow: { state: "blocked", step: "codegen", lastError: "the task for booking failed" }, matrix: [], humanPrs: [], tokensIn: 93177574, tokensOut: 0, canStart: false,
+const implementation = { phase: "codegen", workflow: { state: "blocked", step: "codegen", lastError: "the task for booking failed" }, matrix: [
+    { id: "R1", text: "Возврат авто с отметкой времени", services: ["booking"], prs: [],
+      testCases: [{ id: "RET-01", level: "I", title: "Возврат", services: ["booking"] }, { id: "UI-01", level: "E", title: "Экран возврата", services: [] }] },
+    { id: "R2", text: "Скидка на следующую аренду", services: ["pricing"], prs: [],
+      testCases: [{ id: "DSC-01", level: "U", title: "Расчёт скидки", services: ["pricing"] }, { id: "CTR-01", level: "I", title: "Контракт", services: ["booking", "pricing"] }] },
+  ], humanPrs: [], tokensIn: 93177574, tokensOut: 0, canStart: false,
   services: [
     { service: "booking", repo: "GreenOnGrey/booking", autonomy: "pr", check: { command: "go test ./...", timeoutSec: 600 }, pr: null, plan: null,
       tasks: [codeTask("t1", "booking", "failed", { tokensIn: 72854239, errorClass: "git",

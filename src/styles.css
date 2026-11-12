@@ -2379,3 +2379,8 @@ button.oa-prop-name .oa-caret { margin-left: 0; }
 .protoview .pt-com { color: var(--muted); font-style: italic; }
 .protoview .pt-num { color: var(--amber); }
 @media (max-width: 767px) { .protoview-toc { display: none; } }
+
+/* FTR.HMR.SPEC-0005 R6: the services a test case is marked with, in the matrix */
+.tc-ref { white-space: nowrap; }
+.tc-svc { display: inline-block; margin-left: 4px; padding: 0 6px; border: 1px solid var(--border); border-radius: 999px;
+  font-size: 11px; line-height: 16px; color: var(--text-2); }
