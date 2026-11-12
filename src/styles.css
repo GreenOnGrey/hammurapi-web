@@ -2428,5 +2428,11 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 
 /* FTR.HMR.SPEC-0005 R6: the services a test case is marked with, in the matrix */
 .tc-ref { white-space: nowrap; }
+/* the matrix keeps to the width of the page: the list of cases wraps, a service and a PR stay whole */
+.cov-tc { overflow-wrap: anywhere; }
+/* a phone scrolls the matrix, not the page */
+.cov-wrap { max-width: 100%; overflow-x: auto; }
+@media (max-width: 767px) { .cov-tc { min-width: 160px; } }
+.cov-svc span, .cov-pr a, .cov-none { white-space: nowrap; }
 .tc-svc { display: inline-block; margin-left: 4px; padding: 0 6px; border: 1px solid var(--border); border-radius: 999px;
   font-size: 11px; line-height: 16px; color: var(--text-2); }
