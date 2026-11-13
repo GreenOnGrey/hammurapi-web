@@ -1607,7 +1607,8 @@
   "writer": {
     "topic": {
       "pinned": "El chat sigue en esta solución mientras su especificación esté abierta",
-      "title": "Discusión de la especificación {key}"
+      "title": "Discusión de la especificación {key}",
+      "titleCode": "Discusión de la funcionalidad {key}"
     },
     "suggest": {
       "regenerate": "Regenera el código de un servicio",
@@ -1624,7 +1625,6 @@
     },
     "task": {
       "title": "Encargo al redactor",
-      "titleCode": "Discusión de la funcionalidad {key}",
       "open": "Abrir la especificación",
       "afterRetry": "espera a que se reintente el redactor"
     },
@@ -1791,7 +1791,7 @@
     "cacheHint": "Una lectura de caché cuesta varias veces menos que la entrada: el precio del modelo en Nabu",
     "shared": "compartido con {areas}",
     "wholeRun": "La ejecución entera: {amount} · gates {areas}",
-    "tokensLine": "ent {in} · sal {out} · caché {read} / {write}",
+    "tokensLine": "ent {in} · sal {out} · caché {read}",
     "item": {
       "research": "Investigación",
       "area": "Especificación · {area}",

@@ -33,7 +33,8 @@ export function ImplementationTab({ f }: { f: FeatureCard }) {
         <div className="banner info"><Icon name="merge" /><span className="grow">{t("impl.notMerged")}</span></div>
       )}
       {nothing && <Empty icon="code" title={t("impl.empty")}>{f.phase === "spec" ? t("impl.emptyHint") : ""}</Empty>}
-      {d.services.map((s) => <ServiceCard key={s.service} f={f} s={s} />)}
+      {/* FTR.HMR.DEV-0004 design §3.1: two services in a row, one on a narrow screen */}
+      {d.services.length > 0 && <div className="svc-grid">{d.services.map((s) => <ServiceCard key={s.service} f={f} s={s} />)}</div>}
       {d.humanPrs.length > 0 && (
         <section className="svc">
           <div className="h"><b>{t("impl.humanPrs")}</b></div>
@@ -85,13 +86,13 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   }));
   const retryLabel = latest?.retry === "commit" ? t("task.retryCommit") : latest?.retry === "rerun" ? t("task.rerunAgent") : t("task.retry");
   return (
-    <section className="svc">
+    <section className="svc svc-cell">
       {/* FTR.HMR.DEV-0004 R1, design §3.1: the head of the block — the cost, the log and, for an owner, the autonomy
           of the service, then the status of the last task; what the task says (kind, progress, error, retry) is below */}
       <div className="h">
         <Icon name="server" size={16} />
         <b>{s.service}</b>
-        <span className="mono small muted">{s.repo}</span>
+        <span className="mono small muted svc-repo" title={s.repo}>{s.repo}</span>
         <span className="grow" />
         <span className="svc-acts">
         {latest && <CostButton featureId={f.uniqueId} subject={{ kind: "service", key: s.service }} align="end" />}
@@ -166,12 +167,12 @@ export function PRRow({ pr }: { pr: PRDTO }) {
   return (
     <div className="pr">
       <Icon name={pr.state === "merged" ? "merge" : "branch"} size={16} />
-      <a href={pr.url} target="_blank" rel="noreferrer" className="ellipsis">
+      <a href={pr.url} target="_blank" rel="noreferrer" className="ellipsis pr-title" title={`#${pr.number} ${pr.title || pr.branch}`}>
         {/* FTR.HMR.DEV-0004 R1: the stage is the work of the agent — only a PR of a person is marked */}
         #{pr.number} {pr.title || pr.branch} {!pr.byAgent && <span className="tag-fix">{t("impl.byHuman")}</span>}
       </a>
-      <span className={`st ${ci === "success" ? "approved" : ci === "failure" ? "blocked" : "draft"}`}>CI: {t(`ci.${ci}`, { defaultValue: ci })}</span>
-      <span className={`st ${pr.state === "merged" ? "handed" : pr.review === "approved" || pr.review === "not_required" ? "approved" : pr.review === "changes_requested" ? "blocked" : "in_review"}`}>
+      <span className={`st pr-st ${ci === "success" ? "approved" : ci === "failure" ? "blocked" : "draft"}`}>CI: {t(`ci.${ci}`, { defaultValue: ci })}</span>
+      <span className={`st pr-st ${pr.state === "merged" ? "handed" : pr.review === "approved" || pr.review === "not_required" ? "approved" : pr.review === "changes_requested" ? "blocked" : "in_review"}`}>
         {pr.state === "open" ? t(`review.${pr.review}`) : t(`prState.${pr.state}`)}
       </span>
     </div>
