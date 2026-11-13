@@ -1607,7 +1607,8 @@
   "writer": {
     "topic": {
       "pinned": "The chat stays on this feature while its specification is open",
-      "title": "Discussion of the specification {key}"
+      "title": "Discussion of the specification {key}",
+      "titleCode": "Discussion of the feature {key}"
     },
     "suggest": {
       "regenerate": "Regenerate the code of a service",
@@ -1624,7 +1625,6 @@
     },
     "task": {
       "title": "Instruction to the writer",
-      "titleCode": "Discussion of the feature {key}",
       "open": "Open the specification",
       "afterRetry": "waits for the writer to be retried"
     },
@@ -1791,7 +1791,7 @@
     "cacheHint": "A cache read costs several times less than input: the price of the model in Nabu",
     "shared": "shared with {areas}",
     "wholeRun": "The whole run: {amount} · gates {areas}",
-    "tokensLine": "in {in} · out {out} · cache {read} / {write}",
+    "tokensLine": "in {in} · out {out} · cache {read}",
     "item": {
       "research": "Research",
       "area": "Specification · {area}",

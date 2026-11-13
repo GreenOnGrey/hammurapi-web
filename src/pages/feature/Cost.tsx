@@ -43,7 +43,7 @@ export function CostButton({ featureId, subject, align = "start" }: { featureId:
       <button className="btn ghost sm cost-btn" title={label} aria-label={label} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
         <Icon name="coins" size={16} />
       </button>
-      {open && <CostPopover featureId={featureId} subject={subject} canViewLog={data.canViewLog} onClose={() => setOpen(false)} />}
+      {open && <CostPopover featureId={featureId} subject={subject} canViewLog={data.canViewLog} />}
     </span>
   );
 }
@@ -63,7 +63,7 @@ function Total({ sum }: { sum: CostSum }) {
   );
 }
 
-function CostPopover({ featureId, subject, canViewLog, onClose }: { featureId: string; subject: Subject | null; canViewLog: boolean; onClose: () => void }) {
+function CostPopover({ featureId, subject, canViewLog }: { featureId: string; subject: Subject | null; canViewLog: boolean }) {
   const { t } = useTranslation();
   const [picked, setPicked] = useState<Subject | null>(subject);
   const detail = picked ? costDetail(picked.kind, picked.key) : undefined;
@@ -78,7 +78,6 @@ function CostPopover({ featureId, subject, canViewLog, onClose }: { featureId: s
           <button className="btn ghost sm" onClick={() => setPicked(null)}><Icon name="back" size={14} />{t("cost.back")}</button>
         )}
         <b className="grow">{t("cost.title", { subject: subjectTitle(t, picked, featureId, withAreas) })}</b>
-        <button className="btn ghost sm" aria-label={t("common.close")} onClick={onClose}><Icon name="x" size={14} /></button>
       </div>
       <div className="cost-pop-b">
         {!picked && all.data && <FeatureTable sum={all.data.total} items={all.data.items} onPick={setPicked} />}
@@ -118,7 +117,7 @@ function ItemDetail({ item, canViewLog }: { item: CostItem; canViewLog: boolean 
     <>
       <Total sum={item} />
       <div className="cost-kinds">
-        {(["in", "out", "cacheRead", "cacheWrite"] as const).map((k) => (
+        {(["in", "out", "cacheRead"] as const).map((k) => (
           <div key={k} className="row"><span className="grow">{t(`cost.kind.${k}`)}</span><span className="num">{tokensFull(item.tokens[k], lng)}</span></div>
         ))}
       </div>
@@ -134,7 +133,7 @@ function RunRow({ r, canViewLog }: { r: CostRun; canViewLog: boolean }) {
   const [full, setFull] = useState(false);
   const openLog = useRunLog();
   const short = (x: CostRun["tokens"]) =>
-    t("cost.tokensLine", { in: tokensShort(x.in, lng), out: tokensShort(x.out, lng), read: tokensShort(x.cacheRead, lng), write: tokensShort(x.cacheWrite, lng) });
+    t("cost.tokensLine", { in: tokensShort(x.in, lng), out: tokensShort(x.out, lng), read: tokensShort(x.cacheRead, lng) });
   return (
     <div className="cost-run">
       <div className="row">

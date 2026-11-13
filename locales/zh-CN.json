@@ -1607,7 +1607,8 @@
   "writer": {
     "topic": {
       "pinned": "打开此方案的规格说明时，聊天固定在此方案上",
-      "title": "讨论规格说明 {key}"
+      "title": "讨论规格说明 {key}",
+      "titleCode": "讨论功能 {key}"
     },
     "suggest": {
       "regenerate": "重新生成某个服务的代码",
@@ -1624,7 +1625,6 @@
     },
     "task": {
       "title": "给撰写代理的指令",
-      "titleCode": "讨论功能 {key}",
       "open": "打开规格说明",
       "afterRetry": "等待重试撰写代理"
     },
@@ -1791,7 +1791,7 @@
     "cacheHint": "缓存读取比输入便宜数倍：价格以 Nabu 中的模型为准",
     "shared": "与 {areas} 共享",
     "wholeRun": "整次运行：{amount} · 关口 {areas}",
-    "tokensLine": "入 {in} · 出 {out} · 缓存 {read} / {write}",
+    "tokensLine": "入 {in} · 出 {out} · 缓存 {read}",
     "item": {
       "research": "调研",
       "area": "规格 · {area}",

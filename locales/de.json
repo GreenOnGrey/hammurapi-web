@@ -1607,7 +1607,8 @@
   "writer": {
     "topic": {
       "pinned": "Der Chat bleibt bei dieser Lösung, solange ihre Spezifikation geöffnet ist",
-      "title": "Diskussion der Spezifikation {key}"
+      "title": "Diskussion der Spezifikation {key}",
+      "titleCode": "Diskussion des Features {key}"
     },
     "suggest": {
       "regenerate": "Code eines Service neu generieren",
@@ -1624,7 +1625,6 @@
     },
     "task": {
       "title": "Auftrag an den Autor",
-      "titleCode": "Diskussion des Features {key}",
       "open": "Spezifikation öffnen",
       "afterRetry": "wartet auf die Wiederholung des Laufs"
     },
@@ -1791,7 +1791,7 @@
     "cacheHint": "Ein Cache-Lesezugriff kostet ein Vielfaches weniger als Eingabe: der Preis des Modells in Nabu",
     "shared": "geteilt mit {areas}",
     "wholeRun": "Der ganze Lauf: {amount} · Gates {areas}",
-    "tokensLine": "ein {in} · aus {out} · Cache {read} / {write}",
+    "tokensLine": "ein {in} · aus {out} · Cache {read}",
     "item": {
       "research": "Recherche",
       "area": "Spezifikation · {area}",

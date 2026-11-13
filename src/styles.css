@@ -2383,9 +2383,11 @@ button.oa-prop-name .oa-caret { margin-left: 0; }
 /* FTR.HMR.DEV-0004 design §2.2, §3.2–§3.3: the popover of the cost */
 .cost-anchor { position: relative; display: inline-flex; }
 .cost-anchor.end .cost-pop { left: auto; right: 0; }
-.cost-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: 420px; max-height: 70vh; overflow: auto;
+.cost-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: 420px; max-height: 70vh; overflow: auto; scrollbar-width: none;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-m); box-shadow: var(--shadow);
   text-align: left; font-size: 14px; color: var(--text); }
+/* a long list still scrolls with the wheel and the finger, without a bar (design §3.2) */
+.cost-pop::-webkit-scrollbar { display: none; }
 .cost-pop-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 .cost-pop-b { display: grid; gap: 12px; padding: 12px; }
 .cost-total { font-size: 26px; font-weight: 650; line-height: 1.1; }
@@ -2432,6 +2434,16 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 /* FTR.HMR.SPEC-0005 R6: the services a test case is marked with, in the matrix */
 /* FTR.HMR.DEV-0004 design §3.1: the cost, the log, the autonomy and the status of a service stay together */
 .svc-acts { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+/* FTR.HMR.DEV-0004 design §3.1: two services in a row; the title of a PR is cut with «…», its statuses stay whole */
+.svc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; align-items: start; }
+.svc-cell { margin-bottom: 0; min-width: 0; }
+.svc-grid .svc > .h { flex-wrap: nowrap; min-width: 0; }
+.svc-repo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.svc-grid .svc-acts { flex-shrink: 0; }
+.svc-grid .pr { flex-wrap: nowrap; }
+.pr-title { flex: 1 1 auto; }
+.pr-st { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 900px) { .svc-grid { grid-template-columns: minmax(0, 1fr); } }
 .tc-ref { white-space: nowrap; }
 /* the matrix keeps to the width of the page: the list of cases wraps, a service and a PR stay whole */
 .cov-tc { overflow-wrap: anywhere; }
