@@ -2383,11 +2383,9 @@ button.oa-prop-name .oa-caret { margin-left: 0; }
 /* FTR.HMR.DEV-0004 design §2.2, §3.2–§3.3: the popover of the cost */
 .cost-anchor { position: relative; display: inline-flex; }
 .cost-anchor.end .cost-pop { left: auto; right: 0; }
-.cost-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: 420px; max-height: 70vh; overflow: auto; scrollbar-width: none;
+.cost-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: 420px; max-height: 70vh; overflow: auto;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-m); box-shadow: var(--shadow);
   text-align: left; font-size: 14px; color: var(--text); }
-/* a long list still scrolls with the wheel and the finger, without a bar (design §3.2) */
-.cost-pop::-webkit-scrollbar { display: none; }
 .cost-pop-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 .cost-pop-b { display: grid; gap: 12px; padding: 12px; }
 .cost-total { font-size: 26px; font-weight: 650; line-height: 1.1; }
@@ -2443,6 +2441,8 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 .svc-grid .pr { flex-wrap: nowrap; }
 .pr-title { flex: 1 1 auto; }
 .pr-st { flex-shrink: 0; white-space: nowrap; }
+/* FTR.HMR.CMN-0008 R18: the end of the output of the check — wrapped, scrolled inside, never wider than the block */
+.chk-out { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; margin: 6px 0 0; }
 @media (max-width: 900px) { .svc-grid { grid-template-columns: minmax(0, 1fr); } }
 .tc-ref { white-space: nowrap; }
 /* the matrix keeps to the width of the page: the list of cases wraps, a service and a PR stay whole */

@@ -1038,6 +1038,11 @@
     "check_unavailable": "Could not check",
     "check_unverified": "Not checked",
     "checkAttempts": "{attempts} of {max} attempts",
+    "warning": {
+      "protected": "The agent changed existing tests or CI files: {files}",
+      "dependencies": "The agent changed the dependencies, the PR needs a review by a person: {files}",
+      "stalled": "The agent was stopped: it kept repeating the same action with no result."
+    },
     "retry": "Retry",
     "working": "working",
     "status": {
@@ -1788,7 +1793,6 @@
       "cacheRead": "Cache read",
       "cacheWrite": "Cache write"
     },
-    "cacheHint": "A cache read costs several times less than input: the price of the model in Nabu",
     "shared": "shared with {areas}",
     "wholeRun": "The whole run: {amount} · gates {areas}",
     "tokensLine": "in {in} · out {out} · cache {read}",
@@ -1800,7 +1804,6 @@
       "service": "Changes to {service}",
       "checks": "Conformance check"
     },
-    "priceSource": "Prices are those of Nabu at the time of a run",
     "error": "The cost could not be loaded",
     "reason": {
       "generate": "first generation",
