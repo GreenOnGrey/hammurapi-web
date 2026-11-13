@@ -196,6 +196,9 @@ const tk = (i, o, r, w) => ({ in: i, out: o, cacheRead: r, cacheWrite: w });
 const costRun = (id, at, reason, costUsd, tokens, extra = {}) => ({ id, runId: "run-" + id, at: T(at), reason, status: "succeeded", model: "sonnet-5",
   costUsd, costKnown: costUsd !== null, tokens, logAvailable: true, ...extra });
 const costItems = {
+  research: { kind: "research", key: null, costUsd: 0.4, unknownRuns: 0, runs: 1, running: 0, tokens: tk(30000, 4000, 200000, 8000), list: [
+    costRun("r1", "02:10", null, 0.4, tk(30000, 4000, 200000, 8000)),
+  ] },
   "area:tech": { kind: "area", key: "tech", costUsd: 4.12, unknownRuns: 1, runs: 4, running: 0, tokens: tk(214880, 61402, 3090115, 40220), list: [
     costRun("w4", "06:09", "regenerate", 1.5, tk(60000, 18000, 900000, 12000), { shared: { areas: ["tech", "qa"], costUsd: 3, tokens: tk(120000, 36000, 1800000, 24000) } }),
     costRun("w3", "05:00", "request", null, tk(40000, 9000, 0, 0), { model: "gigachat-max" }),
@@ -210,7 +213,7 @@ const costItems = {
 };
 const featureCost = (detail) => {
   const items = Object.entries(costItems).map(([k, it]) => (k === detail ? it : { ...it, list: undefined }));
-  return { total: { costUsd: 57.17, unknownRuns: 1, runs: 7, running: 0, tokens: tk(2477000, 637712, 101093667, 865264) }, items, canViewLog: true };
+  return { total: { costUsd: 57.57, unknownRuns: 1, runs: 8, running: 0, tokens: tk(2507000, 641712, 101293667, 873264) }, items, canViewLog: true };
 };
 const runLog = [
   ["entry", "2", { id: "m1", kind: "message", at: T("06:38"), text: "Читаю спецификацию и код `booking`: миграции, `internal/returns`." }],

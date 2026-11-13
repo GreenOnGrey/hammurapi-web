@@ -662,7 +662,7 @@ export interface CostRun {
 export interface CostSum { costUsd: number; unknownRuns: number; runs: number; running: number; tokens: CostTokens }
 
 export interface CostItem extends CostSum {
-  kind: "area" | "service" | "checks" | "legacy";
+  kind: "research" | "area" | "service" | "legacy" | "checks";
   key: string | null;
   list?: CostRun[];
 }

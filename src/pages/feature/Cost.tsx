@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@green-on-grey/ui-kit";
 import { useFeatureCost } from "../../api/queries";
 import type { CostItem, CostRun, CostSum } from "../../api/types";
-import { costDetail, money, tokensFull, tokensShort, tokensTotal } from "../../lib/cost";
+import { costDetail, costItemLabel as itemLabel, money, tokensFull, tokensShort, tokensTotal } from "../../lib/cost";
 import { dateTime } from "../../lib/format";
 import { useRunLog } from "./RunLog";
 
@@ -13,12 +13,11 @@ type Subject = { kind: CostItem["kind"]; key: string | null };
 
 const same = (it: CostItem, s: Subject) => it.kind === s.kind && (it.key ?? null) === s.key;
 
-function subjectTitle(t: (k: string, o?: Record<string, unknown>) => string, s: Subject | null, featureId: string): string {
-  if (!s) return featureId;
-  if (s.kind === "checks") return t("cost.otherRuns");
-  if (s.kind === "legacy") return t("cost.legacy");
-  return s.key ?? "";
+function subjectTitle(t: (k: string, o?: Record<string, unknown>) => string, s: Subject | null, featureId: string, withAreas = false): string {
+  return s ? itemLabel(t, s, withAreas) : featureId;
 }
+
+const hasAreas = (items: CostItem[] | undefined) => !!items?.some((it) => it.kind === "area");
 
 /** The icon of the cost; no runs — no icon (design §1). subject null — the whole feature (R7). */
 export function CostButton({ featureId, subject, align = "start" }: { featureId: string; subject: Subject | null; align?: "start" | "end" }) {
@@ -71,13 +70,14 @@ function CostPopover({ featureId, subject, canViewLog, onClose }: { featureId: s
   const all = useFeatureCost(featureId);
   const one = useFeatureCost(featureId, detail, !!detail);
   const item = picked ? one.data?.items.find((it) => same(it, picked)) : undefined;
+  const withAreas = hasAreas(all.data?.items);
   return (
-    <div className="cost-pop" role="dialog" aria-label={t("cost.title", { subject: subjectTitle(t, picked, featureId) })}>
+    <div className="cost-pop" role="dialog" aria-label={t("cost.title", { subject: subjectTitle(t, picked, featureId, withAreas) })}>
       <div className="cost-pop-h">
         {!subject && picked && (
           <button className="btn ghost sm" onClick={() => setPicked(null)}><Icon name="back" size={14} />{t("cost.back")}</button>
         )}
-        <b className="grow">{t("cost.title", { subject: subjectTitle(t, picked, featureId) })}</b>
+        <b className="grow">{t("cost.title", { subject: subjectTitle(t, picked, featureId, withAreas) })}</b>
         <button className="btn ghost sm" aria-label={t("common.close")} onClick={onClose}><Icon name="x" size={14} /></button>
       </div>
       <div className="cost-pop-b">
@@ -100,7 +100,7 @@ function FeatureTable({ sum, items, onPick }: { sum: CostSum; items: CostItem[];
         <tbody>
           {items.map((it) => (
             <tr key={it.kind + (it.key ?? "")} className="click" onClick={() => onPick({ kind: it.kind, key: it.key })}>
-              <td className={it.key ? "mono" : ""}>{it.kind === "checks" ? t("cost.otherRuns") : it.kind === "legacy" ? t("cost.legacy") : it.key}</td>
+              <td>{itemLabel(t, { kind: it.kind, key: it.key }, hasAreas(items))}</td>
               <td className="num">{it.runs}</td>
               <td className="num">{it.unknownRuns === it.runs ? t("cost.unknownPrice") : money(it.costUsd, i18n.language)}</td>
             </tr>

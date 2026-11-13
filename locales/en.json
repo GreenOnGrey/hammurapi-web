@@ -1786,8 +1786,14 @@
     "shared": "shared with {areas}",
     "wholeRun": "The whole run: {amount} · gates {areas}",
     "tokensLine": "in {in} · out {out} · cache {read} / {write}",
-    "legacy": "Before the attribution by gate",
-    "otherRuns": "Checks and reviews",
+    "item": {
+      "research": "Research",
+      "area": "Specification · {area}",
+      "legacy": "Specification",
+      "legacyBeside": "Specification · no gate",
+      "service": "Changes to {service}",
+      "checks": "Conformance check"
+    },
     "priceSource": "Prices are those of Nabu at the time of a run",
     "error": "The cost could not be loaded",
     "reason": {

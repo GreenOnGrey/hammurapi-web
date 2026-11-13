@@ -30,6 +30,16 @@ export function costDetail(kind: string, key: string | null): string {
   return key ? `${kind}:${key}` : kind;
 }
 
+/** The name of an item of the cost by the stage of the feature: research, specification, the changes of a service,
+ * the check (FTR.HMR.DEV-0004 R7). withAreas: the feature has items of gates too. */
+export function costItemLabel(t: (k: string, o?: Record<string, unknown>) => string, s: { kind: string; key: string | null }, withAreas = false): string {
+  if (s.kind === "area") return t("cost.item.area", { area: t(`areas.${s.key}`) });
+  // next to the gates the runs of the writer before the attribution are told apart from them
+  if (s.kind === "legacy" && withAreas) return t("cost.item.legacyBeside");
+  if (s.kind === "service") return t("cost.item.service", { service: s.key });
+  return t(`cost.item.${s.kind}`);
+}
+
 /** Puts an entry of the log in its place: a new one at the end, one with a known id in place of the old (R8). */
 export function mergeEntry(list: RunLogEntry[], e: RunLogEntry): RunLogEntry[] {
   const i = list.findIndex((x) => x.id === e.id);

@@ -1786,8 +1786,14 @@
     "shared": "与 {areas} 共享",
     "wholeRun": "整次运行：{amount} · 关口 {areas}",
     "tokensLine": "入 {in} · 出 {out} · 缓存 {read} / {write}",
-    "legacy": "按关口统计之前",
-    "otherRuns": "检查与评审",
+    "item": {
+      "research": "调研",
+      "area": "规格 · {area}",
+      "legacy": "规格",
+      "legacyBeside": "规格 · 未分区",
+      "service": "修改 {service}",
+      "checks": "一致性检查"
+    },
     "priceSource": "价格按运行时 Nabu 的价格计算",
     "error": "无法加载费用",
     "reason": {
