@@ -1786,8 +1786,14 @@
     "shared": "общий с {areas}",
     "wholeRun": "Весь запуск: {amount} · разделы {areas}",
     "tokensLine": "вх {in} · вых {out} · кэш {read} / {write}",
-    "legacy": "До учёта по разделам",
-    "otherRuns": "Проверки и ревью",
+    "item": {
+      "research": "Исследование",
+      "area": "Спецификация · {area}",
+      "legacy": "Спецификация",
+      "legacyBeside": "Спецификация · без раздела",
+      "service": "Правка {service}",
+      "checks": "Проверка соответствия"
+    },
     "priceSource": "Цены — по Nabu на момент запуска",
     "error": "Не удалось загрузить стоимость",
     "reason": {

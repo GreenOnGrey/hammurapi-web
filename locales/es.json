@@ -1786,8 +1786,14 @@
     "shared": "compartido con {areas}",
     "wholeRun": "La ejecución entera: {amount} · gates {areas}",
     "tokensLine": "ent {in} · sal {out} · caché {read} / {write}",
-    "legacy": "Antes de la atribución por gate",
-    "otherRuns": "Comprobaciones y revisiones",
+    "item": {
+      "research": "Investigación",
+      "area": "Especificación · {area}",
+      "legacy": "Especificación",
+      "legacyBeside": "Especificación · sin sección",
+      "service": "Cambios en {service}",
+      "checks": "Comprobación de conformidad"
+    },
     "priceSource": "Precios de Nabu en el momento de la ejecución",
     "error": "No se pudo cargar el coste",
     "reason": {

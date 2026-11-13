@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { RunLogEntry } from "../api/types";
-import { appendDelta, argFields, atBottom, costDetail, filterLog, logFile, logFileName, mergeEntry, money, tokensFull, tokensShort, toolLine } from "./cost";
+import { appendDelta, argFields, atBottom, costDetail, costItemLabel, filterLog, logFile, logFileName, mergeEntry, money, tokensFull, tokensShort, toolLine } from "./cost";
 
 // FTR.HMR.DEV-0004 qa COST-14: money and tokens in the locale of the interface.
 describe("COST-14 money and tokens", () => {
@@ -19,6 +19,20 @@ describe("COST-14 money and tokens", () => {
   it("names an item of the cost", () => {
     expect(costDetail("area", "tech")).toBe("area:tech");
     expect(costDetail("checks", null)).toBe("checks");
+  });
+});
+
+// COST-22: the items of the cost are named by the stages of the feature.
+const keyOf = (k: string, o?: Record<string, unknown>) => (o ? `${k}${JSON.stringify(o)}` : k);
+describe("COST-22 the names of the items", () => {
+  const t = keyOf;
+  it("names a stage, a gate by its area and a service by its key", () => {
+    expect(costItemLabel(t, { kind: "research", key: null })).toBe("cost.item.research");
+    expect(costItemLabel(t, { kind: "area", key: "tech" })).toBe('cost.item.area{"area":"areas.tech"}');
+    expect(costItemLabel(t, { kind: "legacy", key: null })).toBe("cost.item.legacy");
+    expect(costItemLabel(t, { kind: "legacy", key: null }, true)).toBe("cost.item.legacyBeside");
+    expect(costItemLabel(t, { kind: "service", key: "nabu-core" })).toBe('cost.item.service{"service":"nabu-core"}');
+    expect(costItemLabel(t, { kind: "checks", key: null })).toBe("cost.item.checks");
   });
 });
 

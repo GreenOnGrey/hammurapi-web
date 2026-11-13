@@ -1786,8 +1786,14 @@
     "shared": "geteilt mit {areas}",
     "wholeRun": "Der ganze Lauf: {amount} · Gates {areas}",
     "tokensLine": "ein {in} · aus {out} · Cache {read} / {write}",
-    "legacy": "Vor der Zuordnung nach Gates",
-    "otherRuns": "Prüfungen und Reviews",
+    "item": {
+      "research": "Recherche",
+      "area": "Spezifikation · {area}",
+      "legacy": "Spezifikation",
+      "legacyBeside": "Spezifikation · ohne Abschnitt",
+      "service": "Änderungen an {service}",
+      "checks": "Konformitätsprüfung"
+    },
     "priceSource": "Preise von Nabu zum Zeitpunkt des Laufs",
     "error": "Die Kosten konnten nicht geladen werden",
     "reason": {
