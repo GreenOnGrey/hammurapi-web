@@ -83,6 +83,15 @@ export const SCREENS: Screen[] = [
     act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша в несколько раз дешевле").waitFor(); } },
   { name: "feature-log", path: "/features/FTR.FMS.CAR-0005/implementation?log=run-t1", cookies: { "mock-feature": "codegen" },
     act: async (page) => { await page.locator(".runlog").getByText("create the tree").waitFor(); } },
+  // FTR.HMR.DEV-0004 qa REG-06, design §3.8: the regeneration of a done service with an optional comment
+  { name: "feature-regenerate", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen", "mock-expert": "FMS" },
+    act: async (page) => {
+      await page.getByRole("button", { name: "Перегенерировать код" }).first().click();
+      await page.getByRole("dialog").getByText("Комментарий для агента").waitFor();
+    } },
+  // FTR.HMR.DEV-0004 qa REG-09: on the validation tab, while the code is made, the chat stays in the topic of the feature
+  { name: "feature-validation-chat", path: "/features/FTR.FMS.CAR-0005/validation", cookies: { "mock-feature": "codegen", "mock-expert": "FMS" }, only: "desktop",
+    act: async (page) => { await page.getByText("Обсуждение решения FTR.FMS.CAR-0005").waitFor(); } },
   // qa LOG-24: the switcher of runs is the Select of the kit, its list in the theme
   { name: "feature-log-runs", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
     act: async (page) => {

@@ -607,6 +607,9 @@
     }
   },
   "errors": {
+    "regenerate_unavailable": "无法重新生成：服务的最后一个任务未成功，或功能不在代码生成阶段",
+    "task_running": "该服务的任务已在队列中或正在运行",
+    "comment_too_long": "评论超过 4000 个字符",
     "invalid_check": "检查命令或超时无效",
     "generic": "出现问题（{code}）。请重试。",
     "network": "无法连接服务器。",
@@ -1607,6 +1610,8 @@
       "title": "讨论规格说明 {key}"
     },
     "suggest": {
+      "regenerate": "重新生成某个服务的代码",
+      "codeStatus": "代码和 CI 情况如何？",
       "answer": "回答问题",
       "explain": "解释这些建议",
       "why": "为什么这样决定？",
@@ -1619,6 +1624,7 @@
     },
     "task": {
       "title": "给撰写代理的指令",
+      "titleCode": "讨论功能 {key}",
       "open": "打开规格说明",
       "afterRetry": "等待重试撰写代理"
     },
@@ -1813,6 +1819,18 @@
       "failed": "错误",
       "cancelled": "已取消"
     }
+  },
+  "regen": {
+    "button": "重新生成代码",
+    "title": "重新生成代码 · {service}",
+    "run": "重新生成",
+    "withPr": "代理从分支的当前代码开始，并获取 PR #{number} 的评论{ci}。PR 会被更新，不会新建。",
+    "ciFailed": "和失败的 CI 检查",
+    "noPr": "代理从服务分支的当前代码开始。",
+    "comment": "给代理的评论（可选）",
+    "commentHint": "需要改变的地方：代理会结合 PR 的评论一起考虑",
+    "started": "已开始生成：评论 {comments} 条，失败检查 {checks} 项",
+    "startedNoFeedback": "已开始生成，但无法读取 PR：代理将在没有其评论和 CI 的情况下工作"
   },
   "log": {
     "open": "日志",

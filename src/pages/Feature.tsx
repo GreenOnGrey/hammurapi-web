@@ -45,8 +45,11 @@ export function FeaturePage() {
   const { setSubject } = chat;
   const fid = f?.uniqueId;
   const ftitle = f?.title;
-  // FTR.HMR.DEV-0001 R16: on the tab of the specification, in its phase, the chat is pinned to the topic of the feature
-  const pinned = tab === "spec" && f?.phase === "spec";
+  // FTR.HMR.DEV-0001 R16: on the tab of the specification, in its phase, the chat is pinned to the topic of the feature;
+  // FTR.HMR.DEV-0004 R20: so is it on the tabs of the implementation and the validation while the code is made — the agent
+  // regenerates it from there
+  const pinned = (tab === "spec" && f?.phase === "spec")
+    || ((tab === "implementation" || tab === "validation") && (f?.phase === "codegen" || f?.phase === "validation"));
   useEffect(() => {
     if (fid && ftitle !== undefined) setSubject({ type: "feature", key: fid, title: ftitle, pinned }, tab === "spec" ? area ?? null : null);
   }, [fid, ftitle, area, tab, pinned, setSubject]);

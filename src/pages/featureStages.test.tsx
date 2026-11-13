@@ -6,7 +6,7 @@ import { keys } from "../api/queries";
 import { createI18n } from "../lib/i18n";
 import { SpecQuestions } from "./feature/SpecQuestions";
 import { allStagesPassed, GATE_ICONS, reachedStage, STAGES } from "./Feature";
-import { specTopicSuggestions } from "../chat/NabuChat";
+import { codeTopicSuggestions, specTopicSuggestions } from "../chat/NabuChat";
 import { specNotice, specRequestId } from "../chat/specCards";
 import { AREAS } from "../api/types";
 
@@ -31,6 +31,10 @@ describe("the stages of a feature", () => {
 });
 
 describe("the draft of the topic of a feature", () => {
+  it("FTR.HMR.DEV-0004 REG-05: on the implementation an expert is offered the regeneration", () => {
+    expect(codeTopicSuggestions(true)).toEqual(["regenerate", "codeStatus"]);
+    expect(codeTopicSuggestions(false)).toEqual(["codeStatus"]);
+  });
   it("TP-04: the suggestions by the gate and the role", () => {
     expect(specTopicSuggestions("product", "questions", true)).toEqual(["answer", "explain", "why"]);
     expect(specTopicSuggestions("product", "questions", false)).toEqual(["explain", "why"]);
