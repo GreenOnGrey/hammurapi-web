@@ -82,32 +82,38 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   const retryLabel = latest?.retry === "commit" ? t("task.retryCommit") : latest?.retry === "rerun" ? t("task.rerunAgent") : t("task.retry");
   return (
     <section className="svc">
+      {/* FTR.HMR.DEV-0004 R1, design §3.1: the head of the block — the cost, the log and, for an owner, the autonomy
+          of the service, then the status of the last task; what the task says (kind, progress, error, retry) is below */}
       <div className="h">
         <Icon name="server" size={16} />
         <b>{s.service}</b>
         <span className="mono small muted">{s.repo}</span>
         <span className="grow" />
-        {owns(s.service)
-          ? <button className="btn ghost sm" onClick={() => setAutonomy(true)}>{t(`autonomy.${s.autonomy}.name`)}</button>
-          : <span className="st none">{t(`autonomy.${s.autonomy}.name`)}</span>}
+        <span className="svc-acts">
+        {latest && <CostButton featureId={f.uniqueId} subject={{ kind: "service", key: s.service }} align="end" />}
+        {latest && cost.data?.canViewLog && latest.nabuRunId && (
+          <button className="btn ghost sm" title={latest.status === "running" ? t("log.openLive") : t("log.open")}
+            aria-label={latest.status === "running" ? t("log.openLive") : t("log.open")}
+            onClick={() => openLog({ runId: latest.nabuRunId!, runs, title: s.service })}>
+            <Icon name="terminal" size={16} />
+          </button>
+        )}
+        {owns(s.service) && (
+          <button className="btn ghost sm" onClick={() => setAutonomy(true)}
+            title={t("impl.autonomy", { level: t(`autonomy.${s.autonomy}.name`) })} aria-label={t("impl.autonomy", { level: t(`autonomy.${s.autonomy}.name`) })}>
+            <Icon name="gear" size={16} />
+          </button>
+        )}
+        {latest && <span className={`st ${latest.status === "failed" ? "blocked" : latest.status === "succeeded" ? "approved" : "disc"}`}>{t(`task.status.${latest.status}`)}</span>}
+        </span>
       </div>
       {autonomy && <AutonomyModal service={{ key: s.service, autonomy: s.autonomy, check: s.check }} onClose={() => setAutonomy(false)} />}
-      {latest && (
+      {latest && (latest.type !== "implement" || latest.status === "running" || latest.error || latest.status === "failed" || latest.status === "cancelled") && (
         <div className="row small" style={{ marginBottom: 6 }}>
-          <span className={`st ${latest.status === "failed" ? "blocked" : latest.status === "succeeded" ? "approved" : "disc"}`}>{t(`task.status.${latest.status}`)}</span>
-          {/* FTR.HMR.DEV-0004 R1: the stage names the generation; other kinds of a task keep their label */}
+          {/* the stage names the generation; other kinds of a task keep their label */}
           {latest.type !== "implement" && <span className="t2">{t(`task.type.${latest.type}`)}</span>}
           {latest.status === "running" && <><span className="ring" /><span className="t2">{latest.progress ?? t("task.working")}</span></>}
           {latest.error && <span className="err-text" style={{ margin: 0 }}>{taskError(t, latest)}</span>}
-          {/* FTR.HMR.DEV-0004 R1, R4, R8, R10: the cost of the service and the log of the task, for its experts */}
-          <CostButton featureId={f.uniqueId} subject={{ kind: "service", key: s.service }} />
-          {cost.data?.canViewLog && latest.nabuRunId && (
-            <button className="btn ghost sm" title={latest.status === "running" ? t("log.openLive") : t("log.open")}
-              aria-label={latest.status === "running" ? t("log.openLive") : t("log.open")}
-              onClick={() => openLog({ runId: latest.nabuRunId!, runs, title: s.service })}>
-              <Icon name="terminal" size={16} />
-            </button>
-          )}
           {(latest.status === "failed" || latest.status === "cancelled") && (
             <button className="btn sm" disabled={retry.isPending || retried === attempt(latest)} title={latest.retry === "commit" ? t("task.retryCommitHint") : undefined}
               onClick={() => retry.mutate({ task: latest, commit: latest.retry === "commit" })}>{retryLabel}</button>
