@@ -11,7 +11,7 @@ unknown-test-id e2e/mock.mjs NAB-0007
 unknown-test-id e2e/mock.mjs NAB-0008
 unknown-test-id e2e/screens.ts NAB-0007
 unknown-test-id src/pages/Spec.tsx SRC-05
-unknown-test-id src/pages/feature/check.test.tsx CHK-38
+unknown-test-id src/pages/admin/ciCheck.test.tsx TOK-08
 unknown-test-id src/pages/specLinks.test.tsx VIEW-01
 unknown-test-id src/pages/specLinks.test.tsx VIEW-02
 unknown-test-id src/pages/specLinks.test.tsx VIEW-03
