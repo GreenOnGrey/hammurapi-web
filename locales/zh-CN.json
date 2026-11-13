@@ -1010,6 +1010,7 @@
     "started": "已开始生成代码"
   },
   "impl": {
+    "autonomy": "智能体自主级别：{level}",
     "blocked": "代码生成已停止：",
     "waitingHumanPr": "等待“计划”级服务由人工提交 PR。",
     "notMerged": "尚未合并任何内容：合并在发布中进行。",

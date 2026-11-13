@@ -2430,6 +2430,8 @@ button.chip-s.share { color: var(--violet-text); border-color: var(--violet); cu
 @media (max-width: 767px) { .runlog { width: 100vw; } }
 
 /* FTR.HMR.SPEC-0005 R6: the services a test case is marked with, in the matrix */
+/* FTR.HMR.DEV-0004 design §3.1: the cost, the log, the autonomy and the status of a service stay together */
+.svc-acts { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
 .tc-ref { white-space: nowrap; }
 /* the matrix keeps to the width of the page: the list of cases wraps, a service and a PR stay whole */
 .cov-tc { overflow-wrap: anywhere; }

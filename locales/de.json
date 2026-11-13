@@ -1010,6 +1010,7 @@
     "started": "Code-Generierung gestartet"
   },
   "impl": {
+    "autonomy": "Autonomie des Agenten: {level}",
     "blocked": "Code-Generierung angehalten:",
     "waitingHumanPr": "Warten auf PRs von Menschen für Services auf Stufe „Plan“.",
     "notMerged": "Nichts ist gemergt: Gemergt wird im Release.",

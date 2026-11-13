@@ -1010,6 +1010,7 @@
     "started": "Generación de código iniciada"
   },
   "impl": {
+    "autonomy": "Autonomía del agente: {level}",
     "blocked": "La generación de código se detuvo:",
     "waitingHumanPr": "Esperando PR de personas para los servicios en nivel «Plan».",
     "notMerged": "Nada se ha fusionado: el merge ocurre en el release.",
