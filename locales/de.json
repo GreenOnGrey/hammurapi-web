@@ -1038,6 +1038,11 @@
     "check_unavailable": "Prüfung nicht möglich",
     "check_unverified": "Nicht geprüft",
     "checkAttempts": "{attempts} von {max} Versuchen",
+    "warning": {
+      "protected": "Der Agent hat bestehende Tests oder CI-Dateien geändert: {files}",
+      "dependencies": "Der Agent hat die Abhängigkeiten geändert, der PR braucht ein Review durch eine Person: {files}",
+      "stalled": "Der Agent wurde gestoppt: er hat dieselbe Aktion ohne Ergebnis wiederholt."
+    },
     "retry": "Wiederholen",
     "working": "arbeitet",
     "status": {
@@ -1788,7 +1793,6 @@
       "cacheRead": "Cache gelesen",
       "cacheWrite": "Cache geschrieben"
     },
-    "cacheHint": "Ein Cache-Lesezugriff kostet ein Vielfaches weniger als Eingabe: der Preis des Modells in Nabu",
     "shared": "geteilt mit {areas}",
     "wholeRun": "Der ganze Lauf: {amount} · Gates {areas}",
     "tokensLine": "ein {in} · aus {out} · Cache {read}",
@@ -1800,7 +1804,6 @@
       "service": "Änderungen an {service}",
       "checks": "Konformitätsprüfung"
     },
-    "priceSource": "Preise von Nabu zum Zeitpunkt des Laufs",
     "error": "Die Kosten konnten nicht geladen werden",
     "reason": {
       "generate": "erste Generierung",

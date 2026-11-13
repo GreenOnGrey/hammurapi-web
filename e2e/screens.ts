@@ -80,7 +80,7 @@ export const SCREENS: Screen[] = [
   { name: "feature-codegen", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" } },
   // FTR.HMR.DEV-0004 design §3.2, §3.4: the popover of the cost of a service and the panel of the log of a task
   { name: "feature-cost", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
-    act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша в несколько раз дешевле").waitFor(); } },
+    act: async (page) => { await page.getByRole("button", { name: /^Стоимость: \$41/ }).click(); await page.getByText("Чтение кэша").waitFor(); } },
   { name: "feature-log", path: "/features/FTR.FMS.CAR-0005/implementation?log=run-t1", cookies: { "mock-feature": "codegen" },
     act: async (page) => { await page.locator(".runlog").getByText("create the tree").waitFor(); } },
   // FTR.HMR.DEV-0004 qa REG-06, design §3.8: the regeneration of a done service with an optional comment
@@ -92,6 +92,13 @@ export const SCREENS: Screen[] = [
   // FTR.HMR.DEV-0004 qa REG-09: on the validation tab, while the code is made, the chat stays in the topic of the feature
   { name: "feature-validation-chat", path: "/features/FTR.FMS.CAR-0005/validation", cookies: { "mock-feature": "codegen", "mock-expert": "FMS" }, only: "desktop",
     act: async (page) => { await page.getByText("Обсуждение решения FTR.FMS.CAR-0005").waitFor(); } },
+  // FTR.HMR.DEV-0004 qa WRN-01, WRN-02: a warning in the language of the interface, the output of the check without
+  // the colours of the terminal, wrapped inside the block
+  { name: "feature-check-output", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
+    act: async (page) => {
+      await page.locator(".svc").filter({ hasText: "pricing" }).getByText("Проверка пройдена").click();
+      await page.getByText("132 passed").waitFor();
+    } },
   // qa LOG-24: the switcher of runs is the Select of the kit, its list in the theme
   { name: "feature-log-runs", path: "/features/FTR.FMS.CAR-0005/implementation", cookies: { "mock-feature": "codegen" },
     act: async (page) => {

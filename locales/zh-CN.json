@@ -1038,6 +1038,11 @@
     "check_unavailable": "无法检查",
     "check_unverified": "未检查",
     "checkAttempts": "{attempts} / {max} 次尝试",
+    "warning": {
+      "protected": "代理修改了现有测试或 CI 文件：{files}",
+      "dependencies": "代理修改了依赖，PR 需要人工审查：{files}",
+      "stalled": "代理已停止：它反复执行同一操作而没有结果。"
+    },
     "retry": "重试",
     "working": "进行中",
     "status": {
@@ -1788,7 +1793,6 @@
       "cacheRead": "缓存读取",
       "cacheWrite": "缓存写入"
     },
-    "cacheHint": "缓存读取比输入便宜数倍：价格以 Nabu 中的模型为准",
     "shared": "与 {areas} 共享",
     "wholeRun": "整次运行：{amount} · 关口 {areas}",
     "tokensLine": "入 {in} · 出 {out} · 缓存 {read}",
@@ -1800,7 +1804,6 @@
       "service": "修改 {service}",
       "checks": "一致性检查"
     },
-    "priceSource": "价格按运行时 Nabu 的价格计算",
     "error": "无法加载费用",
     "reason": {
       "generate": "首次生成",

@@ -19,12 +19,25 @@ function subjectTitle(t: (k: string, o?: Record<string, unknown>) => string, s: 
 
 const hasAreas = (items: CostItem[] | undefined) => !!items?.some((it) => it.kind === "area");
 
+/** The width of the popover, as `.cost-pop` in the styles. */
+const POP_WIDTH = 420;
+
 /** The icon of the cost; no runs — no icon (design §1). subject null — the whole feature (R7). */
 export function CostButton({ featureId, subject, align = "start" }: { featureId: string; subject: Subject | null; align?: "start" | "end" }) {
   const { t, i18n } = useTranslation();
   const cost = useFeatureCost(featureId);
   const [open, setOpen] = useState(false);
+  const [side, setSide] = useState(align);
   const ref = useRef<HTMLSpanElement>(null);
+  // the popover opens to the side where it fits: a narrow block of a service may not hold it on its own side
+  const toggle = () => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!open && r) {
+      const w = Math.min(POP_WIDTH, window.innerWidth - 16);
+      setSide(align === "end" ? (r.right - w < 8 ? "start" : "end") : (r.left + w > window.innerWidth - 8 ? "end" : "start"));
+    }
+    setOpen((v) => !v);
+  };
   useEffect(() => {
     if (!open) return;
     const away = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
@@ -39,8 +52,8 @@ export function CostButton({ featureId, subject, align = "start" }: { featureId:
   if (!sum || sum.runs === 0) return null;
   const label = t("cost.button", { amount: money(sum.costUsd, i18n.language) });
   return (
-    <span className={`cost-anchor ${align}`} ref={ref}>
-      <button className="btn ghost sm cost-btn" title={label} aria-label={label} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+    <span className={`cost-anchor ${side}`} ref={ref}>
+      <button className="btn ghost sm cost-btn" title={label} aria-label={label} aria-expanded={open} onClick={toggle}>
         <Icon name="coins" size={16} />
       </button>
       {open && <CostPopover featureId={featureId} subject={subject} canViewLog={data.canViewLog} />}
@@ -84,7 +97,6 @@ function CostPopover({ featureId, subject, canViewLog }: { featureId: string; su
         {picked && one.isLoading && <div className="small muted">{t("common.loading")}</div>}
         {picked && one.isError && <div className="small err-text">{t("cost.error")}</div>}
         {picked && item && <ItemDetail item={item} canViewLog={canViewLog} />}
-        <div className="small muted">{t("cost.priceSource")}</div>
       </div>
     </div>
   );
@@ -121,7 +133,6 @@ function ItemDetail({ item, canViewLog }: { item: CostItem; canViewLog: boolean 
           <div key={k} className="row"><span className="grow">{t(`cost.kind.${k}`)}</span><span className="num">{tokensFull(item.tokens[k], lng)}</span></div>
         ))}
       </div>
-      <div className="small muted">{t("cost.cacheHint")}</div>
       <div className="cost-runs">{(item.list ?? []).map((r) => <RunRow key={r.id} r={r} canViewLog={canViewLog} />)}</div>
     </>
   );

@@ -12,6 +12,7 @@ import { RegenerateModal } from "./Regenerate";
 import { CostButton } from "./Cost";
 import { useRunLog, type LogRun } from "./RunLog";
 import { dateTime } from "../../lib/format";
+import { plainOutput, warningText } from "../../lib/task";
 
 import { Empty, Icon, Loading, Markdown, useToast } from "@green-on-grey/ui-kit";
 import { Dot } from "../../components/cycle";
@@ -132,7 +133,7 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
         </div>
       )}
       {latest?.result?.check && <CheckBadge check={latest.result.check} />}
-      {latest?.result?.warnings?.map((w) => <div key={w} className="banner warn small"><Icon name="alert" /><span className="grow">{w}</span></div>)}
+      {latest?.result?.warnings?.map((w) => <div key={w} className="banner warn small"><Icon name="alert" /><span className="grow">{warningText(t, w)}</span></div>)}
       {s.plan && (
         <details className="docsec" open={!s.pr}>
           <summary><b>{t("impl.plan")}</b> <span className="small muted">{t("impl.planHint")}</span></summary>
@@ -156,7 +157,7 @@ export function CheckBadge({ check }: { check: TaskCheck }) {
     <details className="small" style={{ marginBottom: 6 }}>
       <summary>{label} <span className="mono t2">{check.command}</span></summary>
       <div className="t2">{t("task.checkAttempts", { attempts: check.attempts, max: check.maxAttempts })}</div>
-      {check.outputTail && <pre className="mono small">{check.outputTail}</pre>}
+      {check.outputTail && <pre className="mono small chk-out">{plainOutput(check.outputTail)}</pre>}
     </details>
   );
 }

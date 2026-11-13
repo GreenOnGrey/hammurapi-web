@@ -254,7 +254,9 @@ const implementation = { phase: "codegen", workflow: { state: "blocked", step: "
         codeTask("t0", "booking", "failed", { createdAt: "2026-11-10T09:10:00Z", startedAt: "2026-11-10T09:10:00Z", finishedAt: "2026-11-10T09:40:00Z",
           errorClass: "agent", error: "the agent made no changes" })] },
     { service: "pricing", repo: "GreenOnGrey/pricing", autonomy: "pr", check: { command: "npm test", timeoutSec: 600 }, plan: null,
-      tasks: [codeTask("t2", "pricing", "succeeded", { tokensIn: 20323335, result: { prNumber: 15, check: { status: "passed", command: "npm test", attempts: 1, maxAttempts: 3, outputTail: "" } } })],
+      tasks: [codeTask("t2", "pricing", "succeeded", { tokensIn: 20323335, result: { prNumber: 15, warnings: ["The agent changed existing tests or CI files: src/pages/admin/catalogUsage.test.ts"],
+        check: { status: "passed", command: "npm test", attempts: 1, maxAttempts: 3,
+          outputTail: " \ufffd[32m\ufffd\ufffd[39m src/lib/i18n.test.ts \ufffd[2m(\ufffd[22m\ufffd[2m15 tests\ufffd[22m\ufffd[2m)\ufffd[22m\ufffd[33m 1324\ufffd[2mms\ufffd[22m\ufffd[39m\n\ufffd[2m      Tests \ufffd[22m \ufffd[1m\ufffd[32m132 passed\ufffd[39m\ufffd[22m\ufffd[90m (132)\ufffd[39m\n\ufffd[2m   Isolate \ufffd[22m \ufffd[33m10 workers spawned\ufffd[39m\ufffd[2m · ~362ms startup each (spawn + environment, per file) — at least ~3.25s faster with isolate: false, reuses workers across files instead of one per file\ufffd[22m" } } })],
       // FTR.HMR.DEV-0004 qa PCI-08: a repository without checks — «CI: нет проверок»
       pr: { id: "pr15", repo: "GreenOnGrey/pricing", number: 15, url: "http://pr/15", title: "FTR.FMS.CAR-0005 pricing: Скидка за ранний возврат авто", branch: "hammurapi/FTR.FMS.CAR-0005/pricing",
         kind: "service", service: "pricing", byAgent: true, state: "open", review: "required", headSha: "h", ciStatus: "none", mergeSha: null, mergedAt: null, requirements: [], createdAt: "2026-11-11T06:56:00Z" } },
