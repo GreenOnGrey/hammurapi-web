@@ -607,6 +607,9 @@
     }
   },
   "errors": {
+    "regenerate_unavailable": "Regeneration is unavailable: the last task of the service did not succeed or the feature is not on code generation",
+    "task_running": "A task of the service is already queued or running",
+    "comment_too_long": "The comment is longer than 4000 characters",
     "invalid_check": "The check command or its timeout is invalid",
     "generic": "Something went wrong ({code}). Try again.",
     "network": "No connection to the server.",
@@ -1607,6 +1610,8 @@
       "title": "Discussion of the specification {key}"
     },
     "suggest": {
+      "regenerate": "Regenerate the code of a service",
+      "codeStatus": "What about the code and CI?",
       "answer": "Answer the questions",
       "explain": "Explain the recommendations",
       "why": "Why this decision?",
@@ -1619,6 +1624,7 @@
     },
     "task": {
       "title": "Instruction to the writer",
+      "titleCode": "Discussion of the feature {key}",
       "open": "Open the specification",
       "afterRetry": "waits for the writer to be retried"
     },
@@ -1813,6 +1819,18 @@
       "failed": "error",
       "cancelled": "cancelled"
     }
+  },
+  "regen": {
+    "button": "Regenerate the code",
+    "title": "Regenerate the code · {service}",
+    "run": "Regenerate",
+    "withPr": "The agent starts from the current code of the branch and gets the comments of PR #{number}{ci}. The PR is updated, no new one is opened.",
+    "ciFailed": " and the failed CI checks",
+    "noPr": "The agent starts from the current code of the service branch.",
+    "comment": "Comment for the agent (optional)",
+    "commentHint": "What to do differently: the agent takes it with the comments of the PR",
+    "started": "Generation started: {comments} comments, {checks} failed checks",
+    "startedNoFeedback": "Generation started, but the PR could not be read: the agent works without its comments and CI"
   },
   "log": {
     "open": "Log",

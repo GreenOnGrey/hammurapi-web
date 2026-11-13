@@ -128,6 +128,11 @@ export function specTopicSuggestions(area: Area | null, state: "questions" | "wr
   return expert ? ["addTo", "changeEarlier", "why"] : ["why"];
 }
 
+/** The suggestions of the draft on the tab of the implementation (FTR.HMR.DEV-0004 design §3.9). */
+export function codeTopicSuggestions(expert: boolean): string[] {
+  return expert ? ["regenerate", "codeStatus"] : ["codeStatus"];
+}
+
 /** The draft of the topic of a feature: nothing exists in Nabu until the first message (R15). */
 function FeatureTopicDraft({ featureKey, onPick }: { featureKey: string; onPick: (text: string) => void }) {
   const { t } = useTranslation();
@@ -140,13 +145,16 @@ function FeatureTopicDraft({ featureKey, onPick }: { featureKey: string; onPick:
     : (f.openQuestions[area] ?? 0) > 0 ? "questions"
     : f.gates.some((g) => g.area === area) ? "written" : "later";
   const name = area ? t(`areas.${area}`) : "";
+  // FTR.HMR.DEV-0004 R20: without a gate, while the code is made — the code and its regeneration
+  const code = !area && !!f && (f.phase === "codegen" || f.phase === "validation");
+  const suggestions = code ? codeTopicSuggestions(!!f && isExpertOf(f.domain)) : specTopicSuggestions(area, state, !!f && isExpertOf(f.domain));
   return (
     <div className="empty topicdraft">
       <div className="ic"><Icon name="msg" /></div>
-      <b>{t("writer.topic.title", { key: featureKey })}</b>
+      <b>{t(code ? "writer.topic.titleCode" : "writer.topic.title", { key: featureKey })}</b>
       {t("disc.topic.draftHint")}
       <div className="sugg">
-        {specTopicSuggestions(area, state, !!f && isExpertOf(f.domain)).map((s) => {
+        {suggestions.map((s) => {
           const text = t(`writer.suggest.${s}`, { area: name });
           return <button key={s} type="button" className="chip sugchip" onClick={() => onPick(text)}>{text}</button>;
         })}

@@ -13,7 +13,9 @@ const DIST = path.resolve(process.env.DIST ?? "dist");
 const PORT = Number(process.env.PORT ?? 5300);
 const T = (hm, day = "11") => `2026-10-${day}T${hm}:00Z`;
 
-const me = (theme) => ({ id: "u1", username: "ada", displayName: "Ада Лавлейс", avatarUrl: null, globalAdmin: true, areaAdmin: [], experts: [{ domain: "NAB", kinds: ["product", "technical"] }],
+// mock-expert: the user is also an expert of FMS, the domain of the feature of the screens (FTR.HMR.DEV-0004 REG-06)
+const me = (theme, fms = false) => ({ id: "u1", username: "ada", displayName: "Ада Лавлейс", avatarUrl: null, globalAdmin: true, areaAdmin: [],
+  experts: [{ domain: "NAB", kinds: ["product", "technical"] }, ...(fms ? [{ domain: "FMS", kinds: ["technical"] }] : [])],
   ownedServices: ["nabu-web"], language: "ru", theme, agentName: "Хаммурапи", agentTone: "concise", email: "ada@example.com", gitAccount: { login: "ada", provider: "github" } });
 const profile = (theme) => ({ language: "ru", theme, domains: ["NAB"], agentName: "Хаммурапи", agentTone: "concise" });
 const LOGIN = { github: { kind: "github", label: "GitHub", org: "GreenOnGrey", linksGit: true }, gitlab: { kind: "git", label: "GitLab", linksGit: true }, oidc: { kind: "oidc", label: "Keycloak" } };
@@ -313,7 +315,7 @@ function api(url, c) {
   if (p === "/api/v1/features/FTR.FMS.CAR-0005/topic") return { conversationId: null, title: "FTR.FMS.CAR-0005 — Скидка за ранний возврат авто" };
   if (/^\/api\/v1\/features\/FTR\.FMS\.CAR-0005\/gates\/\w+\/document$/.test(p)) return featureDoc;
   if (p === "/api/v1/config") return config(c("mock-login"));
-  if (p === "/api/v1/auth/me") return me(c("mock-theme") ?? "light");
+  if (p === "/api/v1/auth/me") return me(c("mock-theme") ?? "light", c("mock-expert") === "FMS");
   if (p === "/api/v1/profile") return profile(c("mock-theme") ?? "light");
   if (p === "/api/v1/domains") return domains;
   // FTR.HMR.SPEC-0002: the service card with the check in CI; mock-ci=1

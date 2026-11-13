@@ -607,6 +607,9 @@
     }
   },
   "errors": {
+    "regenerate_unavailable": "La regeneración no está disponible: la última tarea del servicio no terminó con éxito o la funcionalidad no está en generación de código",
+    "task_running": "Una tarea del servicio ya está en cola o en curso",
+    "comment_too_long": "El comentario supera los 4000 caracteres",
     "invalid_check": "El comando de comprobación o su tiempo límite no es válido",
     "generic": "Algo salió mal ({code}). Inténtalo de nuevo.",
     "network": "Sin conexión con el servidor.",
@@ -1607,6 +1610,8 @@
       "title": "Discusión de la especificación {key}"
     },
     "suggest": {
+      "regenerate": "Regenera el código de un servicio",
+      "codeStatus": "¿Cómo van el código y la CI?",
       "answer": "Responder las preguntas",
       "explain": "Explica las recomendaciones",
       "why": "¿Por qué esta decisión?",
@@ -1619,6 +1624,7 @@
     },
     "task": {
       "title": "Encargo al redactor",
+      "titleCode": "Discusión de la funcionalidad {key}",
       "open": "Abrir la especificación",
       "afterRetry": "espera a que se reintente el redactor"
     },
@@ -1813,6 +1819,18 @@
       "failed": "error",
       "cancelled": "cancelada"
     }
+  },
+  "regen": {
+    "button": "Regenerar el código",
+    "title": "Regenerar el código · {service}",
+    "run": "Regenerar",
+    "withPr": "El agente parte del código actual de la rama y recibe los comentarios del PR #{number}{ci}. El PR se actualiza, no se abre uno nuevo.",
+    "ciFailed": " y las comprobaciones de CI fallidas",
+    "noPr": "El agente parte del código actual de la rama del servicio.",
+    "comment": "Comentario para el agente (opcional)",
+    "commentHint": "Qué hacer de otra manera: el agente lo tendrá en cuenta junto con los comentarios del PR",
+    "started": "Generación iniciada: {comments} comentarios, {checks} comprobaciones fallidas",
+    "startedNoFeedback": "Generación iniciada, pero no se pudo leer el PR: el agente trabaja sin sus comentarios ni CI"
   },
   "log": {
     "open": "Registro",

@@ -8,6 +8,7 @@ import type { FeatureCard, PRDTO, RequirementRow, ServiceImpl, TaskDTO, TaskChec
 import { errorText } from "../../lib/errors";
 import { useSession } from "../../app/session";
 import { AutonomyModal } from "./Autonomy";
+import { RegenerateModal } from "./Regenerate";
 import { CostButton } from "./Cost";
 import { useRunLog, type LogRun } from "./RunLog";
 import { dateTime } from "../../lib/format";
@@ -57,8 +58,11 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
   const qc = useQueryClient();
   const toast = useToast();
   const latest = s.tasks[0];
-  const { owns } = useSession();
+  const { owns, isExpertOf } = useSession();
   const [autonomy, setAutonomy] = useState(false);
+  const [regen, setRegen] = useState(false);
+  // FTR.HMR.DEV-0004 R18: an expert runs the agent again once its last task is done, on code generation and validation
+  const canRegenerate = latest?.status === "succeeded" && isExpertOf(f.domain) && (f.phase === "codegen" || f.phase === "validation");
   // The attempt a retry was accepted for — the task and its end: the button stays off until another attempt ends,
   // a new task or the same task again after «Повторить коммит» (it clears finished_at and sets it at the next end).
   const [retried, setRetried] = useState<string | null>(null);
@@ -98,6 +102,11 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
             <Icon name="terminal" size={16} />
           </button>
         )}
+        {canRegenerate && (
+          <button className="btn ghost sm" onClick={() => setRegen(true)} title={t("regen.button")} aria-label={t("regen.button")}>
+            <Icon name="refresh" size={16} />
+          </button>
+        )}
         {owns(s.service) && (
           <button className="btn ghost sm" onClick={() => setAutonomy(true)}
             title={t("impl.autonomy", { level: t(`autonomy.${s.autonomy}.name`) })} aria-label={t("impl.autonomy", { level: t(`autonomy.${s.autonomy}.name`) })}>
@@ -107,6 +116,7 @@ function ServiceCard({ f, s }: { f: FeatureCard; s: ServiceImpl }) {
         {latest && <span className={`st ${latest.status === "failed" ? "blocked" : latest.status === "succeeded" ? "approved" : "disc"}`}>{t(`task.status.${latest.status}`)}</span>}
         </span>
       </div>
+      {regen && <RegenerateModal featureId={f.uniqueId} service={s.service} pr={s.pr ?? null} onClose={() => setRegen(false)} />}
       {autonomy && <AutonomyModal service={{ key: s.service, autonomy: s.autonomy, check: s.check }} onClose={() => setAutonomy(false)} />}
       {latest && (latest.type !== "implement" || latest.status === "running" || latest.error || latest.status === "failed" || latest.status === "cancelled") && (
         <div className="row small" style={{ marginBottom: 6 }}>

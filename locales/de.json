@@ -607,6 +607,9 @@
     }
   },
   "errors": {
+    "regenerate_unavailable": "Neugenerierung nicht möglich: die letzte Aufgabe des Service war nicht erfolgreich oder das Feature ist nicht in der Codegenerierung",
+    "task_running": "Eine Aufgabe des Service ist bereits in der Warteschlange oder läuft",
+    "comment_too_long": "Der Kommentar ist länger als 4000 Zeichen",
     "invalid_check": "Prüfbefehl oder Zeitlimit ist ungültig",
     "generic": "Etwas ist schiefgelaufen ({code}). Bitte erneut versuchen.",
     "network": "Keine Verbindung zum Server.",
@@ -1607,6 +1610,8 @@
       "title": "Diskussion der Spezifikation {key}"
     },
     "suggest": {
+      "regenerate": "Code eines Service neu generieren",
+      "codeStatus": "Wie steht es um Code und CI?",
       "answer": "Fragen beantworten",
       "explain": "Empfehlungen erklären",
       "why": "Warum diese Entscheidung?",
@@ -1619,6 +1624,7 @@
     },
     "task": {
       "title": "Auftrag an den Autor",
+      "titleCode": "Diskussion des Features {key}",
       "open": "Spezifikation öffnen",
       "afterRetry": "wartet auf die Wiederholung des Laufs"
     },
@@ -1813,6 +1819,18 @@
       "failed": "Fehler",
       "cancelled": "abgebrochen"
     }
+  },
+  "regen": {
+    "button": "Code neu generieren",
+    "title": "Code neu generieren · {service}",
+    "run": "Neu generieren",
+    "withPr": "Der Agent beginnt mit dem aktuellen Code des Branches und erhält die Kommentare von PR #{number}{ci}. Der PR wird aktualisiert, kein neuer wird geöffnet.",
+    "ciFailed": " und die fehlgeschlagenen CI-Prüfungen",
+    "noPr": "Der Agent beginnt mit dem aktuellen Code des Service-Branches.",
+    "comment": "Kommentar für den Agenten (optional)",
+    "commentHint": "Was anders gemacht werden soll: der Agent berücksichtigt es mit den Kommentaren des PR",
+    "started": "Generierung gestartet: {comments} Kommentare, {checks} fehlgeschlagene Prüfungen",
+    "startedNoFeedback": "Generierung gestartet, aber der PR konnte nicht gelesen werden: der Agent arbeitet ohne seine Kommentare und CI"
   },
   "log": {
     "open": "Protokoll",
