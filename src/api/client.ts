@@ -13,6 +13,9 @@ export class ApiError extends Error {
   }
 }
 
+/** The answer of the network that did not happen: the same error whatever carried the request. */
+const networkError = () => new ApiError(0, "network", "network error");
+
 function csrfToken(): string {
   const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
   return m ? decodeURIComponent(m[1]) : "";
@@ -49,18 +52,47 @@ export async function request<T>(method: string, path: string, body?: Body, init
     // include: the API may live on api.<domain> while the SPA is on web.<domain>.
     res = await fetch(apiUrl(path), { method, headers, body: payload, credentials: "include", ...init });
   } catch {
-    throw new ApiError(0, "network", "network error");
+    throw networkError();
   }
   if (res.status === 204) return undefined as T;
   const text = await res.text();
   const data = text ? safeJSON(text) : undefined;
   if (!res.ok) {
-    const err = (data as { error?: { code?: string; message?: string; details?: Record<string, unknown> } })?.error;
-    const e = new ApiError(res.status, err?.code ?? `http_${res.status}`, err?.message ?? res.statusText, err?.details ?? {});
+    const e = apiError(res, data);
     if (e.code === "git_account_required") gitAccountListeners.forEach((h) => h({ method, path, body }));
     throw e;
   }
   return data as T;
+}
+
+/** The error of an answer: the stable code of the API, or `http_<status>` when the answer has none. `res` is the
+ *  answer of `fetch` or of `XMLHttpRequest`: both carry the status of what they got. */
+function apiError(res: { status: number; statusText: string }, data: unknown): ApiError {
+  const err = (data as { error?: { code?: string; message?: string; details?: Record<string, unknown> } })?.error;
+  return new ApiError(res.status, err?.code ?? `http_${res.status}`, err?.message ?? res.statusText, err?.details ?? {});
+}
+
+/** The upload with the share of its body, 0..1: `fetch` follows the answer, not the sending, so the body goes by
+ * `XMLHttpRequest` (FTR.NAB.CMN-0005 design §6.5). The headers and the error are those of `request`. */
+function uploadWithProgress<T>(path: string, form: FormData, onProgress: (share: number) => void): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", apiUrl(path));
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("X-CSRF-Token", csrfToken());
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable && e.total > 0) onProgress(e.loaded / e.total);
+    });
+    xhr.addEventListener("load", () => {
+      const data = xhr.responseText ? safeJSON(xhr.responseText) : undefined;
+      if (xhr.status >= 200 && xhr.status < 300) resolve(data as T);
+      else reject(apiError(xhr, data));
+    });
+    // nothing cancels an upload (design §6.5): a body that failed is the only other outcome
+    xhr.addEventListener("error", () => reject(networkError()));
+    xhr.send(form);
+  });
 }
 
 function safeJSON(text: string): unknown {
@@ -77,12 +109,11 @@ async function raw(path: string): Promise<Response> {
   try {
     res = await fetch(apiUrl(path), { credentials: "include" });
   } catch {
-    throw new ApiError(0, "network", "network error");
+    throw networkError();
   }
   if (!res.ok) {
     const text = await res.text();
-    const err = (text ? safeJSON(text) : undefined) as { error?: { code?: string; message?: string; details?: Record<string, unknown> } } | undefined;
-    throw new ApiError(res.status, err?.error?.code ?? `http_${res.status}`, err?.error?.message ?? res.statusText, err?.error?.details);
+    throw apiError(res, text ? safeJSON(text) : undefined);
   }
   return res;
 }
@@ -95,7 +126,9 @@ export const api = {
   put: <T>(path: string, body?: Body) => request<T>("PUT", path, body ?? {}),
   patch: <T>(path: string, body?: Body) => request<T>("PATCH", path, body ?? {}),
   del: <T>(path: string, body?: Body) => request<T>("DELETE", path, body),
-  upload: <T>(path: string, form: FormData) => request<T>("POST", path, form),
+  /** Without `onProgress` the body goes by `fetch`; with it, by `XMLHttpRequest`, which follows the sending. */
+  upload: <T>(path: string, form: FormData, onProgress?: (share: number) => void) =>
+    onProgress ? uploadWithProgress<T>(path, form, onProgress) : request<T>("POST", path, form),
 };
 
 export function qs(params: Record<string, string | number | undefined | null>): string {

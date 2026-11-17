@@ -302,11 +302,12 @@ export function useNabuConversation(convId: string | null, topic?: TopicRef): Pi
         throw e;
       }
     },
-    async onUpload(file) {
+    // design §6.5 of the kit (FTR.NAB.CMN-0005): the share of the body goes to the chip of the file in the composer
+    async onUpload(file, onProgress) {
       const form = new FormData();
       form.append("file", file);
       try {
-        const a = await api.upload<{ attachmentId: string }>("/api/v1/chat/attachments", form);
+        const a = await api.upload<{ attachmentId: string }>("/api/v1/chat/attachments", form, onProgress);
         return { id: a.attachmentId, fileName: file.name };
       } catch (e) {
         fail(e, file.name);
