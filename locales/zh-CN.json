@@ -679,6 +679,7 @@
     "invalid_paths": "压缩包中只允许 specs/ 和 rules/。",
     "unsafe_path": "压缩包包含不安全的路径。",
     "archive_too_large": "压缩包太大。",
+    "audio_too_large": "录音文件太大。",
     "archive_empty": "压缩包中没有规范。",
     "import_not_found": "未找到导入任务。",
     "import_started": "导入已开始。",
