@@ -679,6 +679,7 @@
     "invalid_paths": "В архиве допустимы только specs/ и rules/.",
     "unsafe_path": "В архиве есть небезопасные пути.",
     "archive_too_large": "Архив слишком большой.",
+    "audio_too_large": "Запись слишком большая.",
     "archive_empty": "В архиве нет спецификаций.",
     "import_not_found": "Импорт не найден.",
     "import_started": "Импорт уже запущен.",

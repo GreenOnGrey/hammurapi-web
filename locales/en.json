@@ -679,6 +679,7 @@
     "invalid_paths": "Only specs/ and rules/ are allowed in the archive.",
     "unsafe_path": "The archive contains unsafe paths.",
     "archive_too_large": "The archive is too large.",
+    "audio_too_large": "The recording is too large.",
     "archive_empty": "The archive contains no specifications.",
     "import_not_found": "Import not found.",
     "import_started": "The import was already started.",
